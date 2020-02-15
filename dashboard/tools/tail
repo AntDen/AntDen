@@ -1,0 +1,12 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+exec "tail -n 30 -F $AntDen::PATH/logs/dashboard/current $AntDen::PATH/logs/dashboard_logws/current"

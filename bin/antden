@@ -13,8 +13,10 @@ my @cmd =
     [ 'controller', "AntDen Controller\n", 'bin/antden.controller' ],
 
     [ 'slave', "AntDen Slave\n", 'bin/antden.slave' ],
+
+    [ 'dashboard', "AntDen dashboard", 'bin/antden.dashboard' ],
 );
 
 AntDen::Util::Command->new( $name => \@cmd,
-    +{ s => 'scheduler', c => 'controller' }
+    +{ s => 'scheduler', c => 'controller', d => 'dashboard' }
 )->do( @ARGV );

@@ -1,0 +1,29 @@
+<div style="height: 100%" >
+    [log] [% uuid %]
+    <div style="background:#000; color:#FFF; height: 100%; overflow: auto;" id="message"></div>
+    <script>
+          var urlMySocket = "[% ws_url %]?uuid=[% uuid %]";
+          var mySocket = new WebSocket(urlMySocket);
+          var scroll = 1;
+          mySocket.onmessage = function (evt) {
+            setMessageInnerHTML(evt.data);
+          };
+          mySocket.onopen = function(evt) {
+            console.log("opening");
+          };
+          function setMessageInnerHTML(innerHTML) {
+              var m = document.getElementById('message');
+              m.innerHTML += innerHTML + '<br/>';
+              if( scroll == 1 )
+              {
+                m.scrollTop = m.scrollHeight;
+              }
+          }
+          document.getElementById('message').onmouseover = function() {
+              scroll = 0
+          }
+          document.getElementById('message').onmouseout = function() {
+              scroll = 1
+          }
+    </script>
+</div>

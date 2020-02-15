@@ -1,0 +1,44 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use MYDan;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+system "killall AntDen_dashboard_supervisor";
+system "killall AntDen_dashboard_supervisor.logws";
+
+map{
+if ($^O eq "darwin") {
+    system 'lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -I{} kill {}';
+} else {
+    system 'lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
+}
+print "stop port: $_\n";
+}( 3000, 3001 );
+
+system 'ps -ef|grep [s]cheduler/tools/tailtask|awk \'{print $2}\'|xargs -i{} kill -9 {}';
+
+while(1)
+{
+    sleep 1;
+    last unless my @x = `ps -ef|grep [A]ntDen_dashboard_`;
+}
+
+
+die "start $_ fail: $!" if system "$MYDan::PATH/dan/tools/supervisor --name AntDen_dashboard_supervisor --cmd '$AntDen::PATH/dashboard/bin/app.pl  --port=3000 --confdir=$AntDen::PATH/dashboard/config' --log '$AntDen::PATH/logs/dashboard'";
+die "start $_ fail: $!" if system "$MYDan::PATH/dan/tools/supervisor --name AntDen_dashboard_supervisor.logws --cmd '/opt/mydan/perl/bin/twiggy $AntDen::PATH/dashboard/bin/app_logws.pl --port=3001 -I/opt/AntDen/lib' --log '$AntDen::PATH/logs/dashboard_logws'";
+
+
+sleep 1;
+
+print "Process:\n";
+system "ps -ef|grep [A]ntDen_dashboard_";
+system "lsof -i:3001";

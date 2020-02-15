@@ -1,0 +1,31 @@
+<div>
+    Machine
+    <div>
+    <table border="1">
+        <tr>
+            <th>Ip</th>
+            <th>Hostname</th>
+            <th>envhard</th>
+            <th>envsoft</th>
+            <th>switchable</th>
+            <th>group</th>
+            <th>workable</th>
+            <th>role</th>
+            <th>log</th>
+        </tr>
+        [% FOR m IN machine %]
+        <tr>
+            <td>[% m.0 %]</td>
+            <td>[% m.1 %]</td>
+            <td>[% m.2 %]</td>
+            <td>[% m.3 %]</td>
+            <td>[% m.4 %]</td>
+            <td>[% m.5 %]</td>
+            <td>[% m.6 %]</td>
+            <td>[% m.7 %]</td>
+            <td><a href="/tasklog/[% m.0 %].log">log</a></td>
+        </tr>
+        [% END %]
+    </table>
+
+</div>

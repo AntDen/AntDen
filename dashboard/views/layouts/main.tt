@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=[% settings.charset %]" />
+<title>AntDen dashboard</title>
+<link rel="stylesheet" href="[% request.uri_base %]/css/style.css" />
+
+<!-- Grab jQuery from a CDN, fall back to local if necessary -->
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script type="text/javascript">/* <![CDATA[ */
+    !window.jQuery && document.write('<script type="text/javascript" src="[% request.uri_base %]/javascripts/jquery.min.js"><\/script>')
+/* ]]> */</script>
+    <style>
+		body,html {
+			height: 100%;
+		}
+        .content {
+            height: 1000px;
+            width: 100%;
+			margin-left: 200px;
+        }
+        .outer {
+            height: 100%;
+            width: 100%;
+			display: flex;
+        }
+        .menu {
+            height: 100%;
+            width: 200px;
+			position: fixed;
+            background: #ccc;
+        }
+        .title {
+            background: #999;
+            line-height: 40px;
+        }
+        .hide{
+            display: none;
+        }
+        hr{
+            line-height: 10px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="outer">
+    <div class="menu">
+        <div class="item">
+            <div class="title" onclick="show(this)">scheduler</div>
+            <div class="con">
+                <div><a href="/" >resources</a></div>
+                <div><a href="/scheduler/submitJob" >submit job</a></div>
+                <div><a href="/scheduler/job" >running job</a></div>
+                <div><a href="/scheduler/jobHistory" >job history</a></div>
+                <div><a href="/tasklog/scheduler" >service log</a></div>
+            </div>
+        </div>
+        <hr>
+        <div class="item">
+            <div class="title" onclick="show(this)">controller</div>
+            <div class="con">
+                <div><a href="/tasklog/controller" >service log</a></div>
+            </div>
+        </div>
+        <hr>
+        <div class="item">
+            <div class="title" onclick="show(this)">dashboard</div>
+            <div class="con">
+                <div><a href="/tasklog/dashboard" >service log</a></div>
+            </div>
+        </div>
+        <hr>
+        <div class="item">
+            <div class="title" onclick="show(this)">slave</div>
+            <div class="con">
+                <div><a href="/slave/resources" >machine</a></div>
+            </div>
+        </div>
+        <hr>
+
+    </div>
+	<div class="content">
+		[% content %]
+	</div>
+</div>
+</body>
+<script>
+    function show(self) {
+        return;
+        $(self).next().removeClass("hide");
+        $(self).parent().siblings().children(".con").addClass("hide")
+    }
+</script>
+</html>

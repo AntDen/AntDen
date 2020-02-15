@@ -1,0 +1,23 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+system "killall AntDen_dashboard_supervisor";
+system "killall AntDen_dashboard_supervisor.logws";
+
+map{
+if ($^O eq "darwin") {
+    system 'lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -I{} kill {}';
+} else {
+    system 'lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
+}
+print "stop port: $_\n";
+}( 3000, 3001 );
+
+system 'ps -ef|grep [s]cheduler/tools/tailtask|awk \'{print $2}\'|xargs -i{} kill -9 {}';

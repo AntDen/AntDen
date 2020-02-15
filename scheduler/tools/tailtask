@@ -3,8 +3,6 @@ use warnings;
 use strict;  
 
 use AntDen;
-use AntDen::Scheduler;
-
 use IO::Socket;
 use Term::ReadKey;
 use POSIX qw( :sys_wait_h );
@@ -37,15 +35,10 @@ $| ++;
 
 $MYDan::Util::OptConf::THIS = 'agent';
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set( type => 'log' )->get( qw( taskid=s listen=i addr=s user=s sudo=s uuid=s type=s ) )->dump();
-$option->assert( 'taskid' );
-
+my %o = $option->set( type => 'log' )->get( qw( taskid=s listen=i addr=s user=s sudo=s uuid=s host=s type=s ) )->dump();
+$option->assert( qw( taskid host ) );
 
 my %opt = $option->get()->dump('antden');
-my $ip = AntDen::Scheduler->new( %{$opt{scheduler}} )->getTaskIp( $o{taskid} );
-die "nofind task active.\n" unless $ip;
-
-$o{host} = $ip;
 my %proxy;
 
 if( $o{proxy} )

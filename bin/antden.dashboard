@@ -1,0 +1,19 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+
+use AntDen::Util::Command;
+use FindBin qw( $Script );
+
+my $name = $ENV{AntDen_NAME} = $Script;
+
+my @cmd =
+(
+    [ 'start', "Start dashboard service", 'dashboard/tools/start' ],
+    [ 'stop', "Stop dashboard service", 'dashboard/tools/stop' ],
+    [ 'restart', "Restart dashboard service", 'dashboard/tools/restart' ],
+    [ 'status', "Show dashboard status", 'dashboard/tools/status' ],
+    [ 'tail', "Show dashboard log", 'dashboard/tools/tail' ],
+);
+
+AntDen::Util::Command->new( $name => \@cmd, +{} )->do( @ARGV );

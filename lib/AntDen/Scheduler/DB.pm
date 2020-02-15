@@ -64,6 +64,17 @@ sub stmt
     selectTaskStatusByJobid => "select status from task where jobid=?",
     updateTaskStatus => "update task set `status`=?,result=?,msg=? where taskid=? and jobid=?",
     updateTaskResult => "update task set `status`=?,result=?,msg=?,usetime=? where taskid=? and jobid=?",
+
+    #dashboard
+    selectMachineInfo => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role` from machine",
+    selectResourcesInfo => "select `ip`,`name`,`id`,`value` from resources",
+
+
+    selectJobWorkInfo => "select `id`,`jobid`,`nice`,`group`,`status` from job where status!='stoped'",
+    selectJobStopedInfo => "select `id`,`jobid`,`nice`,`group`,`status` from job",
+
+    selectTaskByJobid => "select id,jobid,taskid,hostip,status,result,msg,usetime from task where jobid=?",
+    selectJobByJobid => "select id,jobid,nice,`group`,status from job where jobid=?",
 }
 
 1;

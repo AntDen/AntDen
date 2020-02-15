@@ -1,0 +1,13 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+print "Process:\n";
+system "ps -ef|grep [A]ntDen_dashboard_";
+system "lsof -i:3001";

@@ -1,0 +1,5 @@
+<div>
+    <div>
+        <textarea rows="40" cols="100" disabled>[% config %]</textarea>
+    </div>
+</div>

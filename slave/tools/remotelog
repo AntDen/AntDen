@@ -3,8 +3,6 @@ use warnings;
 use strict;  
 
 use AntDen;
-use AntDen::Scheduler;
-
 use IO::Socket;
 use Term::ReadKey;
 use POSIX qw( :sys_wait_h );

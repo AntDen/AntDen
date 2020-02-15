@@ -1,0 +1,46 @@
+<div>
+    <div>
+        id: [% job.0 %]
+        jobid: [% job.1 %]
+        nice: [% job.2 %]
+        group: [% job.3 %]
+        status: [% job.4 %]
+    </div>
+    <hr>
+    <div>
+        <textarea rows="10" cols="100" disabled>[% config %]</textarea>
+    </div>
+    <hr>
+
+    task
+    <table border="1">
+        <tr>
+            <th>id</th>
+            <th>jobid</th>
+            <th>taskid</th>
+            <th>hostip</th>
+            <th>status</th>
+            <th>result</th>
+            <th>msg</th>
+            <th>usetime</th>
+            <th>log</th>
+            <th>use</th>
+            <th>param</th>
+        </tr>
+        [% FOR t IN task %]
+        <tr>
+            <td>[% t.0 %]</td>
+            <td>[% t.1 %]</td>
+            <td>[% t.2 %]</td>
+            <td>[% t.3 %]</td>
+            <td>[% t.4 %]</td>
+            <td>[% t.5 %]</td>
+            <td>[% t.6 %]</td>
+            <td>[% t.7 %]</td>
+            <td><a href="/tasklog/[% t.2 %]_[% t.3 %].log">log</a></td>
+            <td><a href="/tasklog/[% t.2 %]_[% t.3 %].use">use</a></td>
+            <td><a href="/scheduler/task/[% t.2 %]">param</a></td>
+        </tr>
+        [% END %]
+    </table>
+</div>
