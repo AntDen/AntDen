@@ -1,0 +1,20 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+
+use AntDen::Util::Command;
+use FindBin qw( $Script );
+
+my $name = $ENV{AntDen_NAME} = $Script;
+
+my @cmd =
+(
+    [ 'scheduler', "AntDen Scheduler", 'bin/antden.scheduler' ],
+    [ 'controller', "AntDen Controller\n", 'bin/antden.controller' ],
+
+    [ 'slave', "AntDen Slave\n", 'bin/antden.slave' ],
+);
+
+AntDen::Util::Command->new( $name => \@cmd,
+    +{ s => 'scheduler', c => 'controller' }
+)->do( @ARGV );

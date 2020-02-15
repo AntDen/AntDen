@@ -1,0 +1,11 @@
+-
+  executer:
+    name: exec
+    param:
+      exec: 'sleep 300'
+  scheduler:
+    envhard: 'arch=x86_64,os=Linux'
+    envsoft: 'app1=1.0'
+    count: 3
+    resources:
+      - [ 'CPU', '.', 2 ] 

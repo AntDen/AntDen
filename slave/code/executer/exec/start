@@ -1,0 +1,91 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+use AntDen;
+use POSIX qw( :sys_wait_h );
+
+=head3 param
+
+  resources:
+    CPU:0: 2
+    GPU:1: 1
+    GPU:3: 1
+  param:
+    exec: sleep 100
+  taskid: J.20191120.191012.907980.111.001
+
+=head3 return
+
+  return executeid, for stop and status, maybe pid or container id
+
+=cut
+
+return sub
+{
+    my $param = shift @_;
+
+    my $ppid = fork;
+    return $ppid if $ppid;
+    setpgrp(0,0);
+    my $gpid = $$;
+    my $pid;
+
+    my ( $log, $use ) = map{ "$AntDen::PATH/logs/task/$param->{taskid}.$_" }qw( log use );
+    my $tfile = sprintf "/tmp/AntDen_executer_exec_temp_%s", $$;
+    $0 = sprintf "AntDen_executer_exec_%s", $$;
+
+    $SIG{INT} = $SIG{TERM} = sub {
+        system "kill -9 -$gpid";
+    };
+
+    if( $pid = fork )
+    {
+        $SIG{'CHLD'} = sub {
+            my $kid;
+            do {
+                $kid = waitpid(-1, WNOHANG);
+
+                if ( $kid eq $pid )
+                {
+                    my $exit;
+                    if ( $? == -1 || $? & 127 )
+                    {
+                        $exit = 1;
+                    }
+                    else{
+                        $exit = $? >> 8;
+                    }
+ 
+                    system "echo exit:$exit >$tfile";
+                    system "kill -9 -$gpid";
+                    exit;
+                }
+            } while $kid > 0;
+        };
+
+        while(1)
+        {
+            my @x = `ps -eo pgid,pid,pcpu,rss |awk '{if(\$1==$gpid){print \$0}}'`;
+            my ( $cpu, $mem ) = ( 0, 0);
+            for( @x )
+            {
+                chomp $_;
+                my @t = split /\s+/, $_;
+                $cpu += $t[2];
+                $mem += $t[3];
+            }
+            $cpu = int( $cpu * 10.24 );
+            my $time = time;
+            system "echo time:$time cpu:$cpu mem:$mem  >>$use";
+            sleep 1;
+        }
+    }
+    else
+    {
+        open STDOUT, ">>$log";
+        open STDERR, ">>$log";
+
+        exec $param->{param}{exec};
+    }
+};

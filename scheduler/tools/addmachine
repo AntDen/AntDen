@@ -1,0 +1,85 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+
+use MYDan::Util::OptConf;
+use MYDan::Agent::Client;
+use AntDen::Scheduler::Ctrl;
+
+$| ++;
+
+$MYDan::Util::OptConf::THIS = 'antden';
+
+=head1 SYNOPSIS
+
+ $0 hostip hostip2 hostip3 ... [--group groupname(default foo)] [--switchable] [--role slave,master,ingress]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( group => 'foo', switchable => 0, role => 'slave' )
+    ->get( qw( group=s switchable role=s ) )->dump();
+
+$option->assert() unless @ARGV;
+
+for my $host ( @ARGV )
+{
+    print "addMachine: $host\n";
+    unless( $host =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    {
+        warn "[ERR] format error. you must use ip to add\n";
+        next;
+    }
+    my $c = getinfo( $host );
+
+    unless( 
+            $c->{machine} && ref $c->{machine} eq 'HASH' 
+         && $c->{resources} && ref $c->{resources} eq 'ARRAY'
+         && $c->{machine}{hostname} && $c->{machine}{envhard} && $c->{machine}{envsoft}
+         && @{$c->{resources}} )
+    {
+        warn "[ERR] format error.\n";
+        next;
+    }
+
+    AntDen::Scheduler::Ctrl->new( %{$o{scheduler}} )->addMachine(
+        +{
+            machine => +{
+                %{$c->{machine}},
+                ip => $host,
+                group => $o{group},
+                status => 'active',
+                switchable => $o{switchable},
+                workable => 1,
+                role => $o{role},
+            },
+            resources => $c->{resources}
+        }
+    );
+}
+
+sub getinfo
+{
+    my $hostip = shift;
+    my %opt =  MYDan::Util::OptConf->load()->dump('agent');
+    $opt{user} = 'antden';
+    $opt{sudo} = 'root';
+    my %query = ( 
+        code => 'antden', 
+        argv => +{ ctrl => 'info' }, 
+        map{ $_ => $opt{$_} }qw( user sudo ) 
+    );
+    
+    my %result = MYDan::Agent::Client->new( $hostip )->run( %opt, query => \%query );
+    if( defined $result{$hostip} && $result{$hostip} =~ s/--- 0\n// )
+    {
+        my $c = eval{ YAML::XS::Load $result{$hostip}; };
+        warn sprintf "[ERR] call $hostip fail:%s\n", $@ if $@;
+        return $c if $c && ref $c eq 'HASH';
+
+    }
+    warn sprintf "[ERR] call $hostip fail:%s\n", YAML::XS::Dump \%result;
+    return;
+}
+

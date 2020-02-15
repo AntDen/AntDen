@@ -1,0 +1,27 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+
+use MYDan::Util::OptConf;
+use AntDen::Scheduler::Ctrl;
+
+$| ++;
+
+$MYDan::Util::OptConf::THIS = 'antden';
+
+=head1 SYNOPSIS
+
+ $0 --jobid jobid  [--nice 0~9 (default 5)]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( nice => 5 )->get( qw( jobid=s nice=i ) )->dump();
+
+$option->assert( 'jobid' );
+$option->assert() unless $o{nice} > 0 && $o{nice} < 10;
+
+AntDen::Scheduler::Ctrl->new( %{$o{scheduler}} )->reniceJob( $o{jobid}, $o{nice} );
+
+print "success\n";

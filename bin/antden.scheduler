@@ -1,0 +1,24 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+
+use AntDen::Util::Command;
+use FindBin qw( $Script );
+
+my $name = $ENV{AntDen_NAME} = $Script;
+
+my @cmd =
+(
+    [ 'control', "Control scheduler service\n", 'scheduler/tools/control' ],
+
+    [ 'addmachine', "Add Machine\n", 'scheduler/tools/addmachine' ],
+
+    [ 'submitjob', "Submit job", 'scheduler/tools/submitjob' ],
+    [ 'renicejob', "Renice Job", 'scheduler/tools/renicejob' ],
+    [ 'stopjob', "Stop job", 'scheduler/tools/stopjob' ],
+    [ 'tailtask', "Show task log", 'scheduler/tools/tailtask' ],
+);
+
+AntDen::Util::Command->new( $name => \@cmd,
+    +{ c => 'control', sj => 'submitjob', am => 'addmachine' }
+)->do( @ARGV );

@@ -1,0 +1,18 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+
+use AntDen::Util::Command;
+use FindBin qw( $Script );
+
+my $name = $ENV{AntDen_NAME} = $Script;
+
+my @cmd =
+(
+    [ 'control', "Control slave Service", 'slave/tools/control' ],
+    [ 'remotelog', "Show remote log", 'slave/tools/remotelog' ],
+);
+
+AntDen::Util::Command->new( $name => \@cmd,
+    +{ c => 'control' }
+)->do( @ARGV );

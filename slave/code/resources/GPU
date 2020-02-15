@@ -1,0 +1,25 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+=head3 return
+
+  return 
+    [ ID1, values1 ]
+    [ ID2: values2 ]
+
+    or 
+    
+    value
+
+=cut
+
+return sub
+{
+    return [
+        [ 0, 1 ],
+        [ 1, 1 ],
+        [ 2, 1 ],
+        [ 3, 1 ],
+    ];
+};

@@ -1,0 +1,154 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+use AnyEvent;
+use AnyEvent::Handle;
+use AnyEvent::Socket;
+use Fcntl qw(:flock SEEK_END);
+use File::Basename;
+use Linux::Inotify2;
+
+local $/ = undef;
+
+my %param = %{ YAML::XS::Load( <STDIN> ) };
+my %argv = %{$param{argv}};
+
+#my %argv = 
+#(
+#    addr => "127.0.0.1",
+#    port => 65111,
+#    uuid => '7d67c4dca4999b9ad6f24de3d9b03800'
+#    path => '/tmp/foo'
+#    
+#);
+
+my $idie = sub{ print shift;exit 1; };
+
+$argv{addr} ||= $ENV{TCPREMOTEIP};
+map{ &$idie( "$_ undef" ) unless $argv{$_} }qw( addr port uuid path );
+
+#$argv{uuid} = '147e134eaf152947c5e8df93470d7b21';
+$0 = "mydan.vsync.$argv{uuid}";
+
+my ( $cv, $rheartbeat, $in, $out, $hdl, $w, $cache, @file, $heartbeat, $delete, @sending )
+    = ( AE::cv, time, map{ "$argv{path}/$_" }qw( in out ) );
+
+map{ system "mkdir -p '$_'" unless -d $_ }( $in, $out );
+
+my $inotify = new Linux::Inotify2
+    or die "unable to create new inotify object: $!";
+$inotify->watch ($in, IN_CREATE | IN_MOVED_TO, sub {
+        push @file, shift->fullname;
+    });
+my $inotify_w = AE::io $inotify->fileno, 0, sub { $inotify->poll; };
+
+unshift @file, glob "$in/*";
+@file = sort @file;
+
+sub save
+{
+    my $data = shift @_;
+    $cache .= $data;
+    if( $cache =~ /^([FDH]):(\d+):/ )
+    {
+        my ( $type, $len ) = ( $1, $2 );
+        my $datalen = 3 + $len + length $len;
+        return unless length( $cache ) >= $datalen;
+
+        my $temp = substr( $cache , 0, $datalen, '' );
+        return unless $temp =~ s/^[FDH]:\d+:([a-zA-Z0-9\.-_]+)://;
+        my $name = $1;
+        warn "save: $type : $name\n";
+
+        if( $type eq 'F' )
+        {
+            eval{ YAML::XS::DumpFile "$out/$name", YAML::XS::Load $temp };
+            die "dump file $name fail $@\n" if $@;
+            $delete ++;
+        }
+        elsif( $type eq 'H' ) { $rheartbeat = $name; }
+        else {
+            map{
+                unlink "$in/$_" or die "unlink $_ fail";
+            }splice @sending, 0, $name;
+        }
+    }
+    else { &$idie( "data err" ) if 4096 < length $cache; }
+}
+
+###tcp_connect $argv{addr}, 65112, sub {
+tcp_connect $argv{addr}, $argv{port}, sub {
+    my ( $fh ) = @_;
+    unless( $fh )
+    {
+        print "$argv{addr}:$argv{port} tcp_connect: $!";
+        $cv->send;
+        return;
+    }
+    $hdl = new AnyEvent::Handle(
+        fh => $fh,
+        rbuf_max => 10240000,
+        wbuf_max => 10240000,
+        autocork => 1,
+        on_read => sub {
+            my $self = shift;
+            $self->unshift_read (
+                chunk => length $self->{rbuf},
+                sub { YAML::XS::DumpFile \*STDOUT, $_[1];save(  $_[1] ); },
+            )
+        },
+        on_error => sub{
+            print 'tcp error';
+            undef $hdl;
+            $cv->send;
+        },
+        on_eof => sub{
+            print 'tcp close';
+            $cv->send;
+        },
+    );
+###
+    $hdl->push_write( "MYDanConnect_::$argv{uuid}::_MYDanConnect" );
+}, sub{ return 5; };
+
+exit if fork;
+
+my $t1 = AnyEvent->timer ( after => 15, interval => 15, cb => sub{
+    return unless $hdl;
+
+    my $time = time;
+    print "send heartbeat $time\n";
+    $hdl->push_write( sprintf "H:%d:$time:", 1 + length $time  );
+});
+
+my $t2 = AnyEvent->timer ( after => 15, interval => 15, cb => sub{
+    die "rheartbeat timeout" unless time - 60 <  $rheartbeat && $rheartbeat < time + 60;
+});
+
+my $t3 = AnyEvent->timer ( after => 0.01, interval => 0.01, cb => sub{
+    return unless $hdl;
+
+    if( $delete )
+    {
+        $hdl->push_write( sprintf "D:%d:$delete:", 1 + length $delete );
+        $delete = 0;
+    }
+
+    return unless @sending <= 100 && @file;
+
+    my $file = shift @file;
+    my $name = basename $file;
+    push @sending, $name;
+    warn "send file $name\n";
+    my $data = eval{ YAML::XS::Dump YAML::XS::LoadFile $file; };
+    $data = 'DATA ERROR' if $@;
+    my $d = "$name:$data";
+    $hdl->push_write(sprintf( "F:%d:", length $d). $d);
+    printf "TIME: %s sending: %s FILE LEN:%s\n", time, scalar( @sending ), scalar @file;;
+});
+
+$cv->recv;
+
+exit 1;

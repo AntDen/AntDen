@@ -1,0 +1,172 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use warnings;  
+use strict;  
+use AntDen;
+
+use AE;
+use AnyEvent;  
+use AnyEvent::Socket;  
+use AnyEvent::Handle;  
+  
+use MYDan::Agent::Client;
+use MYDan::Util::OptConf;
+use File::Basename;
+
+use Linux::Inotify2;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+ $0 --host --localpash /path/1 --remotepath /path/2
+
+      [--user user(default `id -un`)] [--sudo sudoer]
+=cut
+
+$MYDan::Util::OptConf::THIS = 'agent';
+my $option = MYDan::Util::OptConf->load();
+my ( %o, %proxy )= $option->get( qw( host=s localpath=s remotepath=s user=s sudo=s ) )->dump();
+$option->assert( qw( host localpath remotepath ) );
+
+$0 = "AntDen_controller_connect_$o{host}_service";
+if( $o{proxy} )
+{
+    my $proxy =  MYDan::Agent::Proxy->new( $o{proxy} );
+    %proxy = $proxy->search( $o{host} );
+}
+
+my $proxy = $proxy{$o{host}};
+my $uuid = Digest::MD5->new()->add( $$.time.rand 100000 )->hexdigest();
+
+my ( $cv, $rheartbeat, $in, $out, $hdl, $cache, $w, @file, $delete, $heartbeat, @sending )
+    = ( AE::cv, time, map{ "$o{localpath}/$_" }qw( in out ) );
+map{ system "mkdir -p '$_'" unless -d $_ }( $in, $out );
+
+my $inotify = new Linux::Inotify2
+    or die "unable to create new inotify object: $!";
+$inotify->watch ($in, IN_CREATE | IN_MOVED_TO, sub {
+        push @file, shift->fullname;
+    });
+my $inotify_w = AE::io $inotify->fileno, 0, sub { $inotify->poll; };
+unshift @file, glob "$in/*";
+@file = sort @file;
+
+sub save
+{
+    my $data = shift @_;
+    $cache .= $data;
+    if( $cache =~ /^([FDH]):(\d+):/ )
+    {
+        my ( $type, $len ) = ( $1, $2 );
+        my $datalen = 3 + $len + length $len;
+        return unless length( $cache ) >= $datalen;
+
+        my $temp = substr( $cache , 0, $datalen, '' );
+        return unless $temp =~ s/^[FDH]:\d+:([a-zA-Z0-9\.-_]+)://;
+        my $name = $1;
+        warn "save: $type : $name\n";
+
+        if( $type eq 'F' )
+        {
+            eval{ YAML::XS::DumpFile "$out/$name", YAML::XS::Load $temp };
+            die "dump file $name fail $@\n" if $@;
+            $delete ++;
+        }
+        elsif( $type eq 'H' ) { $rheartbeat = $name; }
+        else {
+            map{
+                unlink "$in/$_" or die "unlink $_ fail";
+            }splice @sending, 0, $name;
+        }
+    }
+    else { die "data err" if 4096 < length $cache; }
+}
+
+tcp_connect $proxy || $o{host}, $o{port}, sub {
+###tcp_server undef, 65112, sub {
+
+    my ( $fh ) = @_ or die "[MYDan]tcp_server: $!";
+
+    $hdl = new AnyEvent::Handle(
+        fh => $fh,
+        rbuf_max => 10240000,
+        wbuf_max => 10240000,
+        autocork => 1,
+        on_read => sub {
+            my $self = shift;
+            $self->unshift_read (
+                chunk => length $self->{rbuf},
+                sub { save( $_[1] ); },
+            )
+        },
+
+        on_error => sub{
+            warn 'tcp error';
+            $cv->send;
+        },
+        on_eof => sub{
+            warn 'tcp error';
+            $cv->send;
+        },
+    );
+###
+    $hdl->push_write( "MYDanConnect_::${uuid}::_MYDanConnect" );
+};
+
+$o{user} = `id -un` and chop $o{user}  unless $o{user};
+
+my %query = (
+    code => 'vsync',
+    argv => +{ 
+        addr => $o{addr},
+        port => $o{port},
+        uuid => $uuid,
+        path => $o{remotepath},
+    },
+    map{ $_ => $o{$_} }qw( user sudo )
+);
+
+my %result = MYDan::Agent::Client->new( 
+    $o{host}
+)->run( %o, query => \%query ); 
+
+my $call = $result{$o{host}};
+die "call fail:$call\n" unless $call && $call =~ /--- 0\n$/;
+
+my $int = AnyEvent->signal( signal => "INT", cb => sub{ warn "kill.\n"; $cv->send; } );
+
+my $t1 = AnyEvent->timer ( after => 15, interval => 15, cb => sub{
+    return unless $hdl;
+
+    my $time = time;
+    print "send heartbeat $time\n";
+    $hdl->push_write( sprintf "H:%d:$time:", 1 + length $time  );
+});
+
+my $t2 = AnyEvent->timer ( after => 15, interval => 15, cb => sub{
+    die "rheartbeat timeout" unless time - 60 <  $rheartbeat && $rheartbeat < time + 60;
+});
+
+my $t3 = AnyEvent->timer ( after => 0.01, interval => 0.01, cb => sub{
+    return unless $hdl;
+
+    if( $delete )
+    {
+        $hdl->push_write( sprintf "D:%d:$delete:", 1 + length $delete );
+        $delete = 0;
+    }
+
+    return unless @sending <= 100 && @file;
+
+    my $file = shift @file;
+    my $name = basename $file;
+    push @sending, $name;
+    warn "send file $name\n";
+    my $data = eval{ YAML::XS::Dump YAML::XS::LoadFile $file; };
+    $data = 'DATA ERROR' if $@;
+    my $d = "$name:$data";
+    $hdl->push_write(sprintf( "F:%d:", length $d). $d);
+    printf "TIME: %s sending: %s FILE LEN:%s\n", time, scalar( @sending ), scalar @file;;
+});
+
+$cv->recv;

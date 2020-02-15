@@ -1,0 +1,15 @@
+*.swp
+*.old
+*.bak
+*.db-journal
+T.*
+t.*
+J.*
+j.*
+E.*
+*.db
+*.db-shm
+*.db-wal
+t/
+logs/
+Use.*

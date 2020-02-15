@@ -1,0 +1,45 @@
+#!# perl: code/
+use warnings;
+use strict;
+use AntDen;
+
+=head3 param
+
+  resources:
+    CPU:0: 2
+    GPU:1: 1
+    GPU:3: 1
+  param:
+    envsoft: 'app1=2.0'
+
+=head3 return
+
+  return executeid, for stop and status, maybe pid or container id
+
+=cut
+
+return sub
+{
+    my $param = shift @_;
+
+    my $pid = fork;
+    return $pid if $pid;
+
+    open STDOUT, ">>$AntDen::PATH/logs/task/$param->{taskid}.log";
+    open STDERR, ">>$AntDen::PATH/logs/task/$param->{taskid}.log";
+
+    my %env;
+    map{ 
+        my @e = split /=/, $_, 2;
+        $env{$e[0]} = $e[1] if @e >=2;
+    } split /,/,$param->{param}{envsoft};
+
+    for ( keys %env )
+    {
+        my $code = do "$AntDen::PATH/environment/code/soft/$_/set";
+        die "load code $_ fail" unless $code && ref $code eq 'CODE';
+        &$code( $env{$_} );
+    }
+
+    exit 0;
+};

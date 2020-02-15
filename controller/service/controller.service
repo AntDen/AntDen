@@ -1,0 +1,23 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+
+use MYDan::Util::OptConf;
+use AntDen::Controller::Service;
+
+$| ++;
+
+$MYDan::Util::OptConf::THIS = 'antden';
+
+=head1 SYNOPSIS
+
+ $0 
+
+=cut
+
+$0 = 'AntDen_controller_service';
+
+my %o = MYDan::Util::OptConf->load()->get()->dump();
+
+AntDen::Controller::Service->new( %{$o{controller}} )->run();

@@ -1,0 +1,20 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use YAML::XS;
+use AntDen::Slave::Ctrl;
+
+eval{
+    my $antden = "/opt/AntDen";
+    my $slave = AntDen::Slave::Ctrl->new( 
+        db => "$antden/database/slave.db", 
+        conf => "$antden/slave/conf", 
+        code => "$antden/slave/code",
+    );
+    
+    print YAML::XS::Dump $slave->info();
+};
+
+if( $@ ) { print "fail: $@"; exit 1; }
+
+exit 0;

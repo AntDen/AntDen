@@ -1,0 +1,23 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+=head3 param
+
+  param:
+    executeid
+
+=head3 return
+
+  return null
+
+=cut
+
+return sub
+{
+    my $param = shift @_;
+
+    kill 'TERM', $param->{executeid};
+
+    return;
+};

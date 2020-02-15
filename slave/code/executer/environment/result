@@ -1,0 +1,30 @@
+#!# perl: code/
+use warnings;
+use strict;
+use AntDen;
+use File::Basename;
+
+=head3 param
+
+  param:
+    executeid
+
+=head3 return
+
+  return 'app1=1.0,app2=1.0'
+
+=cut
+
+return sub
+{
+    my %env;
+    for ( glob "$AntDen::PATH/environment/code/soft/*" )
+    {
+        my $name = basename $_;
+        my $code = do "$AntDen::PATH/environment/code/soft/$name/get";
+        die "load code $name fail" unless $code && ref $code eq 'CODE';
+        $env{$name} = &$code();
+    }
+
+    return join ',', map{ "$_=$env{$_}" }sort keys %env;
+};

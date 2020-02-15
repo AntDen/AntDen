@@ -1,0 +1,26 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+
+use MYDan::Util::OptConf;
+use AntDen::Scheduler::Ctrl;
+
+$| ++;
+
+$MYDan::Util::OptConf::THIS = 'antden';
+
+=head1 SYNOPSIS
+
+ $0 --jobid jobid
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( jobid=s ) )->dump();
+
+$option->assert( 'jobid' );
+
+AntDen::Scheduler::Ctrl->new( %{$o{scheduler}} )->stopJob( $o{jobid} );
+
+print "success\n";

@@ -1,0 +1,33 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+
+use MYDan::Util::OptConf;
+use AntDen::Scheduler::Ctrl;
+
+$| ++;
+
+$MYDan::Util::OptConf::THIS = 'antden';
+
+=head1 SYNOPSIS
+
+ $0 --file configfile  [--nice 0~9 (default 5)] [--group groupname(default foo)]
+
+ example:
+
+   $0 -f /opt/AntDen/example/job.yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( nice => 5, group => 'foo' )
+    ->get( qw( file=s nice=i group=s ) )->dump();
+
+$option->assert( 'file' );
+
+my $config = eval{ YAML::XS::LoadFile $o{file} };
+die "load config fail: $@" if $@;
+
+printf "jobid: %s\n",  AntDen::Scheduler::Ctrl->new( %{$o{scheduler}} )
+    ->startJob( $config, $o{nice}, $o{group} );
