@@ -28,6 +28,7 @@ sub stmt
     selectTask => "select `jobid`,`taskid`,`status`,`expect`,`executeid`,`weight` from task",
 
     updateExecuteid => "update task set executeid=?,status=? where taskid=?",
+    updateTaskSR => "update task set executeid='null',status=?,result=? where taskid=?",
     updateTaskStatus => "update task set status=? where taskid=?",
     updateTaskResult => "update task set result=? where taskid=?",
     updateTaskMsg => "update task set msg=? where taskid=?",

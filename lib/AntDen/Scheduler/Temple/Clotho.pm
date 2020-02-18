@@ -198,7 +198,8 @@ sub stoped
     my ( $this, @task ) = @_;
     for my $task ( @task )
     {
-        my $hostip = $this->{job}{$task->{jobid}}{task}{$task->{taskid}}{hostip};
+        next unless my $hostip = $this->{job}{$task->{jobid}}{task}{$task->{taskid}}{hostip};
+
         delete $this->{job}{$task->{jobid}}{task}{$task->{taskid}};
         delete $this->{machine}{$hostip}{task}{$task->{taskid}};
 
@@ -268,7 +269,7 @@ sub apply
 
     for my $jobid ( sort keys %{$this->{job}} )
     {
-        next unless $group{$this->{job}{$jobid}{info}{group}};
+        next unless $this->{job}{$jobid}{info} && $group{$this->{job}{$jobid}{info}{group}};
         next if keys %{$this->{job}{$jobid}{task}};
         push @{$group{$this->{job}{$jobid}{info}{group}}}, $jobid;
     }
@@ -288,7 +289,7 @@ sub apply
         push @conf, @c;
     }
 
-    return @conf ? \@conf : undef;
+    return @conf;
 }
 
 =head3
@@ -348,7 +349,7 @@ input =>
 sub _applyByJobid
 {
     my ( $this, $jobid ) = @_;
-print "jobid; $jobid\n";
+    print "jobid; $jobid\n";
     return unless my $conf = $this->{job}{$jobid}{info}{conf};
 
     map{ $this->{machine}{$_}{temp} = +{} }keys %{$this->{machine}};
@@ -376,6 +377,8 @@ print "jobid; $jobid\n";
                 hostip => $hostip,
                 resources => $res,
                 executer => $conf->{executer},
+                ingress => $conf->{ingress},
+                group => $this->{job}{$jobid}{info}{group},
             };
             push @conf, $c;
 

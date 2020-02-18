@@ -47,7 +47,7 @@ my $consume = sub
     }
     if( $conf->{ctrl} eq 'reniceJob' )
     {
-        $this->{a}->renice( $conf->{jobid}, $conf->{nice} );
+        $this->{a}->setJobAttr( $conf->{jobid}, 'nice', $conf->{nice} );
     }
 
     if( $conf->{ctrl} eq 'taskStatus' )

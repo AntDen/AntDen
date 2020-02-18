@@ -93,7 +93,7 @@ hook 'before' => sub {
 
 get '/scheduler/job' => sub {
     my @job = $schedulerDB->selectJobWorkInfo();
-    #`id`,`jobid`,`nice`,`group`,`status`
+    #`id`,`jobid`,`nice`,`group`,`status`,`ingress`
     template 'scheduler/jobs', +{ jobs => \@job };
 };
 
@@ -109,7 +109,7 @@ get '/scheduler/job/:jobid' => sub {
     my $param = params();
     my $jobid = $param->{jobid};
     my @task = $schedulerDB->selectTaskByJobid( $jobid );
-    #id,jobid,taskid,hostip,status,result,msg,usetime
+    #id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port
     my @job = $schedulerDB->selectJobByJobid( $jobid );
     #id,jobid,nice,group,status
     my $config = eval{ YAML::XS::Dump YAML::XS::LoadFile "$opt{scheduler}{conf}/job/$jobid" };

@@ -23,6 +23,9 @@
             <th>result</th>
             <th>msg</th>
             <th>usetime</th>
+            <th>domain</th>
+            <th>location</th>
+            <th>port</th>
             <th>log</th>
             <th>use</th>
             <th>param</th>
@@ -37,6 +40,9 @@
             <td>[% t.5 %]</td>
             <td>[% t.6 %]</td>
             <td>[% t.7 %]</td>
+            <td>[% t.8 %]</td>
+            <td>[% t.9 %]</td>
+            <td>[% t.10 %]</td>
             <td><a href="/tasklog/[% t.2 %]_[% t.3 %].log">log</a></td>
             <td><a href="/tasklog/[% t.2 %]_[% t.3 %].use">use</a></td>
             <td><a href="/scheduler/task/[% t.2 %]">param</a></td>

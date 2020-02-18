@@ -117,6 +117,16 @@ sub run
                     $status = $status2id{starting};
 
                     $executeid = eval{ $executer->start( $taskid ) };
+
+                    if( ref $executeid )
+                    {
+                        $db->updateTaskSR( $status2id{stoped}, $executeid->{result} || '',  $taskid );
+
+                        $this->resultDump( $taskid );
+                        $db->deleteTask( $taskid );
+                        delete $tasktimeout{$taskid};
+                        last;
+                    }
                     if ( $@ )
                     {
                         warn "start tsak fail: $@";
@@ -259,13 +269,13 @@ sub run
 sub statusDump
 {
     my ( $this, $taskid ) = @_;
-    $this->_rsDump( $this, $taskid, 'taskStatus' );
+    $this->_rsDump( $taskid, 'taskStatus' );
 }
 
 sub resultDump
 {
     my ( $this, $taskid ) = @_;
-    $this->_rsDump( $this, $taskid, 'taskResult' );
+    $this->_rsDump( $taskid, 'taskResult' );
 }
 
 sub _rsDump

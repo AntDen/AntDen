@@ -1,0 +1,54 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+use AntDen;
+use POSIX qw( :sys_wait_h );
+
+use File::Temp;
+
+=head3 param
+
+  resources:
+    - [ 'CPU', '0', 2 ]
+  param:
+    domain: abc.com
+    location:
+        /: [ '127.0.0.1:8080', '127.0.0.1:8081' ]
+        /abc/: [ '127.0.0.1:8080' ]
+  taskid: T.0
+
+=cut
+
+return sub
+{
+    my $param = shift @_;
+    my ( $domain, $location ) = map{ $param->{param}{$_} }qw( domain location ); 
+    my $name = $domain; $name =~ s/\./_/g;
+
+    my ( $upstream, $locationstr, $index ) = ( '', '', 0 );
+    for my $key ( reverse sort keys %$location )
+    {
+        $index ++;
+        my $tmps = join "\n", map{ "    server $_;" }@{$location->{$key}};
+        $upstream .= "upstream ${name}_$index\n{\n$tmps\n}\n";
+        $locationstr .= "    location $key\n    {\n        proxy_pass http://${name}_$index;\n    }\n";
+    }
+
+    my ( $fh, $tmpfile ) = File::Temp::tempfile();
+    print $fh <<"END";
+$upstream
+server {
+    listen       80;
+    server_name $domain;
+$locationstr
+    access_log  off;
+}
+END
+    close $fh;
+
+    die "dump conf fail" unless rename $tmpfile, "/etc/nginx/conf.d/$name.conf";
+    die "nginx reload fail:$!" if system "service nginx reload";
+
+    return +{ result => 'success' };
+};

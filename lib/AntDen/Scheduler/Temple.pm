@@ -2,14 +2,16 @@ package AntDen::Scheduler::Temple;
 use strict;
 use warnings;
 
+use AntDen::Scheduler::Ingress;
 use AntDen::Scheduler::Temple::Clotho;
 
 sub new
 {
     my ( $class, %this ) = @_;
     map{ die "$_ undef" unless $this{$_} }qw( db conf );
-    map{ $this{$_} = +{} }qw( machine resource task stoped );
+    map{ $this{$_} = +{} }qw( stoped );
 
+    $this{ingress} = AntDen::Scheduler::Ingress->new();
     $this{temple} = AntDen::Scheduler::Temple::Clotho->new();
 
     for my $x ( $this{db}->selectMachine() )
@@ -17,16 +19,17 @@ sub new
         my ( $ip, $hostname, $envhard, $envsoft, $switchable,
             $group, $workable, $role ) = @$x;
 
-        $this{temple}->setMachine(
-            $ip => +{
-                hostname => $hostname,
-                envhard => $envhard,
-                envsoft => $envsoft,
-                switchable => $switchable,
-                group => $group,
-                workable => $workable,
-                role => $role,
-             });
+        my $hi = +{
+            hostname => $hostname,
+            envhard => $envhard,
+            envsoft => $envsoft,
+            switchable => $switchable,
+            group => $group,
+            workable => $workable,
+            role => $role,
+         };
+        $this{ingress}->setMachine( $ip => $hi );
+        $this{temple}->setMachine( $ip => $hi );
     }
 
     my ( @r, %r ) = $this{db}->selectResources();
@@ -67,7 +70,9 @@ sub new
             next;
         }
         my %conf = ( %$tconf, status => $status, result => $result );
-        $this{temple}->loadTask( \%conf );
+
+        $this{ingress}->loadTask( \%conf );
+        $this{temple}->loadTask( \%conf ) if $conf{jobid} ne 'J0';
     }
 
     bless \%this, ref $class || $class;
@@ -109,6 +114,7 @@ sub setMachine
         $this->{db}->commit();
     }
 
+    $this->{ingress}->setMachine( %m );
     $this->{temple}->setMachine( %m );
 }
 
@@ -119,6 +125,7 @@ sub setMachineAttr
     $this->{db}->updateMachineAttr_( $k, $v, $ip );
     $this->{db}->commit();
 
+    $this->{ingress}->setMachineAttr( $ip, $k, $v );
     $this->{temple}->setMachineAttr( $ip, $k, $v );
 }
 
@@ -193,9 +200,16 @@ sub setResource
 
 sub submitJob
 {
-    my ( $this, $conf )= @_;
+    my ( $this, $conf, %ingress ) = splice @_, 0, 2;
 
-    $this->{db}->insertJob( @$conf{qw( jobid nice group )} );
+    for my $c ( @{$conf->{conf}} )
+    {
+        next unless my $i = $c->{ingress};
+        next unless ref $i eq 'HASH' && defined $i->{domain} && defined $i->{location};
+        $ingress{"$i->{domain}:$i->{location}"} ++;
+    }
+
+    $this->{db}->insertJob( @$conf{qw( jobid nice group )}, join ',', keys %ingress );
     $this->{db}->commit();
     eval{ YAML::XS::DumpFile "$this->{conf}/job/$conf->{jobid}", $conf->{conf} };
     die "dump job/$conf->{jobid} fail $@" if $@;
@@ -231,6 +245,7 @@ sub taskStatusUpdate
     $this->{db}->commit();
 
     map{ $this->_updateJobStatus( $_ ); }keys %jobid;
+    $this->{ingress}->taskStatusUpdate( @task );
 }
 
 =head3
@@ -264,6 +279,7 @@ sub stoped
 
     map{ $this->_updateJobStatus( $_ ); }keys %jobid;
 
+    $this->{ingress}->stoped( @task );
     $this->{temple}->stoped( @task );
 }
 
@@ -300,7 +316,7 @@ sub stop
 
 sub apply
 {
-    my ( $this, %jobid, @t ) = shift @_;
+    my ( $this, %jobid, @t, @task ) = shift @_;
 
     for my $jobid ( keys %{$this->{stoped}} )
     {
@@ -323,19 +339,34 @@ sub apply
         }
     }
 
-    return @t unless my $tasks = $this->{temple}->apply();
+    push @task, $this->{ingress}->apply();
+    push @task, $this->{temple}->apply();
 
-    for my $t ( @$tasks )
+    return @t unless @task;
+
+    for my $t ( @task )
     {
-        my ( $jobid, $taskid, $hostip ) = @$t{qw( jobid taskid hostip )};
+        my ( $jobid, $taskid, $hostip, $ingress, $resources )
+            = @$t{qw( jobid taskid hostip ingress resources )};
+
+        $this->{ingress}->loadTask( +{ %$t, status => 'init' } );
+
         $jobid{$jobid} ++;
-        $this->{db}->insertTask( $jobid, $taskid, $hostip );
+
+        my ( $domain, $location, $port ) = ( '', '', '' );
+        my @port; map{ push @port, $_->[1] if $_->[0] eq 'PORT'; }@$resources;
+        $port = join ',', @port if @port;
+
+        ( $domain, $location ) = ( $ingress->{domain}, $ingress->{location} )
+            if ref $ingress eq 'HASH' && defined $ingress->{domain} && defined $ingress->{location};
+
+        $this->{db}->insertTask( $jobid, $taskid, $hostip, $domain, $location, $port );
         eval{ YAML::XS::DumpFile "$this->{conf}/task/$taskid", $t };
         die "dump task/$taskid fail $@" if $@;
     }
     $this->{db}->commit();
     map{ $this->_updateJobStatus( $_ ) }keys %jobid;
-    return @$tasks, @t;
+    return @task, @t;
 }
 
 sub _updateJobStatus

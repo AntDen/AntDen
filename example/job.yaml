@@ -6,6 +6,25 @@
   scheduler:
     envhard: 'arch=x86_64,os=Linux'
     envsoft: 'app1=1.0'
-    count: 3
+    count: 1
     resources:
       - [ 'CPU', '.', 2 ] 
+      - [ 'PORT', '.', 1 ]
+  ingress:
+    domain: foo.com
+    location: /
+-
+  executer:
+    name: exec
+    param:
+      exec: 'sleep 3'
+  scheduler:
+    envhard: 'arch=x86_64,os=Linux'
+    envsoft: 'app1=1.0'
+    count: 2
+    resources:
+      - [ 'CPU', '.', 2 ] 
+      - [ 'PORT', '.', 1 ]
+  ingress:
+    domain: foo.com
+    location: /abc/

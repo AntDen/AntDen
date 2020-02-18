@@ -28,6 +28,7 @@ sub define
         nice => 'INTEGER NOT NULL',
         group => 'TEXT NOT NULL',
         status => 'TEXT NOT NULL',
+        ingress => 'TEXT NOT NULL',
     ],
     task => [
         id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
@@ -38,6 +39,9 @@ sub define
         result => 'TEXT NOT NULL',
         msg => 'TEXT NOT NULL',
         usetime => 'TEXT NOT NULL',
+        domain => 'TEXT NOT NULL',
+        location => 'TEXT NOT NULL',
+        port => 'TEXT NOT NULL',
     ],
 };
 
@@ -53,13 +57,11 @@ sub stmt
     selectResources => "select `ip`,`name`,`id`,`value` from resources",
     deleteResourcesByIp => "delete from resources where ip=?",
 
-    insertJob => "insert into job ( `jobid`,`nice`,`group`,`status` ) values(?,?,?,'queuing')",
-    selectJob => "select `id`,`jobid`,`nice`,`group`,`status` from job",
+    insertJob => "insert into job ( `jobid`,`nice`,`group`,`status`,`ingress` ) values(?,?,?,'queuing',?)",
     selectJobWork => "select `id`,`jobid`,`nice`,`group`,`status` from job where status!='stoped'",
     updateJobStatus => "update job set `status`=? where jobid=?",
 
-    insertTask => "insert into task ( `jobid`,`taskid`,`hostip`,`status`,`result`,`msg`,`usetime` ) values(?,?,?,'init','','','')",
-    selectTask => "select `id`,`jobid`,`taskid`,`hostip`,`status`,`result`,`msg` from task",
+    insertTask => "insert into task ( `jobid`,`taskid`,`hostip`,`status`,`result`,`msg`,`usetime`,`domain`,`location`,`port` ) values(?,?,?,'init','','','',?,?,?)",
     selectTaskWork => "select `id`,`jobid`,`taskid`,`hostip`,`status`,`result`,`msg` from task where status !='stoped'",
     selectTaskStatusByJobid => "select status from task where jobid=?",
     updateTaskStatus => "update task set `status`=?,result=?,msg=? where taskid=? and jobid=?",
@@ -70,10 +72,10 @@ sub stmt
     selectResourcesInfo => "select `ip`,`name`,`id`,`value` from resources",
 
 
-    selectJobWorkInfo => "select `id`,`jobid`,`nice`,`group`,`status` from job where status!='stoped'",
+    selectJobWorkInfo => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped'",
     selectJobStopedInfo => "select `id`,`jobid`,`nice`,`group`,`status` from job",
 
-    selectTaskByJobid => "select id,jobid,taskid,hostip,status,result,msg,usetime from task where jobid=?",
+    selectTaskByJobid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port from task where jobid=?",
     selectJobByJobid => "select id,jobid,nice,`group`,status from job where jobid=?",
 }
 

@@ -8,12 +8,19 @@ sub new
 {
     my ( $class, $db, $autoCommit ) = splice @_, 0, 3;
 
+    #TODO
+    system "echo 'PRAGMA journal_mode=WAL;'|sqlite3 '$db'" unless -f "$db-wal";
+
     $autoCommit ||= 0;
     $db = DBI->connect
     ( 
         "DBI:SQLite:dbname=$db", '', '',
         { RaiseError => 1, PrintWarn => 0, PrintError => 0, AutoCommit => $autoCommit }
     );
+
+    $autoCommit
+      ? $db->do("PRAGMA journal_mode=WAL;")
+      : $db->do("COMMIT;PRAGMA journal_mode=WAL;BEGIN");
 
     my $self = bless { db => $db, autoCommit => $autoCommit }, ref $class || $class;
 
@@ -66,8 +73,6 @@ sub create
         $self->commit();
     }
 
-#    $db->do("PRAGMA journal_mode=WAL");
-#    $self->commit();
 
     return $self;
 }

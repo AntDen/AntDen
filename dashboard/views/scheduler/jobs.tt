@@ -6,6 +6,7 @@
             <th>nice</th>
             <th>group</th>
             <th>status</th>
+            <th>ingress</th>
             <th>renice</th>
             <th>stop</th>
         </tr>
@@ -17,6 +18,7 @@
             <td>[% j.2 %]</td>
             <td>[% j.3 %]</td>
             <td>[% j.4 %]</td>
+            <td>[% j.5 %]</td>
             <td>
                 <a href="javascript:test('/scheduler/job/renice/0/[% j.1 %]');">0</a>
                 <a href="javascript:test('/scheduler/job/renice/1/[% j.1 %]');">1</a>
