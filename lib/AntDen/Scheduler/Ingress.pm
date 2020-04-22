@@ -181,7 +181,7 @@ sub _ingressByGroup
 {
     my ( $this, $domain, $group, %location, @host, @t ) = splice @_, 0, 3;
 
-    for my $task ( grep{ $_->{group} eq $group }values %{$this->{task}} )
+    for my $task ( grep{ defined $_->{group} && $_->{group} eq $group }values %{$this->{task}} )
     {
         next unless $task->{ingress} && $task->{ingress}{domain} && $task->{ingress}{domain} eq $domain;
         map{ push( @{$location{$task->{ingress}{location}}}, "$task->{hostip}:$_->[1]" ) if $_->[0] eq 'PORT'; }@{$task->{resources}};
@@ -189,8 +189,7 @@ sub _ingressByGroup
 
     for my $ip ( keys %{$this->{machine}} )
     {
-        push( @host, $ip ) if $this->{machine}{$ip}{group} eq $group;
-        ##TODO push( @host, $ip ) if $this->{machine}{$ip}{role} eq 'ingress' && $this->{machine}{$ip}{group} eq $group;
+        push( @host, $ip ) if $this->{machine}{$ip}{role} eq 'ingress' && $this->{machine}{$ip}{group} eq $group;
     }
 
     for my $host ( @host )

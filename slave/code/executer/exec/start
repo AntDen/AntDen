@@ -8,9 +8,8 @@ use POSIX qw( :sys_wait_h );
 =head3 param
 
   resources:
-    CPU:0: 2
-    GPU:1: 1
-    GPU:3: 1
+    [ 'CPU', 0, 2 ]
+    [ 'PORT', 65111, 1 ]
   param:
     exec: sleep 100
   taskid: J.20191120.191012.907980.111.001
@@ -86,6 +85,8 @@ return sub
         open STDOUT, ">>$log";
         open STDERR, ">>$log";
 
-        exec $param->{param}{exec};
+        my ( $port, @port ) = ( '', map{ $_->[1] }grep{ $_->[0] eq 'PORT' }@{$param->{resources}} );
+        $port = join( ' ', map{ "PORT$_=$port[$_]" } 0 .. $#port ). " PORT=$port[0] " if @port;
+        exec "$port$param->{param}{exec}";
     }
 };

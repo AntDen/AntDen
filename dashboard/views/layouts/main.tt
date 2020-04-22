@@ -53,6 +53,7 @@
                 <div><a href="/" >resources</a></div>
                 <div><a href="/scheduler/submitJob" >submit job</a></div>
                 <div><a href="/scheduler/job" >running job</a></div>
+                <div><a href="/scheduler/ingress" >ingress</a></div>
                 <div><a href="/scheduler/jobHistory" >job history</a></div>
                 <div><a href="/tasklog/scheduler" >service log</a></div>
             </div>

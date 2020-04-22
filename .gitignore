@@ -13,3 +13,4 @@ E.*
 t/
 logs/
 Use.*
+controller/conf/slave/

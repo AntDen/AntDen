@@ -2,11 +2,11 @@
   executer:
     name: exec
     param:
-      exec: 'sleep 300'
+      exec: 'export PORT;cd /tmp/ && python -m SimpleHTTPServer $PORT'
   scheduler:
     envhard: 'arch=x86_64,os=Linux'
     envsoft: 'app1=1.0'
-    count: 1
+    count: 5
     resources:
       - [ 'CPU', '.', 2 ] 
       - [ 'PORT', '.', 1 ]
@@ -17,11 +17,11 @@
   executer:
     name: exec
     param:
-      exec: 'sleep 300'
+      exec: 'export PORT;cd /tmp/ && python -m SimpleHTTPServer $PORT'
   scheduler:
     envhard: 'arch=x86_64,os=Linux'
     envsoft: 'app1=1.0'
-    count: 20
+    count: 5
     resources:
       - [ 'CPU', '.', 2 ] 
       - [ 'PORT', '.', 1 ]

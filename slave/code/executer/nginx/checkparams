@@ -5,9 +5,7 @@ use strict;
 =head3 param
 
   domain: acb.com
-  location:
-    /: [ '127.0.0.1:8080', '127.0.0.1:8081' ]
-    /abc/: [ '127.0.0.1:8080' ]
+  upstream: [ '127.0.0.1:8080', '127.0.0.1:8081' ]
 
 =cut
 
@@ -15,8 +13,8 @@ return sub
 {
     my $param = shift @_;
 
-    map{ die "$_ undef" unless $param->{$_} }qw( location domain );
-    die "location not array" unless ref $param->{location} eq 'HASH';
+    map{ die "$_ undef" unless $param->{$_} }qw( upstream domain );
+    die "upstream not array" unless ref $param->{upstream} eq 'ARRAY';
 
     return;
 };

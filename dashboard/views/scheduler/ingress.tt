@@ -1,0 +1,12 @@
+<div>
+    <table border="1">
+        <tr>
+            <th>ingress</th>
+        </tr>
+        [% FOR t IN ingress %]
+        <tr>
+            <td><a href="/scheduler/ingress/[% t %]">[% t %]</a></td>
+        </tr>
+        [% END %]
+    </table>
+</div>

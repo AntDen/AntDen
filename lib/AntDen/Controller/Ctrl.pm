@@ -65,7 +65,7 @@ sub stop
 
 sub dumpMachine
 {
-    my $this = shift  @_;
+    my $this = shift @_;
     $this->{event}->send( +{ hostip => \@_, ctrl => 'setHost' } );
 }
 

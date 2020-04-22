@@ -23,29 +23,50 @@ BEGIN{
 
 get '/' => sub {
     my @machine = $schedulerDB->selectMachineInfo();
-    #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`
+    #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon`
 
     my @resources = $schedulerDB->selectResourcesInfo();
     #`ip`,`name`,`id`,`value`
-    my ( %r, %t );
+    my ( %r, %t, %used, %use );
     for ( @resources )
     {
         my ( $ip, $name, $id, $value ) = @$_;
         $r{$ip}{$name} += $value;
         $t{$name} += $value;
     }
-    my @total = map{ [ $_, $t{$_} ] }sort keys %t;
+
+    for ( @machine )
+    {
+        my ( $ip, $mon ) = @$_[0,8];
+        map{
+            my @x = split /=/, $_, 2;
+            $used{$ip}{$x[0]} = $x[1] || 0;
+        }split ',', $mon;
+    }    
+
     for my $ip ( keys %r )
     {
+        map{ $used{$ip}{$_} = $r{$ip}{$_} unless defined $used{$ip}{$_} }keys %{$r{$ip}};
         $r{$ip} = join ',', map{ "$_=$r{$ip}{$_}" } sort keys %{$r{$ip}};
     }
     map{ push @$_, $r{$_->[0]} }@machine;
+
+    for my $v ( values %used )
+    {
+        map{ $use{$_} += $v->{$_} }keys %$v;
+    }
+
+    $t{health} = scalar @machine;
+    $t{load} = int( $t{CPU} / 1024 ) if $t{CPU};
+
+    my @total = map{ [ $_, $use{$_}, $t{$_} ] }sort keys %t;
+    
     template 'index', +{ machine => \@machine, total => \@total };
 };
 
 get '/slave/resources' => sub {
     my @machine = $schedulerDB->selectMachineInfo();
-    #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`
+    #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon`
     template 'slave/resources', +{ machine => \@machine };
 };
 
@@ -95,6 +116,45 @@ get '/scheduler/job' => sub {
     my @job = $schedulerDB->selectJobWorkInfo();
     #`id`,`jobid`,`nice`,`group`,`status`,`ingress`
     template 'scheduler/jobs', +{ jobs => \@job };
+};
+
+get '/scheduler/ingress' => sub {
+    my @job = $schedulerDB->selectIngressJob();
+    #`id`,`jobid`,`nice`,`group`,`status`,`ingress`
+    my %ingress; map{ map{ my @x = split /:/, $_; $ingress{$x[0]}++; }split /,/, $_->[5] }@job;
+    template 'scheduler/ingress', +{ ingress => [ sort keys %ingress ] };
+};
+
+get '/scheduler/ingress/:domain' => sub {
+    my $param = params();
+    my $domain = $param->{domain};
+    my @job = $schedulerDB->selectIngressJob();
+    #`id`,`jobid`,`nice`,`group`,`status`,`ingress`
+
+    my %ingress;
+    for my $job ( @job )
+    {
+        map{
+            my @x = split /:/, $_;
+            $ingress{$job->[3]}{$job->[1]}++ if $domain eq $x[0];
+        }split /,/, $job->[5];
+    }
+
+    for my $group (  keys %ingress )
+    {
+        for my $jobid ( keys %{$ingress{$group}} )
+        {
+            my @task = $schedulerDB->selectTaskByJobid( $jobid );
+            $ingress{$group}{$jobid} = \@task;
+        }
+    }
+
+    my ( @group, %group )= $schedulerDB->selectIngressMachine();
+    #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`
+    map{ push @{$group{$_->[5]}}, $_->[0]; }@group;
+    map{ $group{$_} = join ',', @{$group{$_}} }keys %group;
+    
+    template 'scheduler/ingressInfo', +{ ingress => \%ingress, group => \%group, domain => $domain };
 };
 
 get '/scheduler/task/:taskid' => sub {

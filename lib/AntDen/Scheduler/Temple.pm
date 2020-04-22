@@ -108,6 +108,7 @@ sub setMachine
     {
         my  ( %t ) = %{$m{$ip}}; 
         $t{ip} = $ip;
+        $t{mon} = 'health=0';
         $this->{db}->insertMachine( 
             map{ defined $t{$_} ? $t{$_} : die "err: nofind $_" }
                 @{$this->{db}->column('machine')} );
@@ -133,7 +134,7 @@ sub setJobAttr
 {
     my ( $this, $jobid, $k, $v ) = @_;
 
-    $this->{db}->updateJobAttr( $k, $v, $jobid );
+    $this->{db}->updateJobAttr_( $k, $v, $jobid );
     $this->{db}->commit();
 
     $this->{temple}->setJobAttr( $jobid, $k, $v );
@@ -334,7 +335,7 @@ sub apply
         }
         else
         {
-            $this->{db}->JobStoped( $jobid ); #
+            $this->{db}->jobStoped( $jobid ); #
             $this->{db}->commit();
         }
     }
@@ -374,7 +375,7 @@ sub _updateJobStatus
     my ( $this, $jobid ) = @_;
     my @x = $this->{db}->selectTaskStatusByJobid( $jobid );
     my %x; map{ $x{$_->[0]}++; }@x;
-    $this->{db}->updateJobStatus( join( ',', map{ "$_:$x{$_}" } keys %x ),$jobid );
+    $this->{db}->updateJobStatus( ( 1 == keys %x ) ? $x[0][0]: join( ',', map{ "$_:$x{$_}" } keys %x ), $jobid );
     $this->{db}->commit();
 }
 

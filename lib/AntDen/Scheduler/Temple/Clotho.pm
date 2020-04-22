@@ -44,6 +44,7 @@ sub setMachine
             qw( hostname envhard envsoft switchable group workable role );
         $this->{machine}{$ip}{info} = $m{$ip};
     }
+    return sort keys %{$this->{machine}};
 }
 
 sub setMachineAttr
@@ -400,7 +401,9 @@ sub _search
 {
     my ( $this, $group, $envhard, $envsoft, $resources, $ip ) = @_;
 
-    my @host = grep{ $this->{machine}{$_}{info}{group} eq $group }grep{ $this->{machine}{$_}{info} }keys %{$this->{machine}};
+    my @host = grep{ $this->{machine}{$_}{info}{group} eq $group }
+               grep{ $this->{machine}{$_}{info}{role} eq 'slave'  }
+               grep{ $this->{machine}{$_}{info} }keys %{$this->{machine}};
 
     @host = grep{ $_ eq $ip }@host if defined $ip;
 
@@ -480,9 +483,7 @@ sub _matchResources
 sub _tasklen
 {
     my ( $this, $ip ) = @_;
-    my $task = $this->{machine}{$ip}{task} ||= 0;
-    my $temp = $this->{machine}{$ip}{temp} ||= 0;
-    return $task + $temp;
+    return keys( %{$this->{machine}{$ip}{task}} ) + keys( %{$this->{machine}{$ip}{temp}} );
 }
 
 sub _matchEnv

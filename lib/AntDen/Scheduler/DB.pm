@@ -15,6 +15,7 @@ sub define
         switchable => 'TEXT NOT NULL',
         workable => 'TEXT NOT NULL',
         role => 'TEXT NOT NULL',
+        mon => 'TEXT NOT NULL',
     ],
     resources => [
         ip => 'TEXT NOT NULL',
@@ -47,10 +48,12 @@ sub define
 
 sub stmt
 {
-    insertMachine => "replace into machine (`ip`,`hostname`,`group`,`envhard`,`envsoft`,`switchable`,`workable`,`role`) values(?,?,?,?,?,?,?,?)",
+    insertMachine => "replace into machine (`ip`,`hostname`,`group`,`envhard`,`envsoft`,`switchable`,`workable`,`role`,`mon`) values(?,?,?,?,?,?,?,?,?)",
     selectMachine => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role` from machine",
 
     updateMachineAttr_workable => "update machine set `workable`=? where ip=?",
+    updateMachineAttr_mon => "update machine set `mon`=? where ip=?",
+
     updateJobAttr_nice => "update job set `nice`=? where jobid=?",
 
     insertResources => "insert into `resources` ( `ip`,`name`,`id`,`value`) values(?,?,?,?)",
@@ -60,6 +63,7 @@ sub stmt
     insertJob => "insert into job ( `jobid`,`nice`,`group`,`status`,`ingress` ) values(?,?,?,'queuing',?)",
     selectJobWork => "select `id`,`jobid`,`nice`,`group`,`status` from job where status!='stoped'",
     updateJobStatus => "update job set `status`=? where jobid=?",
+    jobStoped => "update job set `status`='stoped' where jobid=?",
 
     insertTask => "insert into task ( `jobid`,`taskid`,`hostip`,`status`,`result`,`msg`,`usetime`,`domain`,`location`,`port` ) values(?,?,?,'init','','','',?,?,?)",
     selectTaskWork => "select `id`,`jobid`,`taskid`,`hostip`,`status`,`result`,`msg` from task where status !='stoped'",
@@ -68,7 +72,7 @@ sub stmt
     updateTaskResult => "update task set `status`=?,result=?,msg=?,usetime=? where taskid=? and jobid=?",
 
     #dashboard
-    selectMachineInfo => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role` from machine",
+    selectMachineInfo => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine",
     selectResourcesInfo => "select `ip`,`name`,`id`,`value` from resources",
 
 
@@ -77,6 +81,10 @@ sub stmt
 
     selectTaskByJobid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port from task where jobid=?",
     selectJobByJobid => "select id,jobid,nice,`group`,status from job where jobid=?",
+
+    selectIngressJob => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and ingress != ''",
+    selectIngress => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and ingress != ''",
+    selectIngressMachine => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role` from machine where role='ingress'",
 }
 
 1;

@@ -8,6 +8,7 @@ use AntDen::Util::Event;
 use AntDen::Scheduler::DB;
 use AntDen::Controller::Ctrl;
 use AntDen::Scheduler::Temple;
+use AntDen::Scheduler::Mon;
 
 sub new
 {
@@ -22,6 +23,7 @@ sub new
     $this{a} = AntDen::Scheduler::Temple->new(
         db => $this{db}, conf => $this{conf} );
 
+    $this{mon} = AntDen::Scheduler::Mon->new( a => $this{a} );
     bless \%this, ref $class || $class;
 }
 
@@ -34,8 +36,9 @@ my $consume = sub
 
     if( $conf->{ctrl} eq 'addMachine' )
     {
-        $this->{a}->setMachine( $conf->{machine}{ip} => $conf->{machine} );
+        my @h = $this->{a}->setMachine( $conf->{machine}{ip} => $conf->{machine} );
         $this->{a}->setResource( $conf->{machine}{ip} => $conf->{resources} );
+        AntDen::Controller::Ctrl->new( %{$this->{controller}} )->dumpMachine( @h );
     }
     if( $conf->{ctrl} eq 'startJob' )
     {
@@ -63,6 +66,13 @@ my $consume = sub
             qw( status result msg taskid jobid usetime );
         $this->{a}->stoped( $conf );
     }
+    if( $conf->{ctrl} eq 'mon' )
+    {
+        map{ die "$_ undef" unless defined $conf->{$_} }
+            qw( MEM health hostip load );
+        $this->{mon}->add( $conf );
+    }
+
 };
 
 sub run
@@ -80,7 +90,11 @@ sub run
         }$this->{a}->apply();
     });
 
-    my $t2 = $this->{event}->receive( $this, $consume );
+    my $t2 = AnyEvent->timer ( after => 3, interval => 3, cb => sub{
+        $this->{mon}->save();
+    });
+
+    my $t3 = $this->{event}->receive( $this, $consume );
 
     $cv->recv;
 }

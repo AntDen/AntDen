@@ -49,10 +49,11 @@ my $consume = sub
 
     YAML::XS::DumpFile \*STDOUT, $conf;
 
-    map{ die "nofind $_" unless $conf->{$_} }qw( ctrl jobid taskid hostip );
+    die "ctrl undef" unless $conf->{ctrl};
 
     if( $conf->{ctrl} eq 'stop' || $conf->{ctrl} eq 'start' )
     {
+         map{ die "$_ undef" unless $conf->{$_} }qw( jobid taskid hostip );
          $this->_send( $conf );
     }
 
@@ -67,7 +68,7 @@ my $consume = sub
 my $consumeSlave = sub
 {
     my ( $this, $conf ) = @_;
-    return if $conf->{ctrl} && $conf->{ctrl} eq 'mon';
+#    return if $conf->{ctrl} && $conf->{ctrl} eq 'mon';
     YAML::XS::DumpFile \*STDOUT, $conf;
     $this->{event2}->send( $conf );
 };

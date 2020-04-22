@@ -32,7 +32,14 @@ return sub
         $index ++;
         my $tmps = join "\n", map{ "    server $_;" }@{$location->{$key}};
         $upstream .= "upstream ${name}_$index\n{\n$tmps\n}\n";
-        $locationstr .= "    location $key\n    {\n        proxy_pass http://${name}_$index;\n    }\n";
+        if( $key eq '/' )
+        {
+            $locationstr .= "    location $key\n    {\n        proxy_pass http://${name}_$index;\n    }\n";
+        }
+        else
+        {
+            $locationstr .= "    location ^~ $key\n    {\n        rewrite $key(.*)\$ /\$1 break;\n        proxy_pass http://${name}_$index;\n    }\n";
+        }
     }
 
     my ( $fh, $tmpfile ) = File::Temp::tempfile();

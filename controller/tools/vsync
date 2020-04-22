@@ -36,6 +36,8 @@ if( $o{proxy} )
 }
 
 my $proxy = $proxy{$o{host}};
+$o{addr} = '127.0.0.1' unless $proxy;
+
 my $uuid = Digest::MD5->new()->add( $$.time.rand 100000 )->hexdigest();
 
 my ( $cv, $rheartbeat, $in, $out, $hdl, $cache, $w, @file, $delete, $heartbeat, @sending )

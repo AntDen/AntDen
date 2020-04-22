@@ -1,0 +1,64 @@
+<div>
+    <div>
+        domain: [% domain %]
+    </div>
+    [% FOR name IN ingress.keys %]
+    <hr>
+    <table border="1">
+        <tr>
+            <th>group:[% name %] => realserver:[% group.$name %]</th>
+        </tr>
+        <tr>
+            <td>
+               [% FOR jobid IN ingress.$name.keys %]
+                <table border="1">
+                    <tr>
+                        <th>[% jobid %]</th>
+                    </tr>
+                    <tr>
+                    <td>
+
+                        <table border="1">
+                            <tr>
+                                <th>id</th>
+                                <th>taskid</th>
+                                <th>hostip</th>
+                                <th>status</th>
+                                <th>result</th>
+                                <th>msg</th>
+                                <th>usetime</th>
+                                <th>domain</th>
+                                <th>location</th>
+                                <th>port</th>
+                                <th>log</th>
+                                <th>use</th>
+                                <th>param</th>
+                            </tr>
+                            [% FOR t IN ingress.$name.$jobid %]
+                            <tr>
+                                <td>[% t.0 %]</td>
+                                <td>[% t.2 %]</td>
+                                <td>[% t.3 %]</td>
+                                <td>[% t.4 %]</td>
+                                <td>[% t.5 %]</td>
+                                <td>[% t.6 %]</td>
+                                <td>[% t.7 %]</td>
+                                <td>[% t.8 %]</td>
+                                <td>[% t.9 %]</td>
+                                <td>[% t.10 %]</td>
+                                <td><a href="/tasklog/[% t.2 %]_[% t.3 %].log">log</a></td>
+                                <td><a href="/tasklog/[% t.2 %]_[% t.3 %].use">use</a></td>
+                                <td><a href="/scheduler/task/[% t.2 %]">param</a></td>
+                            </tr>
+                            [% END %]
+                        </table>
+
+                    </td>
+                    </tr>
+                </table>
+               [% END %]
+            </td>
+        </tr>
+    </table>
+    [% END %]
+</div>

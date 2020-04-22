@@ -11,6 +11,7 @@
             <th>group</th>
             <th>workable</th>
             <th>role</th>
+            <th>mon</th>
             <th>log</th>
         </tr>
         [% FOR m IN machine %]
@@ -23,6 +24,7 @@
             <td>[% m.5 %]</td>
             <td>[% m.6 %]</td>
             <td>[% m.7 %]</td>
+            <td>[% m.8 %]</td>
             <td><a href="/tasklog/[% m.0 %].log">log</a></td>
         </tr>
         [% END %]
