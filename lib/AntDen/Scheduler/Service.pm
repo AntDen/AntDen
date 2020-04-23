@@ -91,7 +91,7 @@ sub run
     });
 
     my $t2 = AnyEvent->timer ( after => 3, interval => 3, cb => sub{
-        $this->{mon}->save();
+        $this->{mon}->save( $this->{a}->getMachine() );
     });
 
     my $t3 = $this->{event}->receive( $this, $consume );

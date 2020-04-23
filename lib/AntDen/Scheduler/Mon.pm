@@ -25,19 +25,21 @@ sub add
 {
     my ( $this, $conf ) = @_;
     $this->{data}{$conf->{hostip}} = $conf;
-
 }
 
 sub save
 {
-    my ( $this, $conf ) = @_;
-    #TODO filter ip
-    for my $ip ( keys %{$this->{data}} )
+    my ( $this, @ip ) = @_;
+
+    for my $ip ( @ip )
     {
+        $this->{data}{$ip} ||= +{ health => 0 };
+
         $this->{a}->setMachineAttr(
             $ip, 'mon',
             join ',', map{ "$_=$this->{data}{$ip}{$_}" }
                 grep{ $_ ne 'hostip' && $_ ne 'ctrl' } sort keys %{$this->{data}{$ip}} );
     }
+    $this->{data} = +{};
 }
 1;

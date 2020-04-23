@@ -9,7 +9,7 @@ sub new
 {
     my ( $class, %this ) = @_;
     map{ die "$_ undef" unless $this{$_} }qw( db conf );
-    map{ $this{$_} = +{} }qw( stoped );
+    map{ $this{$_} = +{} }qw( stoped machineip );
 
     $this{ingress} = AntDen::Scheduler::Ingress->new();
     $this{temple} = AntDen::Scheduler::Temple::Clotho->new();
@@ -17,7 +17,7 @@ sub new
     for my $x ( $this{db}->selectMachine() )
     {
         my ( $ip, $hostname, $envhard, $envsoft, $switchable,
-            $group, $workable, $role ) = @$x;
+            $group, $workable, $role, $mon ) = @$x;
 
         my $hi = +{
             hostname => $hostname,
@@ -27,9 +27,12 @@ sub new
             group => $group,
             workable => $workable,
             role => $role,
+            mon => $mon,
          };
         $this{ingress}->setMachine( $ip => $hi );
         $this{temple}->setMachine( $ip => $hi );
+
+        $this{machineip}{$ip} ++;
     }
 
     my ( @r, %r ) = $this{db}->selectResources();
@@ -113,10 +116,18 @@ sub setMachine
             map{ defined $t{$_} ? $t{$_} : die "err: nofind $_" }
                 @{$this->{db}->column('machine')} );
         $this->{db}->commit();
+
+        $this->{machineip}{$ip} ++;
     }
 
     $this->{ingress}->setMachine( %m );
     $this->{temple}->setMachine( %m );
+}
+
+sub getMachine
+{
+    my $this = shift @_;
+    return keys %{$this->{machineip}}
 }
 
 sub setMachineAttr

@@ -23,6 +23,7 @@ sub new
     switchable: 1
     workable: 1
     role: slave,ingress,master 
+    mon: health=1,load=0.1
 
   ip2:
     hostname: 10-60-79-144
@@ -32,6 +33,7 @@ sub new
     group: foo
     workable: 1
     role: slave,ingress,master 
+    mon: health=1,load=0.1
 
 =cut
 
@@ -353,7 +355,10 @@ sub _applyByJobid
     print "jobid; $jobid\n";
     return unless my $conf = $this->{job}{$jobid}{info}{conf};
 
-    map{ $this->{machine}{$_}{temp} = +{} }keys %{$this->{machine}};
+    map{
+        $this->{machine}{$_}{temp} = +{};
+        $this->{machine}{$_}{task} ||= +{};
+    }keys %{$this->{machine}};
     my ( $id, @conf ) = ( 1 );
 
     for my $conf ( @$conf )
@@ -403,6 +408,7 @@ sub _search
 
     my @host = grep{ $this->{machine}{$_}{info}{group} eq $group }
                grep{ $this->{machine}{$_}{info}{role} eq 'slave'  }
+               grep{ $this->{machine}{$_}{info}{mon} =~ /health=1/  }
                grep{ $this->{machine}{$_}{info} }keys %{$this->{machine}};
 
     @host = grep{ $_ eq $ip }@host if defined $ip;

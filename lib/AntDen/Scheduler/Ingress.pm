@@ -21,6 +21,7 @@ sub new
     switchable: 1
     workable: 1
     role: slave,ingress,master 
+    mon: health=1,load=0.1
 
   ip2:
     hostname: 10-60-79-144
@@ -30,6 +31,7 @@ sub new
     group: foo
     workable: 1
     role: slave,ingress,master 
+    mon: health=1,load=0.1
 
 =cut
 
@@ -189,7 +191,9 @@ sub _ingressByGroup
 
     for my $ip ( keys %{$this->{machine}} )
     {
-        push( @host, $ip ) if $this->{machine}{$ip}{role} eq 'ingress' && $this->{machine}{$ip}{group} eq $group;
+        push( @host, $ip ) if $this->{machine}{$ip}{role} eq 'ingress'
+            && $this->{machine}{$ip}{mon} =~ /health=1/
+            && $this->{machine}{$ip}{group} eq $group;
     }
 
     for my $host ( @host )

@@ -49,7 +49,7 @@ sub define
 sub stmt
 {
     insertMachine => "replace into machine (`ip`,`hostname`,`group`,`envhard`,`envsoft`,`switchable`,`workable`,`role`,`mon`) values(?,?,?,?,?,?,?,?,?)",
-    selectMachine => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role` from machine",
+    selectMachine => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine",
 
     updateMachineAttr_workable => "update machine set `workable`=? where ip=?",
     updateMachineAttr_mon => "update machine set `mon`=? where ip=?",
