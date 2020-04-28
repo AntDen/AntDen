@@ -1,0 +1,44 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use JSON;
+use AntDen;
+
+use MYDan::Util::OptConf;
+use AntDen::Scheduler::Temple::Clotho;
+
+$| ++;
+
+$MYDan::Util::OptConf::THIS = 'antden';
+
+=head1 SYNOPSIS
+
+ $0 
+
+=cut
+
+$0 = 'AntDen_scheduler_temple_clotho';
+
+my %o = MYDan::Util::OptConf->load()->get()->dump();
+
+my $c = AntDen::Scheduler::Temple::Clotho->new();
+
+while( <STDIN> )
+{
+    my $x = $_;
+    my $data = eval{ JSON::from_json $x };
+    die "load data error: $@ : $_" if $@;
+    die "data.name undef" unless $data->{name};
+    die "data.data undef" unless $data->{data} && ref $data->{data} eq 'ARRAY';
+    my $m = $data->{name};
+    if( $m eq 'apply' )
+    {
+        my @x = $c->$m( @{$data->{data}} );
+        if( @x > 0 )
+        {
+            my $x = JSON::to_json( \@x  );
+            print $x, "\n";
+        }
+    }
+    else { $c->$m( @{$data->{data}} ); }
+}

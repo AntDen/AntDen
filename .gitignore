@@ -7,6 +7,8 @@ t.*
 J.*
 j.*
 E.*
+*.in
+*.out
 *.db
 *.db-shm
 *.db-wal

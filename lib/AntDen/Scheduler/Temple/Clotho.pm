@@ -352,7 +352,6 @@ input =>
 sub _applyByJobid
 {
     my ( $this, $jobid ) = @_;
-    print "jobid; $jobid\n";
     return unless my $conf = $this->{job}{$jobid}{info}{conf};
 
     map{

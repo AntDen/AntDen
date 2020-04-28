@@ -4,15 +4,24 @@ use warnings;
 
 use AntDen::Scheduler::Ingress;
 use AntDen::Scheduler::Temple::Clotho;
+use AntDen::Scheduler::Temple::Pandora;
 
 sub new
 {
     my ( $class, %this ) = @_;
-    map{ die "$_ undef" unless $this{$_} }qw( db conf );
+    map{ die "$_ undef" unless $this{$_} }qw( db conf temple );
     map{ $this{$_} = +{} }qw( stoped machineip );
 
     $this{ingress} = AntDen::Scheduler::Ingress->new();
-    $this{temple} = AntDen::Scheduler::Temple::Clotho->new();
+    my $temple = $ENV{AntDenSchedulerTemple};
+    if( $temple && $temple =~ /^pandora:/ )
+    {
+        $this{temple} = AntDen::Scheduler::Temple::Pandora->new( path => "$this{temple}" );
+    }
+    else
+    {
+        $this{temple} = AntDen::Scheduler::Temple::Clotho->new();
+    }
 
     for my $x ( $this{db}->selectMachine() )
     {

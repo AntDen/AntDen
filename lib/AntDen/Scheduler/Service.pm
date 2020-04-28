@@ -13,7 +13,7 @@ use AntDen::Scheduler::Mon;
 sub new
 {
     my ( $class, %this ) = @_;
-    map{ die "error $_ undefind" unless $this{$_} }qw( db conf );
+    map{ die "error $_ undefind" unless $this{$_} }qw( db conf temple );
 
     $this{db} = AntDen::Scheduler::DB->new( $this{db} );
 
@@ -21,7 +21,7 @@ sub new
         path => "$this{conf}/ctrl/in" );
 
     $this{a} = AntDen::Scheduler::Temple->new(
-        db => $this{db}, conf => $this{conf} );
+        map{ $_ => $this{$_} }qw( db conf temple ) );
 
     $this{mon} = AntDen::Scheduler::Mon->new( a => $this{a} );
     bless \%this, ref $class || $class;
@@ -36,9 +36,9 @@ my $consume = sub
 
     if( $conf->{ctrl} eq 'addMachine' )
     {
-        my @h = $this->{a}->setMachine( $conf->{machine}{ip} => $conf->{machine} );
+        $this->{a}->setMachine( $conf->{machine}{ip} => $conf->{machine} );
         $this->{a}->setResource( $conf->{machine}{ip} => $conf->{resources} );
-        AntDen::Controller::Ctrl->new( %{$this->{controller}} )->dumpMachine( @h );
+        AntDen::Controller::Ctrl->new( %{$this->{controller}} )->dumpMachine( $this->{a}->getMachine() );
     }
     if( $conf->{ctrl} eq 'startJob' )
     {
