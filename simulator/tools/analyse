@@ -1,0 +1,23 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use warnings;  
+use strict;  
+
+use AntDen::Simulator;
+use MYDan::Util::OptConf;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+ $0 Scheduling_algorithm_name [example: clotho]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get()->dump( 'antden' );
+$option->assert() unless my $name =  shift @ARGV;
+
+use Data::Dumper;
+
+my $s = AntDen::Simulator->new( %{$o{simulator}}, name => $name );
+$s->run();

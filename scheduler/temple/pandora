@@ -31,6 +31,11 @@ while( <STDIN> )
     die "data.name undef" unless $data->{name};
     die "data.data undef" unless $data->{data} && ref $data->{data} eq 'ARRAY';
     my $m = $data->{name};
+    if( $m eq 'time' )
+    {
+        print $x;
+        next;
+    }
     if( $m eq 'apply' )
     {
         my @x = $c->$m( @{$data->{data}} );

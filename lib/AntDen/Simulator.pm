@@ -1,9 +1,11 @@
-package AntDen::Scheduler::Temple::Pandora;
+package AntDen::Simulator;
 use strict;
 use warnings;
-
-use JSON;
+use Carp;
+use YAML::XS;
 use POSIX;
+
+use AntDen::Simulator::Generator;
 
 sub new
 {
@@ -14,11 +16,9 @@ sub new
         die "kill.\n";
     };
 
-    die "env Pandora undef" unless my $name = $ENV{AntDenSchedulerTemple} || 'pandora:clotho';
-    $name =~ s/^pandora://;
-    die "name error" unless $name && $name ne 'pandora';
-
-    die "path undef" unless my $path = $this{path};
+    map{ die "$_ undef" unless $this{$_} }qw( scheduler conf name );
+    die "name undef" unless my $name = $this{name};
+    die "path undef" unless my $path = $this{scheduler};
     $this{uuid} = sprintf "%s.%04d", POSIX::strftime( "%Y%m%d_%H%M%S", localtime ), int rand 10000;
 
     map{ die "touch $this{uuid}.$_ fail: $!" if system "touch $path/run/$this{uuid}.$_"; }qw( in out );
@@ -32,22 +32,23 @@ sub new
     bless \%this, ref $class || $class;
 }
 
-sub AUTOLOAD
+sub run
 {
     my $this = shift;
-    return unless our $AUTOLOAD =~ /::([a-z]\w+)$/;
-    my $name = $1;
-    my $data = +{ name => $name, data => \@_ };
-    my $d = JSON::to_json( $data );
-    syswrite $this->{in}, $d."\n";
 
-    return unless $name eq 'apply';
+    my $generator = AntDen::Simulator::Generator->new( conf => $this->{conf} );
     my $H = $this->{out};
-    my $x = <$H>;
-    return () unless $x;
-    my $dd = eval{ JSON::from_json $x };
-    die "from_json fail: $@" if $@;
-    return @{$dd};
+    while(1)
+    {
+        my @feedback;
+        while( 1 )
+        {
+            my $feedback = <$H>;
+            last unless $feedback;
+            push @feedback, $feedback;
+        }
+        map{ syswrite $this->{in}, "$_\n"; } $generator->generator( @feedback );
+    }
 }
 
 1;
