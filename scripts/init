@@ -1,0 +1,38 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+my ( $name, $host ) = @ARGV;
+die "\$0 slave\n\$0 master\n" unless $name && ( $name eq 'slave' || $name eq 'master' );
+
+system "ln -fsn /opt/AntDen/bin/antden /bin/" unless $host;
+
+if( $name eq 'slave' )
+{
+    if( $host )
+    {
+        my $time = time;
+        
+        system "cd /opt/AntDen && tar -zcvf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job";
+        system "mydan rcall  -r '$host' dump /opt/AntDen.$time.tar.gz";
+        system "mydan rcall  -r '$host' exec 'mkdir -p /opt/AntDen && tar -zxvf /opt/AntDen.$time.tar.gz  -C /opt/AntDen && /opt/AntDen/scripts/init slave'";
+    }
+    else
+    {
+        system 'ln -fsn /opt/AntDen/slave/code/mydan/antden /opt/mydan/dan/agent/code/antden';
+        system 'ln -fsn /opt/AntDen/slave/code/mydan/vsync /opt/mydan/dan/agent/code/vsync';
+        system "mkdir -p /opt/AntDen/scheduler/conf/job /opt/AntDen/scheduler/conf/task  /opt/AntDen/logs/task /opt/AntDen/database /opt/AntDen/slave/conf/task";
+        system "antden slave c --restart";
+    }
+}
+else
+{
+    system 'cd /opt/mydan/etc/agent/auth && ssh-keygen -f antden -P "" && mv antden antden.key && echo success'
+        unless -f '/opt/mydan/etc/agent/auth/antden.key' || -f '/opt/mydan/etc/agent/auth/antden.pub';
+
+    map{
+        system "/opt/mydan/perl//bin/cpan install $_";
+    }qw( Dancer Template Twiggy Dancer2 Dancer2::Plugin::WebSocket);
+
+    map{ system "antden $_ restart"; } qw( controller scheduler dashboard );
+}
