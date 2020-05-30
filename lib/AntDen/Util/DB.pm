@@ -4,25 +4,50 @@ use warnings;
 use Carp;
 use DBI;
 
+our %MC = 
+(
+    'TEXT NOT NULL PRIMARY KEY' => 'VARCHAR(2000) primary key',
+    'INTEGER PRIMARY KEY AUTOINCREMENT' => 'int(32) unsigned not null primary key auto_increment',
+    'TEXT NOT NULL' => 'varchar(2000) NOT NULL',
+    'INTEGER NOT NULL' => 'int(32) NOT NULL',
+);
+
 sub new
 {
     my ( $class, $db, $autoCommit ) = splice @_, 0, 3;
 
+    my $isMysql = ref $db eq 'HASH' ? 1 : 0;
     #TODO
-    system "echo 'PRAGMA journal_mode=WAL;'|sqlite3 '$db'" unless -f "$db-wal";
+    system "echo 'PRAGMA journal_mode=WAL;'|sqlite3 '$db'" if ! $isMysql && ! -f "$db-wal";
 
     $autoCommit ||= 0;
-    $db = DBI->connect
-    ( 
-        "DBI:SQLite:dbname=$db", '', '',
-        { RaiseError => 1, PrintWarn => 0, PrintError => 0, AutoCommit => $autoCommit }
-    );
 
-    $autoCommit
-      ? $db->do("PRAGMA journal_mode=WAL;")
-      : $db->do("COMMIT;PRAGMA journal_mode=WAL;BEGIN");
+    if( $isMysql )
+    {
+        map{ die "db.$_ undef" unless $db->{$_} }qw( database user pass );
+        $db = DBI->connect
+        ( 
+            "DBI:mysql:$db->{database}", $db->{user}, $db->{pass},
+            { RaiseError => 1, PrintWarn => 0, PrintError => 0, AutoCommit => $autoCommit }
+        );
+    }
+    else
+    {
+        $db = DBI->connect
+        ( 
+            "DBI:SQLite:dbname=$db", '', '',
+            { RaiseError => 1, PrintWarn => 0, PrintError => 0, AutoCommit => $autoCommit }
+        );
+    }
 
-    my $self = bless { db => $db, autoCommit => $autoCommit }, ref $class || $class;
+    unless( $isMysql )
+    {
+        $autoCommit
+          ? $db->do("PRAGMA journal_mode=WAL;")
+          : $db->do("COMMIT;PRAGMA journal_mode=WAL;BEGIN");
+    }
+
+    my $self = bless { db => $db, autoCommit => $autoCommit, isMysql => $isMysql }, ref $class || $class;
 
     my %define = $self->define;
     map { $self->create( $_ ) } keys %define;
@@ -61,18 +86,17 @@ sub create
 
     $self->{column}{$table} = \@column;
     my $db = $self->{db};
-    my $neat = DBI::neat( $table );
+    my $neat = $self->{isMysql} ? "`$table`" : DBI::neat( $table );
 
     unless ( $exist{$table} )
     {
         $db->do
         (
             sprintf "CREATE TABLE $neat ( %s )",
-            join ', ', map { "`$_` $column{$_}" } @column
+            join ', ', map { $self->{isMysql} ? "`$_` $MC{$column{$_}}" : "`$_` $column{$_}" } @column
         );
         $self->commit();
     }
-
 
     return $self;
 }
@@ -96,8 +120,12 @@ sub AUTOLOAD
     my $name = $1;
     $name .= shift( @_ ) if $name =~ /_$/;
     die "sql $name undef" unless my $stmt = $self->{stmt}{$name};
-    my @re = @{ $self->execute( $stmt, @_ )->fetchall_arrayref };
-    $self->commit() if $name =~ /^select/;
+
+    my $st = $self->execute( $stmt, @_ );
+    return unless $name =~ /^select/;
+
+    my @re = @{ $st->fetchall_arrayref };
+    $self->commit();
     return @re;
 }
 
