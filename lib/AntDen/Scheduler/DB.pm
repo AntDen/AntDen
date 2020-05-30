@@ -36,7 +36,7 @@ sub define
         jobid => 'TEXT NOT NULL',
         taskid => 'TEXT NOT NULL',
         hostip => 'TEXT NOT NULL',
-        status => 'INTEGER NOT NULL',
+        status => 'TEXT NOT NULL',
         result => 'TEXT NOT NULL',
         msg => 'TEXT NOT NULL',
         usetime => 'TEXT NOT NULL',
@@ -85,6 +85,9 @@ sub stmt
     selectIngressJob => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and ingress != ''",
     selectIngress => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and ingress != ''",
     selectIngressMachine => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role` from machine where role='ingress'",
+
+    #api
+    selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port from task where taskid=?",
 }
 
 1;
