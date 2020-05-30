@@ -3,6 +3,10 @@ use Dancer ':syntax';
 
 use POSIX;
 use FindBin qw( $RealBin );
+use JSON;
+
+set serializer => 'JSON';
+set show_errors => 1;
 
 our $VERSION = '0.1';
 our ( $schedulerCtrl, $schedulerDB, %addr, %opt );
@@ -105,6 +109,73 @@ get '/scheduler/submitJob' => sub {
     $niceStr = 5 if ! defined $niceStr;
     template 'scheduler/submitJob', +{ config => $configStr, nice => $niceStr,
         group => $groupStr, err => $err, jobid => $jobid };
+};
+
+post '/scheduler/submitJob' => sub {
+    my $param = params();
+    my ( $config, $nice, $group ) = @$param{qw( config nice group )};
+
+    return +{ stat => JSON::false, info => 'nice error' } unless defined $nice && $nice =~ /^\d+$/;
+    return +{ stat => JSON::false, info => 'group error' } unless defined $group && $group =~ /^[a-zA-Z0-9]+$/;
+    return +{ stat => JSON::false, info => 'config error' } unless defined $config && ref $config eq 'ARRAY';
+    my $jobid = $schedulerCtrl->startJob( $config, $nice, $group );
+    return +{ stat => JSON::true, data => $jobid }
+};
+
+get '/scheduler/listJob' => sub {
+    my $param = params();
+    my @job = $schedulerDB->selectJobStopedInfo();
+    #`id`,`jobid`,`nice`,`group`,`status`
+    return +{
+        stat => JSON::true,
+        data => [ map{ +{ id => $_->[0], jobid => $_->[1], nice => $_->[2], group => $_->[3], status => $_->[4] } }@job ]
+    };
+};
+
+get '/scheduler/jobstop/:jobid' => sub {
+    my $param = params();
+    my $jobid = $param->{jobid};
+    return +{ stat => JSON::false, info => 'jobid format error' } unless $jobid && $jobid =~ /^J[0-9\.]+$/;
+    $schedulerCtrl->stopJob( $jobid );
+    return  +{ stat => JSON::true, data => $jobid };
+};
+
+get '/scheduler/jobinfo/:jobid' => sub {
+    my $param = params();
+    my $jobid = $param->{jobid};
+    my @task = $schedulerDB->selectTaskByJobid( $jobid );
+    #id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port
+    my @job = $schedulerDB->selectJobByJobid( $jobid );
+    #id,jobid,nice,group,status
+    my $config = eval{ YAML::XS::LoadFile "$opt{scheduler}{conf}/job/$jobid" };
+
+    return +{ stat => JSON::true, data => +{
+        config => $config,
+        task => [ map{ +{
+            id => $_->[0], jobid => $_->[1], taskid => $_->[2],
+            hostip => $_->[3], status => $_->[4], result => $_->[5],
+            msg => $_->[6], usetime => $_->[7], domain => $_->[8],
+            location => $_->[9], port => $_->[10] } }@task ],
+        job => +{
+            id => $job[0][0], jobid => $job[0][1], nice => $job[0][2],
+            group => $job[0][3], status => $job[0][4] }
+     } };
+};
+
+get '/scheduler/taskinfo/:taskid' => sub {
+    my $param = params();
+    my $taskid = $param->{taskid};
+    my @task = $schedulerDB->selectTaskByTaskid( $taskid );
+    #id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port
+
+    return +{ stat => JSON::true, data => +{
+        id => $task[0][0], jobid => $task[0][1],
+        taskid => $task[0][2], hostip => $task[0][3],
+        status => $task[0][4], result => $task[0][5],
+        msg => $task[0][6], usetime => $task[0][7],
+        domain => $task[0][8], location => $task[0][9],
+        port => $task[0][10]
+     } };
 };
 
 hook 'before' => sub {
