@@ -6,6 +6,7 @@ use Fcntl 'O_RDONLY';
 use Tie::File;
 
 our %STAT = ( machine => 0, CPU => 0, MEM => 0, GPU => 0, PORT => 0 );
+our @ADD;
 
 sub new
 {
@@ -22,27 +23,43 @@ sub generator
 {
     my ( $this, @machine ) = @_;
 
-    my $config = $this->{config};
-    return unless @$config;
-    my $conf = shift @$config;
-    my $count = 1;
-    my @res;
-    my %conf; map{
-        my @x = split /:/, $_;
-        if ( $x[0] eq 'count' )
-        {
-            $count = $x[1];
-        }
-        else
-        {
-            push( @res, [ $x[0], 0, $x[1] ] )if @x == 2;
-            push( @res, [ $x[0], $x[1], $x[2] ] ) if @x == 3;
-        }
-    }split /\s+/, $conf;
+    my ( @res, %x );
+
+    if( @ADD )
+    {
+        my $m = shift @ADD;
+        %x = %{$m->{conf}};
+        @res = @{$m->{res}};
+    }
+
+    unless( @res )
+    {
+        my $config = $this->{config};
+        return unless @$config;
+
+
+        my $conf = shift @$config;
+        map{
+            my @x = split /:/, $_;
+            if( grep{ $x[0] eq $_ }qw( CPU MEM PORT GPU ) )
+            {
+                push( @res, [ $x[0], 0, $x[1] ] )if @x == 2;
+                push( @res, \@x ) if @x == 3;
+            }
+            else
+            {
+                $x{$x[0]} = $x[1];
+            }
+        }split /\s+/, $conf;
+    }
+
+    $x{count} ||= 1;
+    $x{role} ||= 'slave',
+    $x{group} ||= 'foo';
 
     $this->{id} ++;
     my $id = 0;
-    for( 1 .. $count )
+    for( 1 .. $x{count} )
     {
         $id ++;
         my $ip = "10.0.$this->{id}.$id";
@@ -50,12 +67,12 @@ sub generator
             $ip,
             +{
                 mon => "MEM=1159,health=1,load=0.26",
-                group => "foo",
+                group => $x{group},
                 hostname => "node.$this->{id}.$id",
                 switchable => 1,
                 envhard => "arch=x86_64,os=Linux",
                 envsoft => "SELinux=Disabled",
-                role => "slave",
+                role => $x{role},
                 workable => 1,
              }
         );

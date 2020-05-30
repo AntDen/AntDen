@@ -13,6 +13,12 @@ sub new
     bless \%this, ref $class || $class;
 }
 
+sub addProduct
+{
+    my ( $this, $conf ) = @_;
+    $this->{product}{$conf->{conf}{id}} = $conf;
+}
+
 =head3 setMachine( %m )
 
   ip1:

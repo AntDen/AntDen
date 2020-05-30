@@ -1,3 +1,3 @@
-repeat:100 count:3 group:foo nice:5 runtime:600 CPU:2
-repeat:100 count:3 group:foo nice:5 CPU:2 MEM:8 GPU:1
-repeat:10 count:1 group:foo nice:5 CPU:2 MEM:8 GPU:1
+repeat:1 count:1 group:foo nice:5 runtime:3600 CPU:1
+repeat:1 count:1 group:foo nice:5 runtime:3600 CPU:1 MEM:1 GPU:1
+repeat:8 count:1 group:foo nice:5 runtime:3600 CPU:1 MEM:1 GPU:1

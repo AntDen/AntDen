@@ -35,6 +35,10 @@ sub generator
         #      'jobid' => 'J.34',
         #      'group' => 'foo',
         #      'hostip' => '10.0.2.39'
+        if( $_->{executer}{name} eq 'buy' )
+        {
+            push @{AntDen::Simulator::Generator::Product::BUY}, $_->{executer}{param}{productid};
+        }
         if( $AntDen::Simulator::Generator::Job::TASK{$_->{taskid}} )
         {
             $AntDen::Simulator::Generator::Job::TASK{$_->{taskid}}{sche} = $_;

@@ -1,0 +1,1 @@
+id:0001 group:foo name:vm1 CPU:1 MEM:1 GPU:4 cost:100 unit:3600 startingtime:300 shutdowntime:20

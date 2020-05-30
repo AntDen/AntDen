@@ -7,6 +7,7 @@ use AntDen::Simulator::Generator::Machine;
 use AntDen::Simulator::Generator::Job;
 use AntDen::Simulator::Generator::Time;
 use AntDen::Simulator::Generator::Feedback;
+use AntDen::Simulator::Generator::Product;
 
 sub new
 {
@@ -16,6 +17,7 @@ sub new
     $this{job} = AntDen::Simulator::Generator::Job->new( conf => $this{conf} );
     $this{time} = AntDen::Simulator::Generator::Time->new();
     $this{feedback} = AntDen::Simulator::Generator::Feedback->new();
+    $this{product} = AntDen::Simulator::Generator::Product->new( conf => $this{conf} );
 
     my %x = %AntDen::Simulator::Generator::Job::STAT;
     my %o = %AntDen::Simulator::Generator::Machine::STAT;
@@ -40,6 +42,7 @@ sub generator
         push @data, $this->{time}->generator();
         push @data, $this->{machine}->generator();
         push @data, $this->{job}->generator();
+        push @data, $this->{product}->generator( $this->{time}->time() );
 
         my %x = %AntDen::Simulator::Generator::Job::STAT;
         my %o = %AntDen::Simulator::Generator::Machine::STAT;

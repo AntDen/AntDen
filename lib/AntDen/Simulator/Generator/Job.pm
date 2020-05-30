@@ -98,7 +98,7 @@ sub generator
 
         map{
             my @x = split /:/, $_;
-            if( grep{ $x[0] eq $_ }qw( CPU MEM PORT GPU) )
+            if( grep{ $x[0] eq $_ }qw( CPU MEM PORT GPU ) )
             {
                 push( @res, [ $x[0], '.', $x[1] ] ) if @x == 2;
                 push( @res, \@x ) if @x == 3;
