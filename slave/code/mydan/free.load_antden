@@ -1,0 +1,40 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+use MYDan::Util::FastMD5;
+
+eval
+{
+    local $/ = undef;
+    my (  %param, $i ) = %{ YAML::XS::Load( <> ) };
+
+    my ( $file, $position ) = $param{argv} ? @{$param{argv}} : @{$param{data}};
+    die "file undef" unless $file;
+
+    my $name = $file;
+    $name =~ s/^\/data\/AntDen_repo\///;
+    die "Path not allowed" unless $name =~ /^[A-Za-z0-9][A-Za-z0-9\-\.\@]+$/;
+
+    die "Can't open '$file': $!\n" unless open my  $fh, '+<', $file;
+    syswrite( \*STDOUT, "MYDanExtractFile_::${file}::_MYDanExtractFile" ) unless $position;
+
+    my ( $uid, $mode, $size ) = (stat $file)[4,2,7];
+    $mode  = sprintf( "%04o", $mode & 07777 );
+    syswrite \*STDOUT, sprintf "%d:%s:%s:%s:", 
+        $size,MYDan::Util::FastMD5->hexdigest( $file ),( getpwuid($uid) )[0], $mode;
+
+    if( $position )
+    {
+        seek $fh, $position, 0;
+        my ( $n, $buf );
+        while( $n = sysread $fh, $buf, 102400 )
+        {
+            syswrite \*STDOUT, $buf;
+        }
+    }
+
+    exit 0;
+};
+print $@;
+exit 1;

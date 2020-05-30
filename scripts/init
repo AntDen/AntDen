@@ -30,6 +30,8 @@ else
     system 'cd /opt/mydan/etc/agent/auth && ssh-keygen -f antden -P "" && mv antden antden.key && echo success'
         unless -f '/opt/mydan/etc/agent/auth/antden.key' || -f '/opt/mydan/etc/agent/auth/antden.pub';
 
+    system 'ln -fsn /opt/AntDen/slave/code/mydan/free.load_antden /opt/mydan/dan/agent/code/free.load_antden';
+
     map{
         system "/opt/mydan/perl//bin/cpan install $_";
     }qw( Dancer Template Twiggy Dancer2 Dancer2::Plugin::WebSocket);
