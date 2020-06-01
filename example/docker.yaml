@@ -1,0 +1,13 @@
+-
+  executer:
+    name: docker
+    param:
+      cmd: ''
+      image: 'nginx'
+  scheduler:
+    envhard: 'arch=x86_64,os=Linux'
+    envsoft: 'app1=1.0'
+    count: 1
+    resources:
+      - [ 'CPU', '.', 2 ] 
+      - [ 'PORT', '.', 1 ]

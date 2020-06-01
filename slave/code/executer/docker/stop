@@ -1,0 +1,25 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+=head3 param
+
+  param:
+    executeid
+
+=head3 return
+
+  return null
+
+=cut
+
+return sub
+{
+    my $param = shift @_;
+
+    system "docker stop $param->{executeid}";
+    #TODO
+    #system "docker kill $param->{executeid}";
+
+    return;
+};

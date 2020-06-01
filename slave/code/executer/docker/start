@@ -1,0 +1,35 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+use AntDen;
+use POSIX qw( :sys_wait_h );
+
+=head3 param
+
+  resources:
+    [ 'CPU', 0, 2 ]
+    [ 'PORT', 65111, 1 ]
+  param:
+    cmd: ''
+    image: nginx
+  taskid: J.20191120.191012.907980.111.001
+
+=head3 return
+
+  return executeid, for stop and status, maybe pid or container id
+
+=cut
+
+return sub
+{
+    my $param = shift @_;
+
+    $param->{param}{cmd} ||= '';
+    #TODO
+    die "docker run fail" unless my $containerid = `docker run --name $param->{taskid} -d $param->{param}{image} $param->{param}{cmd}`;
+    chomp $containerid;
+    die "containerid format error" unless $containerid =~ /^[a-z0-9]+$/;
+    die "link log fail: $@" if system "ln -fsn /var/lib/docker/containers/$containerid/$containerid-json.log $AntDen::PATH/logs/task/$param->{taskid}.log";
+    return $param->{taskid};
+};
