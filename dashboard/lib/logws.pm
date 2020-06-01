@@ -111,4 +111,6 @@ get '/tasklog/:uuid' => sub {
 END
 };
 
+any '/mon' => sub { return  'ok'; };
+
 true;

@@ -18,8 +18,8 @@ if( my @x = `ps -ef|grep [A]ntDen_dashboard_`  )
     die "Err: Already running!\n";
 }
 
-die "start $_ fail: $!" if system "$MYDan::PATH/dan/tools/supervisor --name AntDen_dashboard_supervisor --cmd 'DANCER_CONFDIR=$AntDen::PATH/dashboard/config /opt/mydan/perl/bin/twiggy $AntDen::PATH/dashboard/bin/app.pl --port=3000 -I/opt/AntDen/lib' --log '$AntDen::PATH/logs/dashboard'";
-die "start $_ fail: $!" if system "$MYDan::PATH/dan/tools/supervisor --name AntDen_dashboard_supervisor.logws --cmd '/opt/mydan/perl/bin/twiggy $AntDen::PATH/dashboard/bin/app_logws.pl --port=3001 -I/opt/AntDen/lib' --log '$AntDen::PATH/logs/dashboard_logws'";
+die "start $_ fail: $!" if system "$MYDan::PATH/dan/tools/supervisor --name AntDen_dashboard_supervisor --cmd 'DANCER_CONFDIR=$AntDen::PATH/dashboard/config /opt/mydan/perl/bin/twiggy $AntDen::PATH/dashboard/bin/app.pl --port=3000 -I/opt/AntDen/lib' --log '$AntDen::PATH/logs/dashboard' --http http://127.0.0.1:3000/mon --check ok";
+die "start $_ fail: $!" if system "$MYDan::PATH/dan/tools/supervisor --name AntDen_dashboard_supervisor.logws --cmd '/opt/mydan/perl/bin/twiggy $AntDen::PATH/dashboard/bin/app_logws.pl --port=3001 -I/opt/AntDen/lib' --log '$AntDen::PATH/logs/dashboard_logws' --http http://127.0.0.1:3001/mon --check ok";
 
 sleep 1;
 

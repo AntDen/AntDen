@@ -86,6 +86,8 @@ sub stmt
     selectIngress => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and ingress != ''",
     selectIngressMachine => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role` from machine where role='ingress'",
 
+    mon => "select count(*) from machine",
+
     #api
     selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port from task where taskid=?",
 }

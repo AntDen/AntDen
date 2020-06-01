@@ -175,4 +175,9 @@ sub rollback
     $this->{db}->rollback() unless $this->{autoCommit};
 }
 
+sub isMysql
+{
+    return shift->{isMysql};
+}
+
 1;

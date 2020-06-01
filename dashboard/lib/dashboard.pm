@@ -282,4 +282,9 @@ get '/tasklog/:uuid' => sub {
     template 'scheduler/tasklog', +{ ws_url => $ws_url, uuid => $uuid };
 };
 
+any '/mon' => sub {
+    eval{ $schedulerDB->mon() if $schedulerDB->isMysql() };
+    return $@ ? "ERR:$@" : "ok";
+};
+
 true;
