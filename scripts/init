@@ -19,6 +19,10 @@ if( $name eq 'slave' )
     }
     else
     {
+        map{
+            system "/opt/mydan/perl//bin/cpan install $_";
+        }qw( Linux::Inotify2 );
+
         system 'ln -fsn /opt/AntDen/slave/code/mydan/antden /opt/mydan/dan/agent/code/antden';
         system 'ln -fsn /opt/AntDen/slave/code/mydan/vsync /opt/mydan/dan/agent/code/vsync';
         system "mkdir -p /opt/AntDen/scheduler/conf/job /opt/AntDen/scheduler/conf/task  /opt/AntDen/logs/task /opt/AntDen/database /opt/AntDen/slave/conf/task";
@@ -34,7 +38,7 @@ else
 
     map{
         system "/opt/mydan/perl//bin/cpan install $_";
-    }qw( Dancer Template Twiggy Dancer2 Dancer2::Plugin::WebSocket);
+    }qw( Dancer Template Twiggy Dancer2 Dancer2::Plugin::WebSocket );
 
     map{ system "antden $_ restart"; } qw( controller scheduler dashboard );
 }
