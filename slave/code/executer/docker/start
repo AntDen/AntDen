@@ -50,7 +50,7 @@ warn "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$
     my $workdir = '';
     $workdir = " --workdir $param->{param}{workdir}" if $param->{param}{workdir};
 
-    my $resources = $param->{param}{resources};
+    my $resources = $param->{resources};
     my ( $mem, $cpu, $gpu ) = ('','','');
     if( my @gpu = grep{ $_->[0] eq 'GPU' }@$resources )
     {
@@ -60,7 +60,7 @@ warn "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$
     if( my @mem = grep{ $_->[0] eq 'MEM' }@$resources )
     {
         my $c; map{ $c += $_->[2] }@mem;
-        $mem = " —m ${c}m ";
+        $mem = " --memory ${c}m ";
     }
 
     if( my @cpu = grep{ $_->[0] eq 'CPU' }@$resources )
@@ -72,7 +72,6 @@ warn "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$
     }
 
     #TODO
-    warn "docker run --name $param->{taskid} $volumes -d $param->{param}{image} $param->{param}{cmd}\n";
     die "docker run fail" unless my $containerid = `docker run --name $param->{taskid} $volumes $workdir $gpu $mem $cpu -d $param->{param}{image} $param->{param}{cmd}`;
     chomp $containerid;
     die "containerid format error" unless $containerid =~ /^[a-z0-9]+$/;
