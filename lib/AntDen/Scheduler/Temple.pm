@@ -367,8 +367,8 @@ sub apply
 
     for my $t ( @task )
     {
-        my ( $jobid, $taskid, $hostip, $ingress, $resources )
-            = @$t{qw( jobid taskid hostip ingress resources )};
+        my ( $jobid, $taskid, $hostip, $ingress, $resources, $executer )
+            = @$t{qw( jobid taskid hostip ingress resources executer )};
 
         $this->{ingress}->loadTask( +{ %$t, status => 'init' } );
 
@@ -381,7 +381,7 @@ sub apply
         ( $domain, $location ) = ( $ingress->{domain}, $ingress->{location} )
             if ref $ingress eq 'HASH' && defined $ingress->{domain} && defined $ingress->{location};
 
-        $this->{db}->insertTask( $jobid, $taskid, $hostip, $domain, $location, $port );
+        $this->{db}->insertTask( $jobid, $taskid, $hostip, $domain, $location, $port, $executer->{name} );
         eval{ YAML::XS::DumpFile "$this->{conf}/task/$taskid", $t };
         die "dump task/$taskid fail $@" if $@;
     }

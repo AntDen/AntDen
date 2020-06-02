@@ -13,6 +13,14 @@ use POSIX qw( :sys_wait_h );
   param:
     cmd: ''
     image: nginx
+    volumes:
+      - "/tmp/foo:/tmp/bar:ro"
+      - "/tmp/f:/tmp/b"
+    antden_repo:
+      - 10.10.1.1
+      - /data/AntDen_repo/username@xxx.com.1591002050.913979057238
+    workdir: /tmp/abc
+
   taskid: J.20191120.191012.907980.111.001
 
 =head3 return
@@ -25,9 +33,47 @@ return sub
 {
     my $param = shift @_;
 
+    if( $param->{param}{antden_repo} )
+    {
+        my ( $ip, $path ) = @{$param->{param}{antden_repo}};
+warn "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$ip' --sp '$path.tar.gz' && mkdir -p '$path' && tar -zxvf '$path.tar.gz' -C '$path' && cd '$path'\n";
+        die "download antden_repo fail: $!" if system "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$ip' --sp '$path.tar.gz' && mkdir -p '$path' && tar -zxvf '$path.tar.gz' -C '$path'";
+    }
+
     $param->{param}{cmd} ||= '';
+
+    my $volumes = '';
+    if( $param->{param}{volumes} )
+    {
+        $volumes = join ' ', map{ " -v $_ " }@{$param->{param}{volumes}};
+    }
+    my $workdir = '';
+    $workdir = " --workdir $param->{param}{workdir}" if $param->{param}{workdir};
+
+    my $resources = $param->{param}{resources};
+    my ( $mem, $cpu, $gpu ) = ('','','');
+    if( my @gpu = grep{ $_->[0] eq 'GPU' }@$resources )
+    {
+        $gpu = sprintf " -e NVIDIA_VISIBLE_DEVICES=%s ", join ',', map{ $_->[1] }@gpu;
+    }
+
+    if( my @mem = grep{ $_->[0] eq 'MEM' }@$resources )
+    {
+        my $c; map{ $c += $_->[2] }@mem;
+        $mem = " —m ${c}m ";
+    }
+
+    if( my @cpu = grep{ $_->[0] eq 'CPU' }@$resources )
+    {
+        my $c; map{ $c += $_->[2] }@cpu;
+        die "get cpu fail" unless `cat /proc/cpuinfo | grep "processor" | wc -l` =~ /(\d+)/;
+        my $cc = $1;
+        $cpu = sprintf " -c %d ", int( $c / $cc ) || 1;
+    }
+
     #TODO
-    die "docker run fail" unless my $containerid = `docker run --name $param->{taskid} -d $param->{param}{image} $param->{param}{cmd}`;
+    warn "docker run --name $param->{taskid} $volumes -d $param->{param}{image} $param->{param}{cmd}\n";
+    die "docker run fail" unless my $containerid = `docker run --name $param->{taskid} $volumes $workdir $gpu $mem $cpu -d $param->{param}{image} $param->{param}{cmd}`;
     chomp $containerid;
     die "containerid format error" unless $containerid =~ /^[a-z0-9]+$/;
     die "link log fail: $@" if system "ln -fsn /var/lib/docker/containers/$containerid/$containerid-json.log $AntDen::PATH/logs/task/$param->{taskid}.log";

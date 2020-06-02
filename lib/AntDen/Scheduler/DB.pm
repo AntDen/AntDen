@@ -43,6 +43,7 @@ sub define
         domain => 'TEXT NOT NULL',
         location => 'TEXT NOT NULL',
         port => 'TEXT NOT NULL',
+        executer => 'TEXT NOT NULL',
     ],
 };
 
@@ -65,7 +66,7 @@ sub stmt
     updateJobStatus => "update job set `status`=? where jobid=?",
     jobStoped => "update job set `status`='stoped' where jobid=?",
 
-    insertTask => "insert into task ( `jobid`,`taskid`,`hostip`,`status`,`result`,`msg`,`usetime`,`domain`,`location`,`port` ) values(?,?,?,'init','','','',?,?,?)",
+    insertTask => "insert into task ( `jobid`,`taskid`,`hostip`,`status`,`result`,`msg`,`usetime`,`domain`,`location`,`port`,`executer` ) values(?,?,?,'init','','','',?,?,?,?)",
     selectTaskWork => "select `id`,`jobid`,`taskid`,`hostip`,`status`,`result`,`msg` from task where status !='stoped'",
     selectTaskStatusByJobid => "select status from task where jobid=?",
     updateTaskStatus => "update task set `status`=?,result=?,msg=? where taskid=? and jobid=?",
@@ -89,7 +90,7 @@ sub stmt
     mon => "select count(*) from machine",
 
     #api
-    selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port from task where taskid=?",
+    selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port,executer from task where taskid=?",
 }
 
 1;

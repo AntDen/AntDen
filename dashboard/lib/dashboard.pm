@@ -174,7 +174,7 @@ get '/scheduler/taskinfo/:taskid' => sub {
         status => $task[0][4], result => $task[0][5],
         msg => $task[0][6], usetime => $task[0][7],
         domain => $task[0][8], location => $task[0][9],
-        port => $task[0][10]
+        port => $task[0][10], executer => $task[0][11],
      } };
 };
 
