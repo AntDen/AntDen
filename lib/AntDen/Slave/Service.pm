@@ -208,7 +208,8 @@ sub run
 
             if( $id2status{$status} eq 'stopping' )
             {
-                eval{ $executer->stop( $taskid, $executeid ) };
+                $tasktimeout{$taskid}{stopcount} ++;
+                eval{ $executer->stop( $taskid, $executeid, $tasktimeout{$taskid}{stopcount} ) };
                 if( $@ )
                 {
                     $db->updateTaskMsg( 'stopping code err', $taskid );

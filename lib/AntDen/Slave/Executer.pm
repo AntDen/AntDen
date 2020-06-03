@@ -54,11 +54,11 @@ sub start
 
 sub stop
 {
-    my ( $this, $taskid, $executeid ) = @_;
+    my ( $this, $taskid, $executeid, $stopcount ) = @_;
 
     my $conf = $this->_config( $taskid );
 
-    eval{ $this->{ec}->do( $conf->{executer}{name}, 'stop', +{ executeid => $executeid } ) };
+    eval{ $this->{ec}->do( $conf->{executer}{name}, 'stop', +{ executeid => $executeid, stopcount => $stopcount } ) };
     die "run code $conf->{executer}{name}/stop fail: $@" if $@;
 }
 

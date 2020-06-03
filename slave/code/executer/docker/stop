@@ -17,9 +17,8 @@ return sub
 {
     my $param = shift @_;
 
-    system "docker stop $param->{executeid}";
-    #TODO
-    #system "docker kill $param->{executeid}";
+    my $kill = $param->{stopcount} > 5 ? 'kill' : 'stop';
+    system "docker $kill $param->{executeid}";
 
     return;
 };
