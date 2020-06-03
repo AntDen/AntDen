@@ -178,6 +178,56 @@ get '/scheduler/taskinfo/:taskid' => sub {
      } };
 };
 
+get '/scheduler/resources' => sub {
+    my @machine = $schedulerDB->selectMachineInfo();
+    #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon`
+
+    my @resources = $schedulerDB->selectResourcesInfo();
+    #`ip`,`name`,`id`,`value`
+    my ( %r, %t, %used, %use );
+    for ( @resources )
+    {
+        my ( $ip, $name, $id, $value ) = @$_;
+        $r{$ip}{$name} += $value;
+        $t{$name} += $value;
+    }
+
+    for ( @machine )
+    {
+        my ( $ip, $mon ) = @$_[0,8];
+        map{
+            my @x = split /=/, $_, 2;
+            $used{$ip}{$x[0]} = $x[1] || 0;
+        }split ',', $mon;
+    }    
+
+    for my $ip ( keys %r )
+    {
+        map{ $used{$ip}{$_} = $r{$ip}{$_} unless defined $used{$ip}{$_} }keys %{$r{$ip}};
+        $r{$ip} = join ',', map{ "$_=$r{$ip}{$_}" } sort keys %{$r{$ip}};
+    }
+    map{ push @$_, $r{$_->[0]} }@machine;
+
+    for my $v ( values %used )
+    {
+        map{ $use{$_} += $v->{$_} }keys %$v;
+    }
+
+    $t{health} = scalar @machine;
+    $t{load} = int( $t{CPU} / 1024 ) if $t{CPU};
+
+    my @total = map{ [ $_, $use{$_}, $t{$_} ] }sort keys %t;
+    return +{ stat => JSON::true, data => +{
+        machine => [ map{ +{
+            ip => $_->[0], hostname => $_->[1],
+            envhard => $_->[2], envsoft => $_->[3],
+            switchable => $_->[4], group => $_->[5],
+            workable => $_->[6], role => $_->[7],
+            resources => $_->[9], mon => $_->[8]
+      } }@machine ], total => \@total
+    } };
+};
+
 hook 'before' => sub {
     my $addr = request->env->{REMOTE_ADDR};
     halt( 'Unauthorized:' . $addr ) unless $addr{$addr};
