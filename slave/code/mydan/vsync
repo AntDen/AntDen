@@ -24,7 +24,7 @@ my %argv = %{$param{argv}};
 #    
 #);
 
-my $idie = sub{ print shift;exit 1; };
+my $idie = sub{ warn shift; exit 1; };
 
 $argv{addr} ||= $ENV{TCPREMOTEIP};
 map{ &$idie( "$_ undef" ) unless $argv{$_} }qw( addr port uuid path );
@@ -38,7 +38,7 @@ my ( $cv, $rheartbeat, $in, $out, $hdl, $w, $cache, @file, $heartbeat, $delete, 
 map{ system "mkdir -p '$_'" unless -d $_ }( $in, $out );
 
 my $inotify = new Linux::Inotify2
-    or die "unable to create new inotify object: $!";
+    or &$idie( "unable to create new inotify object: $!" );
 $inotify->watch ($in, IN_CREATE | IN_MOVED_TO, sub {
         push @file, shift->fullname;
     });
@@ -65,13 +65,13 @@ sub save
         if( $type eq 'F' )
         {
             eval{ YAML::XS::DumpFile "$out/$name", YAML::XS::Load $temp };
-            die "dump file $name fail $@\n" if $@;
+            &$idie( "dump file $name fail $@\n" ) if $@;
             $delete ++;
         }
         elsif( $type eq 'H' ) { $rheartbeat = $name; }
         else {
             map{
-                unlink "$in/$_" or die "unlink $_ fail";
+                unlink "$in/$_" or &$idie( "unlink $_ fail" );
             }splice @sending, 0, $name;
         }
     }
@@ -124,7 +124,7 @@ my $t1 = AnyEvent->timer ( after => 15, interval => 15, cb => sub{
 });
 
 my $t2 = AnyEvent->timer ( after => 15, interval => 15, cb => sub{
-    die "rheartbeat timeout" unless time - 60 <  $rheartbeat && $rheartbeat < time + 60;
+    &$idie( "rheartbeat timeout" ) unless time - 60 <  $rheartbeat && $rheartbeat < time + 60;
 });
 
 my $t3 = AnyEvent->timer ( after => 0.01, interval => 0.01, cb => sub{
