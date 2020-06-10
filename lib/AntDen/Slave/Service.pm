@@ -79,12 +79,16 @@ sub run
 {
     my $this = shift;
 
-    my $cv = AE::cv;
+    my ( $cv, $ms ) = ( AE::cv, 1 );
 
     my ( $db, $executer ) = @$this{qw( db executer )};
 
     my $monitor = AnyEvent->timer ( after => 1, interval => 1, cb => sub{
-            $this->monitorDump( $this->{monitor}->do() );
+            $this->monitorDump( $this->{monitor}->do() ) if $ms;
+        });
+
+    my $monitorswitch = AnyEvent->timer ( after => 10, interval => 10, cb => sub{
+            $ms = $this->{event2}->len() > 30 ? 0 : 1;
         });
 
     my $t1 = $this->{event1}->receive( $this, $consume );

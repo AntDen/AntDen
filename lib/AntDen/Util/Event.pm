@@ -57,4 +57,10 @@ sub send
     die "send event fail $@" if $@;
 }
 
+sub len
+{
+    my $this = shift;
+    return scalar( my @x = glob "$this->{path}/*" );
+}
+
 1;
