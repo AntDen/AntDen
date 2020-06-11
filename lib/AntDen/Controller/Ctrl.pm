@@ -9,13 +9,7 @@ use AntDen::Util::Event;
 sub new
 {
     my ( $class, %this ) = @_;
-
     die "error conf undefind" unless $this{conf};
-
-    $this{event} = AntDen::Util::Event->new(
-        path => "$this{conf}/ctrl/in"
-    );
-
     bless \%this, ref $class || $class;
 }
 
@@ -38,10 +32,8 @@ sub start
     my $this = shift  @_;
     for my $conf ( @_ )
     {
-        map{ die "nofind $_" unless $conf->{$_} }
-            qw( taskid hostip resources executer );
-        $conf->{jobid} ||= 'J.0';
-        $this->{event}->send( +{ %$conf, ctrl => 'start' } );
+        map{ die "nofind $_" unless $conf->{$_} } qw( resources executer );
+        $this->_send( +{ %$conf, ctrl => 'start' } );
     }
 }
 
@@ -49,24 +41,33 @@ sub start
 
   taskid: T.0
   jobid: J.0
+  hostip: 127.0.0.1
 
 =cut
 
 sub stop
 {
     my $this = shift @_;
-    for my $conf ( @_ )
-    {
-        map{ die "nofind $_" unless $conf->{$_} } qw( taskid hostip );
-        $conf->{jobid} ||= 'J.0';
-        $this->{event}->send( +{ %$conf, ctrl => 'stop' } );
-    }
+    map{ $this->_send( +{ %$_, ctrl => 'stop' } ); }@_;
+}
+
+sub _send
+{
+    my ( $this, $conf ) = @_;
+
+    map{ die "$_ undef" unless $conf->{$_} }qw( jobid taskid hostip );
+    $conf->{jobid} ||= 'J.0';
+
+    my $path = "$this->{conf}/slave/$conf->{hostip}/in";
+    system "mkdir -p '$path'" unless -d $path;
+    AntDen::Util::Event->new( path => $path )->send( $conf );
 }
 
 sub dumpMachine
 {
     my $this = shift @_;
-    $this->{event}->send( +{ hostip => \@_, ctrl => 'setHost' } );
+    eval { YAML::XS::DumpFile "$this->{conf}/slave.ip", \@_ };
+    die "save slave.ip fail $@" if $@;
 }
 
 1;

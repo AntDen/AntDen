@@ -32,7 +32,7 @@ my $consume = sub
     my ( $this, $conf ) = @_;
 
     die "nofind ctrl" unless $conf->{ctrl};
-    YAML::XS::DumpFile \*STDOUT, $conf;
+    YAML::XS::DumpFile \*STDOUT, $conf if $conf->{ctrl} ne 'mon';
 
     if( $conf->{ctrl} eq 'addMachine' )
     {

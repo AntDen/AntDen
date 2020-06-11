@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 my ( $name, $host ) = @ARGV;
-die "\$0 slave\n\$0 master\n" unless $name && ( $name eq 'slave' || $name eq 'master' );
+die "\$0 slave\n\$0 master\n\$0 slave 'localhost{1~10}'\n" unless $name && ( $name eq 'slave' || $name eq 'master' );
 
 system "ln -fsn /opt/AntDen/bin/antden /bin/" unless $host;
 
@@ -13,7 +13,7 @@ if( $name eq 'slave' )
     {
         my $time = time;
         
-        system "cd /opt/AntDen && tar -zcvf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job";
+        system "cd /opt/AntDen && tar -zcvf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job --exclude scheduler/conf/ctrl --exclude scheduler/temple/run --exclude controller/conf/slave --exclude scheduler/temple/run --exclude slave/conf/sync";
         system "mydan rcall  -r '$host' dump /opt/AntDen.$time.tar.gz";
         system "mydan rcall  -r '$host' exec 'mkdir -p /opt/AntDen && tar -zxvf /opt/AntDen.$time.tar.gz  -C /opt/AntDen && /opt/AntDen/scripts/init slave'";
     }
@@ -25,7 +25,8 @@ if( $name eq 'slave' )
 
         system 'ln -fsn /opt/AntDen/slave/code/mydan/antden /opt/mydan/dan/agent/code/antden';
         system 'ln -fsn /opt/AntDen/slave/code/mydan/vsync /opt/mydan/dan/agent/code/vsync';
-        system "mkdir -p /opt/AntDen/scheduler/conf/job /opt/AntDen/scheduler/conf/task  /opt/AntDen/logs/task /opt/AntDen/database /opt/AntDen/slave/conf/task";
+        system "mkdir -p /opt/AntDen/scheduler/conf/job /opt/AntDen/scheduler/conf/task  /opt/AntDen/logs/task /opt/AntDen/database /opt/AntDen/slave/conf/task /opt/AntDen/slave/conf/sync/{in,out} ";
+        system "yum install psmisc -y";
         system "antden slave c --restart";
     }
 }

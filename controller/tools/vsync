@@ -18,7 +18,7 @@ $| ++;
 
 =head1 SYNOPSIS
 
- $0 --host --localpash /path/1 --remotepath /path/2
+ $0 --host --localpath /path/1 --remotepath /path/2
 
       [--user user(default `id -un`)] [--sudo sudoer]
 =cut
@@ -70,7 +70,7 @@ sub save
 
         if( $type eq 'F' )
         {
-            eval{ YAML::XS::DumpFile "$out/$name", YAML::XS::Load $temp };
+            eval{ YAML::XS::DumpFile "$out/$name", +{ %{ YAML::XS::Load($temp) }, hostip => $o{host} } };
             die "dump file $name fail $@\n" if $@;
             $delete ++;
         }
@@ -85,8 +85,6 @@ sub save
 }
 
 tcp_connect $proxy || $o{host}, $o{port}, sub {
-###tcp_server undef, 65112, sub {
-
     my ( $fh ) = @_ or die "[MYDan]tcp_server: $!";
 
     $hdl = new AnyEvent::Handle(
@@ -111,7 +109,6 @@ tcp_connect $proxy || $o{host}, $o{port}, sub {
             $cv->send;
         },
     );
-###
     $hdl->push_write( "MYDanConnect_::${uuid}::_MYDanConnect" );
 };
 

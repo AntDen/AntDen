@@ -6,6 +6,7 @@ use YAML::XS;
 use Time::HiRes 'gettimeofday';
 use Linux::Inotify2;
 use File::Basename;
+use Time::HiRes qw( sleep );
 
 sub new
 {
@@ -26,11 +27,18 @@ sub receive
     {
         my ( $this, $file ) = @_;
         my $name = basename $file;
-        if( $name =~ /E\.\d{8}.\d{6}.\d{6}.\d{3}$/ )
+        if( $name =~ /E\.\d{8}.\d{6}.\d{6}.\d{9}$/ )
         {
+ABC:
             my $conf = eval{ YAML::XS::LoadFile $file };
             warn "load conf $file fail: $@" if $@;
-            &$consume( $this, +{ %$conf, %ext }) if $conf && ref $conf eq 'HASH';
+            unless( $conf && ref $conf eq 'HASH' )
+            {
+                warn "error $file no hash\n";
+                sleep 0.2;
+                goto ABC; 
+            }
+            &$consume( $this, +{ %$conf, %ext } );
         }
         unlink $file;
     };
@@ -51,7 +59,7 @@ sub send
 {
     my ( $this, $conf ) = @_;
     my ( $sec ,$usec ) = gettimeofday;
-    my $eid = sprintf "E.%s.%06d.%03d", POSIX::strftime( "%Y%m%d.%H%M%S", localtime( $sec ) ), $usec, rand( 1000 );
+    my $eid = sprintf "E.%s.%06d.%09d", POSIX::strftime( "%Y%m%d.%H%M%S", localtime( $sec ) ), $usec, rand( 1000000000 );
 
     eval{ YAML::XS::DumpFile "$this->{path}/$eid", $conf };
     die "send event fail $@" if $@;
