@@ -7,6 +7,8 @@
         <tr>
             <th>id</th>
             <th>jobid</th>
+            <th>owner</th>
+            <th>name</th>
             <th>nice</th>
             <th>group</th>
             <th>status</th>
@@ -19,6 +21,8 @@
             <td>[% j.2 %]</td>
             <td>[% j.3 %]</td>
             <td>[% j.4 %]</td>
+            <td>[% j.5 %]</td>
+            <td>[% j.6 %]</td>
         </tr>
         [% END %]
     </table>

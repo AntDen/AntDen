@@ -152,6 +152,8 @@ sub loadTask
   nice: 5
   domain: abc.com
   jobid: J.20200206.114247.252746.499
+  owner: root
+  name: job.abc
 
 =cut
 

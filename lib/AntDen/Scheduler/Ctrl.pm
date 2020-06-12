@@ -47,10 +47,12 @@ sub new
 
 sub startJob
 {
-    my ( $this, $conf, $nice, $group ) = @_;
+    my ( $this, $conf, $nice, $group, $owner, $name ) = @_;
 
     die "nice format err" unless defined $nice && $nice =~ /^\d+$/ && $nice >= 0 && $nice <= 9;
     die "group format err" unless defined $group && $group =~ /^[0-9a-zA-Z_-]+$/;
+    die "owner format err" unless defined $owner && $owner =~ /^[0-9a-zA-Z_\@\.-]+$/;
+    die "name format err" unless defined $name && $name =~ /^[0-9a-zA-Z_\.-]+$/;
     die "conf err" unless $conf && @$conf > 0;
 
     my $jobid = AntDen::Util::UUID->new()->jobid();
@@ -78,6 +80,8 @@ sub startJob
     $this->{event}->send(
         +{
             jobid => $jobid,
+            owner => $owner,
+            name => $name,
             conf => $conf,
             nice => $nice,
             group => $group,

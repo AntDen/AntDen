@@ -55,7 +55,7 @@ sub new
 
     for( $this{db}->selectJobWork() )
     {
-        my ( $id, $jobid, $nice, $group, $status ) = @$_;
+        my ( $id, $jobid, $owner, $name, $nice, $group, $status ) = @$_;
         my $jconf = eval{ YAML::XS::LoadFile "$this{conf}/job/$jobid" };
         if( $@ )
         {
@@ -64,6 +64,8 @@ sub new
         }
         my %conf = (
             jobid => $jobid,
+            owner => $owner,
+            name => $name,
             conf => $jconf,
             group => $group,
             nice => $nice,
@@ -216,6 +218,8 @@ sub setResource
   nice: 5
   domain: abc.com
   jobid: J.20200206.114247.252746.499
+  owner: root
+  name: job.abc
 
 =cut
 
@@ -230,7 +234,8 @@ sub submitJob
         $ingress{"$i->{domain}:$i->{location}"} ++;
     }
 
-    $this->{db}->insertJob( @$conf{qw( jobid nice group )}, join ',', keys %ingress );
+    map{ $conf->{$_} ||= 'unkown' }qw( owner name );
+    $this->{db}->insertJob( @$conf{qw( jobid owner name nice group )}, join ',', keys %ingress );
     $this->{db}->commit();
     eval{ YAML::XS::DumpFile "$this->{conf}/job/$conf->{jobid}", $conf->{conf} };
     die "dump job/$conf->{jobid} fail $@" if $@;

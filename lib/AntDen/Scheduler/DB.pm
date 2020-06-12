@@ -26,6 +26,8 @@ sub define
     job => [
         id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
         jobid => 'TEXT NOT NULL',
+        owner => 'TEXT NOT NULL',
+        name => 'TEXT NOT NULL',
         nice => 'INTEGER NOT NULL',
         group => 'TEXT NOT NULL',
         status => 'TEXT NOT NULL',
@@ -61,8 +63,8 @@ sub stmt
     selectResources => "select `ip`,`name`,`id`,`value` from resources",
     deleteResourcesByIp => "delete from resources where ip=?",
 
-    insertJob => "insert into job ( `jobid`,`nice`,`group`,`status`,`ingress` ) values(?,?,?,'queuing',?)",
-    selectJobWork => "select `id`,`jobid`,`nice`,`group`,`status` from job where status!='stoped'",
+    insertJob => "insert into job ( `jobid`,`owner`,`name`,`nice`,`group`,`status`,`ingress` ) values(?,?,?,?,?,'queuing',?)",
+    selectJobWork => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job where status!='stoped'",
     updateJobStatus => "update job set `status`=? where jobid=?",
     jobStoped => "update job set `status`='stoped' where jobid=?",
 
@@ -77,8 +79,8 @@ sub stmt
     selectResourcesInfo => "select `ip`,`name`,`id`,`value` from resources",
 
 
-    selectJobWorkInfo => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped'",
-    selectJobStopedInfo => "select `id`,`jobid`,`nice`,`group`,`status` from job",
+    selectJobWorkInfo => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`,`ingress` from job where status!='stoped'",
+    selectJobStopedInfo => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job",
 
     selectTaskByJobid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port from task where jobid=?",
     selectJobByJobid => "select id,jobid,nice,`group`,status from job where jobid=?",
@@ -91,6 +93,7 @@ sub stmt
 
     #api
     selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port,executer from task where taskid=?",
+    selectJobStopedInfoByOwner => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job where owner=?",
 }
 
 1;

@@ -12,7 +12,7 @@ $MYDan::Util::OptConf::THIS = 'antden';
 
 =head1 SYNOPSIS
 
- $0 --file configfile  [--nice 0~9 (default 5)] [--group groupname(default foo)]
+ $0 --file configfile  [--nice 0~9 (default 5)] [--group groupname(default foo)] [--owner abc(default root)] [--name jobname(default foo)]
 
  example:
 
@@ -21,8 +21,8 @@ $MYDan::Util::OptConf::THIS = 'antden';
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set( nice => 5, group => 'foo' )
-    ->get( qw( file=s nice=i group=s ) )->dump();
+my %o = $option->set( nice => 5, group => 'foo', owner => 'root', name => 'foo'  )
+    ->get( qw( file=s nice=i group=s owner=s name=s ) )->dump();
 
 $option->assert( 'file' );
 
@@ -30,4 +30,4 @@ my $config = eval{ YAML::XS::LoadFile $o{file} };
 die "load config fail: $@" if $@;
 
 printf "jobid: %s\n",  AntDen::Scheduler::Ctrl->new( %{$o{scheduler}} )
-    ->startJob( $config, $o{nice}, $o{group} );
+    ->startJob( $config, $o{nice}, $o{group}, $o{owner}, $o{name} );

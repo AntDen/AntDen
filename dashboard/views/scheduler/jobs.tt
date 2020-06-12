@@ -3,6 +3,8 @@
         <tr>
             <th>id</th>
             <th>jobid</th>
+            <th>owner</th>
+            <th>name</th>
             <th>nice</th>
             <th>group</th>
             <th>status</th>
@@ -19,6 +21,8 @@
             <td>[% j.3 %]</td>
             <td>[% j.4 %]</td>
             <td>[% j.5 %]</td>
+            <td>[% j.6 %]</td>
+            <td>[% j.7 %]</td>
             <td>
                 <a href="javascript:test('/scheduler/job/renice/0/[% j.1 %]');">0</a>
                 <a href="javascript:test('/scheduler/job/renice/1/[% j.1 %]');">1</a>

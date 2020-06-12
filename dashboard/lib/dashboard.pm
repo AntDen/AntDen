@@ -76,8 +76,8 @@ get '/slave/resources' => sub {
 
 get '/scheduler/submitJob' => sub {
     my $param = params();
-    my ( $configStr, $niceStr, $groupStr, $err, $jobid )
-        = ( $param->{config}, $param->{nice}, $param->{group}, '', '' );
+    my ( $configStr, $niceStr, $groupStr, $ownerStr, $nameStr, $err, $jobid )
+        = ( $param->{config}, $param->{nice}, $param->{group}, $param->{owner}, $param->{name}, '', '' );
 
     if( $configStr )
     {
@@ -87,6 +87,12 @@ get '/scheduler/submitJob' => sub {
         }elsif( !( defined $groupStr && $groupStr =~ /^[a-zA-Z0-9]+$/ ))
         {
             $err = 'group error';
+        }elsif( !( defined $ownerStr && $ownerStr =~ /^[a-zA-Z0-9_\-\.@]+$/ ))
+        {
+            $err = 'owner error';
+        }elsif( !( defined $nameStr && $nameStr =~ /^[a-zA-Z0-9_\-\.]+$/ ))
+        {
+            $err = 'name error';
         }
         else
         {
@@ -101,34 +107,38 @@ get '/scheduler/submitJob' => sub {
             }
             else
             {
-                 $jobid = $schedulerCtrl->startJob( $config, $niceStr, $groupStr );
+                 $jobid = $schedulerCtrl->startJob( $config, $niceStr, $groupStr, $ownerStr, $nameStr );
                  $configStr = '';
             }
         }
     }
     $niceStr = 5 if ! defined $niceStr;
     template 'scheduler/submitJob', +{ config => $configStr, nice => $niceStr,
-        group => $groupStr, err => $err, jobid => $jobid };
+        group => $groupStr, owner => $ownerStr, name => $nameStr, err => $err, jobid => $jobid };
 };
 
 post '/scheduler/submitJob' => sub {
     my $param = params();
-    my ( $config, $nice, $group ) = @$param{qw( config nice group )};
+    my ( $config, $nice, $group, $owner, $name ) = @$param{qw( config nice group owner name )};
 
     return +{ stat => JSON::false, info => 'nice error' } unless defined $nice && $nice =~ /^\d+$/;
     return +{ stat => JSON::false, info => 'group error' } unless defined $group && $group =~ /^[a-zA-Z0-9]+$/;
+    return +{ stat => JSON::false, info => 'owner error' } unless defined $owner && $owner =~ /^[a-zA-Z0-9_\-\.@]+$/;
+    return +{ stat => JSON::false, info => 'name error' } unless defined $name && $name =~ /^[a-zA-Z0-9_\-\.]+$/;
     return +{ stat => JSON::false, info => 'config error' } unless defined $config && ref $config eq 'ARRAY';
-    my $jobid = $schedulerCtrl->startJob( $config, $nice, $group );
+    my $jobid = $schedulerCtrl->startJob( $config, $nice, $group, $owner, $name );
     return +{ stat => JSON::true, data => $jobid }
 };
 
 get '/scheduler/listJob' => sub {
     my $param = params();
-    my @job = $schedulerDB->selectJobStopedInfo();
-    #`id`,`jobid`,`nice`,`group`,`status`
+    my $owner = $param->{owner};
+    return return +{ stat => JSON::false, info => 'jobid format error' } unless $owner && $owner =~ /^[a-zA-Z0-9_\-\.@]+$/;
+    my @job = $schedulerDB->selectJobStopedInfoByOwner( $owner );
+    #`id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`
     return +{
         stat => JSON::true,
-        data => [ map{ +{ id => $_->[0], jobid => $_->[1], nice => $_->[2], group => $_->[3], status => $_->[4] } }@job ]
+        data => [ map{ +{ id => $_->[0], jobid => $_->[1], owner => $_->[2], name => $_->[3], nice => $_->[4], group => $_->[5], status => $_->[6] } }@job ]
     };
 };
 
@@ -235,7 +245,7 @@ hook 'before' => sub {
 
 get '/scheduler/job' => sub {
     my @job = $schedulerDB->selectJobWorkInfo();
-    #`id`,`jobid`,`nice`,`group`,`status`,`ingress`
+    #`id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`,`ingress`
     template 'scheduler/jobs', +{ jobs => \@job };
 };
 
@@ -319,7 +329,7 @@ get '/scheduler/job/stop/:jobid' => sub {
 
 get '/scheduler/jobHistory' => sub {
     my @job = $schedulerDB->selectJobStopedInfo();
-    #`id`,`jobid`,`nice`,`group`,`status`
+    #`id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`
     template 'scheduler/jobHistory', +{ jobs => \@job };#+{ jobs => \@jobs };
 };
 
