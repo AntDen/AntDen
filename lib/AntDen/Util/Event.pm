@@ -30,6 +30,7 @@ sub receive
         if( $name =~ /E\.\d{8}.\d{6}.\d{6}.\d{9}$/ )
         {
 ABC:
+            return unless -f $file;
             my $conf = eval{ YAML::XS::LoadFile $file };
             warn "load conf $file fail: $@" if $@;
             unless( $conf && ref $conf eq 'HASH' )
