@@ -110,7 +110,6 @@ get '/scheduler/submitJob' => sub {
             }
             else
             {
-
                  my @auth = $schedulerDB->selectAuthByUser( $user, $groupStr );
                  #`executer`
                  my %auth; map{ $auth{$_->[0]} = 1; }@auth;
@@ -189,7 +188,10 @@ get '/scheduler/task/:taskid' => sub {
 get '/scheduler/job/:jobid' => sub {
     return unless my $user = get_username();
     my $param = params();
-    my $jobid = $param->{jobid};
+    my ( $jobid, $owner ) = @$param{qw(jobid owner)};
+
+    return 'noauth' unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $owner );
+
     my @task = $schedulerDB->selectTaskByJobid( $jobid );
     #id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port
     my @job = $schedulerDB->selectJobByJobid( $jobid );
@@ -214,8 +216,9 @@ get '/scheduler/job/renice/:renice/:jobid' => sub {
 get '/scheduler/job/stop/:jobid' => sub {
     return unless my $user = get_username();
     my $param = params();
-    my $jobid = $param->{jobid};
+    my ( $jobid, $owner ) = @$param{qw(jobid owner)};
     return "jobid format error" unless $jobid && $jobid =~ /^J[0-9\.]+$/;
+    return "stop job: $jobid fail noauth" unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $owner );
     $schedulerCtrl->stopJob( $jobid );
     return "stop job: $jobid success";
 };

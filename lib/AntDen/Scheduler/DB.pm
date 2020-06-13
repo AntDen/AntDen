@@ -115,7 +115,9 @@ sub stmt
     insertAdmin => "insert into `user` (`name`,`isadmin`) values(?,1)",
     #api
     selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port,executer from task where taskid=?",
-    selectJobStopedInfoByOwnerPage => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job where owner=? ORDER BY id desc  limit ?,? ",
+    selectJobStopedInfoByOwnerPage => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job where owner=? ORDER BY id desc limit ?,?",
+    selectJobStopedInfoByOwner => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job where owner=? ORDER BY id desc limit 20",
+    selectJobByJobidAndOwner => "select `id` from job where jobid=? and owner=?",
 }
 
 1;
