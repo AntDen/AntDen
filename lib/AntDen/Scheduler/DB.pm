@@ -47,6 +47,17 @@ sub define
         port => 'TEXT NOT NULL',
         executer => 'TEXT NOT NULL',
     ],
+    user => [
+        id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        name => 'TEXT NOT NULL',
+        isadmin => 'INTEGER NOT NULL',
+    ],
+    auth => [
+        id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        user => 'TEXT NOT NULL',
+        group => 'TEXT NOT NULL',
+        executer => 'TEXT NOT NULL',
+    ],
 };
 
 sub stmt
@@ -76,24 +87,35 @@ sub stmt
 
     #dashboard
     selectMachineInfo => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine",
-    selectResourcesInfo => "select `ip`,`name`,`id`,`value` from resources",
-
+    selectMachineInfoByUser => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine where `group` in ( select `group` from auth where user=?)",
+    selectResourcesInfoByUser => "select resources.ip,`name`,resources.id,`value` from resources,machine,auth where resources.ip=machine.ip and machine.group=auth.group and auth.user=?",
 
     selectJobWorkInfo => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`,`ingress` from job where status!='stoped'",
+    selectJobWorkInfoByUser => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and owner=?",
     selectJobStopedInfo => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job",
 
     selectTaskByJobid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port from task where jobid=?",
     selectJobByJobid => "select id,jobid,nice,`group`,status from job where jobid=?",
 
     selectIngressJob => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and ingress != ''",
+    selectIngressJobByUser => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and ingress != '' and owner=?",
     selectIngress => "select `id`,`jobid`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and ingress != ''",
     selectIngressMachine => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role` from machine where role='ingress'",
 
-    mon => "select count(*) from machine",
+    selectIsAdmin => "select id,name,isadmin from user where name=?",
+    selectIsAdminAll => "select id,name,isadmin from user",
 
+    insertAuth => "insert into `auth` (`user`,`group`,`executer`) values(?,?,?)",
+    selectAuth => "select `id`,`user`,`group`,`executer` from auth",
+    selectAuthByUser => "select `executer` from auth where user=? and `group`=?",
+    deleteAuthById => "delete from `auth` where id=?",
+    deleteAdminById => "delete from `user` where id=? and isadmin=1",
+    selectMon => "select count(*) from machine",
+
+    insertAdmin => "insert into `user` (`name`,`isadmin`) values(?,1)",
     #api
     selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port,executer from task where taskid=?",
-    selectJobStopedInfoByOwner => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job where owner=?",
+    selectJobStopedInfoByOwnerPage => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job where owner=? ORDER BY id desc  limit ?,? ",
 }
 
 1;

@@ -12,23 +12,23 @@
     !window.jQuery && document.write('<script type="text/javascript" src="[% request.uri_base %]/javascripts/jquery.min.js"><\/script>')
 /* ]]> */</script>
     <style>
-		body,html {
-			height: 100%;
-		}
+        body,html {
+            height: 100%;
+        }
         .content {
             height: 1000px;
             width: 100%;
-			margin-left: 200px;
+            margin-left: 200px;
         }
         .outer {
             height: 100%;
             width: 100%;
-			display: flex;
+            display: flex;
         }
         .menu {
             height: 100%;
             width: 200px;
-			position: fixed;
+            position: fixed;
             background: #ccc;
         }
         .title {
@@ -41,12 +41,38 @@
         hr{
             line-height: 10px;
         }
-
     </style>
 </head>
 <body>
 <div class="outer">
     <div class="menu">
+        [% IF admin %]
+        <div class="item">
+            <div class="title" onclick="show(this)">home</div>
+            <div class="con">
+                <div><a href="/" >home</a></div>
+            </div>
+        </div>
+        <hr>
+        <div class="item">
+            <div class="title" onclick="show(this)">authorization</div>
+            <div class="con">
+                <div><a href="/admin/authorization/user" >user</a></div>
+                <div><a href="/admin/authorization/admin" >admin</a></div>
+            </div>
+        </div>
+        <hr>
+        <div class="item">
+            <div class="title" onclick="show(this)">log</div>
+            <div class="con">
+                <div><a href="/admin/tasklog/scheduler" >scheduler</a></div>
+                <div><a href="/admin/tasklog/controller" >controller</a></div>
+                <div><a href="/admin/tasklog/dashboard" >dashboard</a></div>
+                <div><a href="/admin/log/slave" >slave</a></div>
+            </div>
+        </div>
+        <hr>
+        [% ELSE %]
         <div class="item">
             <div class="title" onclick="show(this)">scheduler</div>
             <div class="con">
@@ -55,36 +81,21 @@
                 <div><a href="/scheduler/job" >running job</a></div>
                 <div><a href="/scheduler/ingress" >ingress</a></div>
                 <div><a href="/scheduler/jobHistory" >job history</a></div>
-                <div><a href="/tasklog/scheduler" >service log</a></div>
             </div>
         </div>
-        <hr>
         <div class="item">
-            <div class="title" onclick="show(this)">controller</div>
+            <div class="title" onclick="show(this)">your</div>
+                <div><a href="/admin" >admin</a></div>
+                <div><a href="/logout" >Sign Out</a></div>
             <div class="con">
-                <div><a href="/tasklog/controller" >service log</a></div>
             </div>
         </div>
         <hr>
-        <div class="item">
-            <div class="title" onclick="show(this)">dashboard</div>
-            <div class="con">
-                <div><a href="/tasklog/dashboard" >service log</a></div>
-            </div>
-        </div>
-        <hr>
-        <div class="item">
-            <div class="title" onclick="show(this)">slave</div>
-            <div class="con">
-                <div><a href="/slave/resources" >machine</a></div>
-            </div>
-        </div>
-        <hr>
-
+       [% END %]
     </div>
-	<div class="content">
-		[% content %]
-	</div>
+    <div class="content">
+        [% content %]
+    </div>
 </div>
 </body>
 <script>

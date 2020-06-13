@@ -29,3 +29,6 @@ engines:
 # For session support enable the following line and see Dancer::Session
 # session: "YAML"
 
+ssocallback: 'http://sso.antden.org/login?callback='
+cookiekey: 'u'
+ssologout: 'http://sso.antden.org/logout'

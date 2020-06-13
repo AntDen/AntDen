@@ -1,6 +1,16 @@
 <div>
     <div>
-    prev page | next page
+    [% IF page %]
+    <a href="/scheduler/jobHistory?page=[% page - 1 %]">prev page</a> 
+    [% ELSE %]
+    prev page
+    [% END %]
+    |
+    [% IF joblen %]
+    <a href="/scheduler/jobHistory?page=[% page + 1 %]">next page</a>
+    [% ELSE %]
+    next page
+    [% END %]
     </div>
 
     <table border="1">

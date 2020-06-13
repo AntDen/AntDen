@@ -25,7 +25,7 @@
             <td>[% m.6 %]</td>
             <td>[% m.7 %]</td>
             <td>[% m.8 %]</td>
-            <td><a href="/tasklog/[% m.0 %].log">log</a></td>
+            <td><a href="/admin/tasklog/[% m.0 %].log">log</a></td>
         </tr>
         [% END %]
     </table>

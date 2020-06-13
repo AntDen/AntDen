@@ -1,0 +1,35 @@
+<div>
+    [% IF level > 1 %]
+    <form action="#">
+    User
+    <input name="user" value=""></input>
+    <button type="submit" >Add Admin</button>
+    </form> 
+    <hr>
+    [% END %]
+    <table border="1">
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>level</th>
+            [% IF level > 1 %]
+            <th>delete</th>
+            [% END %]
+        </tr>
+        [% FOR t IN user %]
+        <tr>
+            <td>[% t.0 %]</td>
+            <td>[% t.1 %]</td>
+            <td>[% t.2 %]</td>
+            [% IF level > 1 %]
+            <td>
+                [% IF t.2 < 2 %]
+                <a href="/admin/authorization/admin?deleteid=[% t.0 %]">delete</a>
+                [% END %]
+           </td>
+        [% END %]
+        </tr>
+        [% END %]
+    </table>
+
+</div>

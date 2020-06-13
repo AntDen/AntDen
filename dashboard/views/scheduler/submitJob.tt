@@ -15,8 +15,6 @@
     </select>
     Group
     <input id="submitJobGroup" name="group" value="[% group %]"></input>
-    Owner
-    <input id="submitJobOwner" name="owner" value="[% owner %]"></input>
     Name
     <input id="submitJobName" name="name" value="[% name %]"></input><br>
     <textarea id="submitJobConfig" rows="30" cols="100" name="config">[% config %]</textarea>
@@ -32,7 +30,6 @@
         var demo = "-\n  executer:\n    name: exec\n    param:\n      exec: 'sleep 300'\n  scheduler:\n    envhard: 'arch=x86_64,os=Linux'\n    envsoft: 'app1=1.0'\n    count: 3\n    resources:\n      - [ 'CPU', '.', 2 ]\n";
         $("#submitJobConfig").val(demo);
         $("#submitJobGroup").val('foo');
-        $("#submitJobOwner").val('admin');
         $("#submitJobName").val('job.abc');
         $("#submitJobNice").val(5);
     }

@@ -1,0 +1,6 @@
+#!# perl: code/sso
+use strict;
+use warnings;
+
+return sub { return "antden"; };
+
