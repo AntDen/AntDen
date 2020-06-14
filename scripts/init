@@ -13,7 +13,7 @@ if( $name eq 'slave' )
     {
         my $time = time;
         
-        system "cd /opt/AntDen && tar -zcvf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job --exclude scheduler/conf/ctrl --exclude scheduler/temple/run --exclude controller/conf/slave --exclude scheduler/temple/run --exclude slave/conf/sync";
+        system "cd /opt/AntDen && tar -zcvf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job --exclude scheduler/conf/ctrl --exclude scheduler/temple/run --exclude controller/conf/slave --exclude scheduler/temple/run --exclude slave/conf/sync --exclude dashboard/auth";
         system "mydan rcall  -r '$host' dump /opt/AntDen.$time.tar.gz";
         system "mydan rcall  -r '$host' exec 'mkdir -p /opt/AntDen && tar -zxvf /opt/AntDen.$time.tar.gz  -C /opt/AntDen && /opt/AntDen/scripts/init slave'";
     }

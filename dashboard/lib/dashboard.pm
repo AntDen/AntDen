@@ -188,9 +188,9 @@ get '/scheduler/task/:taskid' => sub {
 get '/scheduler/job/:jobid' => sub {
     return unless my $user = get_username();
     my $param = params();
-    my ( $jobid, $owner ) = @$param{qw(jobid owner)};
+    my $jobid = $param->{jobid};
 
-    return 'noauth' unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $owner );
+    return 'noauth' unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $user );
 
     my @task = $schedulerDB->selectTaskByJobid( $jobid );
     #id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port

@@ -85,8 +85,14 @@
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">your</div>
-                <div><a href="/admin" >admin</a></div>
+                <div><a href="/user/settings" >settings</a></div>
                 <div><a href="/logout" >Sign Out</a></div>
+            <div class="con">
+            </div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">admin</div>
+                <div><a href="/admin" >admin</a></div>
             <div class="con">
             </div>
         </div>
