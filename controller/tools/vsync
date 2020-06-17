@@ -13,6 +13,7 @@ use MYDan::Util::OptConf;
 use File::Basename;
 
 use Linux::Inotify2;
+use Time::HiRes qw( sleep );
 
 $| ++;
 
@@ -158,6 +159,12 @@ my $t3 = AnyEvent->timer ( after => 0.01, interval => 0.01, cb => sub{
     return unless @sending <= 100 && @file;
 
     my $file = shift @file;
+    while(1)
+    {
+        last if my $size = ( stat $file )[7];
+        sleep 0.2;
+        warn "err: $file null\n";
+    }
     my $name = basename $file;
     push @sending, $name;
     warn "send file $name\n";

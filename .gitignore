@@ -16,3 +16,4 @@ t/
 logs/
 Use.*
 controller/conf/slave/
+*.pub

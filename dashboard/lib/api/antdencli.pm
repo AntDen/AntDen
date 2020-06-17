@@ -27,6 +27,12 @@ post '/api/antdencli/submitJob' => sub {
     return +{ stat => JSON::false, info => 'owner error' } unless defined $owner && $owner =~ /^[a-zA-Z0-9_\-\.@]+$/;
     return +{ stat => JSON::false, info => 'name error' } unless defined $name && $name =~ /^[a-zA-Z0-9_\-\.]+$/;
     return +{ stat => JSON::false, info => 'config error' } unless defined $config && ref $config eq 'ARRAY';
+    my ( @auth, $err )= $dashboard::schedulerDB->selectAuthByUser( $owner, $group );
+    #`executer`
+    my %auth; map{ $auth{$_->[0]} = 1; }@auth;
+    map{ $err = 'no auth' unless $auth{$_->{executer}{name}} }@$config;
+    return +{ stat => JSON::false, info => "err: $err" } if $err;
+     
     my $jobid = $dashboard::schedulerCtrl->startJob( $config, $nice, $group, $owner, $name );
     return +{ stat => JSON::true, data => $jobid }
 };

@@ -1,4 +1,5 @@
 #!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+$|++;
 use strict;
 use warnings;
  

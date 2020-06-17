@@ -6,7 +6,7 @@
     prev page
     [% END %]
     |
-    [% IF joblen %]
+    [% IF joblen == pagesize %]
     <a href="/scheduler/jobHistory?page=[% page + 1 %]">next page</a>
     [% ELSE %]
     next page

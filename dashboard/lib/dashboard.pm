@@ -216,9 +216,9 @@ get '/scheduler/job/renice/:renice/:jobid' => sub {
 get '/scheduler/job/stop/:jobid' => sub {
     return unless my $user = get_username();
     my $param = params();
-    my ( $jobid, $owner ) = @$param{qw(jobid owner)};
+    my $jobid = $param->{jobid};
     return "jobid format error" unless $jobid && $jobid =~ /^J[0-9\.]+$/;
-    return "stop job: $jobid fail noauth" unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $owner );
+    return "stop job: $jobid fail noauth" unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $user );
     $schedulerCtrl->stopJob( $jobid );
     return "stop job: $jobid success";
 };
@@ -228,9 +228,10 @@ get '/scheduler/jobHistory' => sub {
     my $param = params();
     my $page = $param->{page};
     $page = 0 unless $page && $page =~ /^\d+$/;
-    my @job = $schedulerDB->selectJobStopedInfoByOwnerPage( $user , $page * 50, 50 );
+    my $pagesize = 50;
+    my @job = $schedulerDB->selectJobStopedInfoByOwnerPage( $user , $page * $pagesize, $pagesize );
     #`id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`
-    template 'scheduler/jobHistory', +{ jobs => \@job, page => $page, joblen => scalar @job };
+    template 'scheduler/jobHistory', +{ jobs => \@job, page => $page, pagesize => $pagesize, joblen => scalar @job };
 };
 
 get '/tasklog/:uuid' => sub {

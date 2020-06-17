@@ -96,7 +96,7 @@ tcp_connect $argv{addr}, $argv{port}, sub {
             my $self = shift;
             $self->unshift_read (
                 chunk => length $self->{rbuf},
-                sub { YAML::XS::DumpFile \*STDOUT, $_[1];save(  $_[1] ); },
+                sub { YAML::XS::DumpFile \*STDERR, $_[1];save(  $_[1] ); },
             )
         },
         on_error => sub{
@@ -139,6 +139,12 @@ my $t3 = AnyEvent->timer ( after => 0.01, interval => 0.01, cb => sub{
     return unless @sending <= 100 && @file;
 
     my $file = shift @file;
+    while(1)
+    {
+        last if my $size = ( stat $file )[7];
+        sleep 0.2;
+        warn "err: $file null\n";
+    }
     my $name = basename $file;
     push @sending, $name;
     warn "send file $name\n";
