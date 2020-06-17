@@ -43,18 +43,23 @@ warn "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$
     $param->{param}{cmd} ||= '';
 
     my $volumes = '';
-    if( $param->{param}{volumes} )
-    {
-        $volumes = join ' ', map{ " -v $_ " }@{$param->{param}{volumes}};
-    }
+    $volumes = join ' ', map{ " -v $_ " }@{$param->{param}{volumes}} if $param->{param}{volumes};
+
+    die "mkdir output fail:$!" if system "mkdir -p '/data/AntDen_output/$param->{taskid}'";
+    $volumes .= " -v /data/AntDen_output/$param->{taskid}:/_output/ ";
+
     my $workdir = '';
     $workdir = " --workdir $param->{param}{workdir}" if $param->{param}{workdir};
 
     my $resources = $param->{resources};
     my ( $mem, $cpu, $gpu ) = ('','','');
-    if( my @gpu = grep{ $_->[0] eq 'GPU' }@$resources )
+    if( -e "/dev/nvidia0" )
     {
-        $gpu = sprintf " -e NVIDIA_VISIBLE_DEVICES=%s ", join ',', map{ $_->[1] }@gpu;
+        if( my @gpu = grep{ $_->[0] eq 'GPU' }@$resources )
+        {
+            $gpu = sprintf " -e NVIDIA_VISIBLE_DEVICES=%s ", join ',', map{ $_->[1] }@gpu;
+        }
+        else { $gpu = ' --runtime runc '; }
     }
 
     if( my @mem = grep{ $_->[0] eq 'MEM' }@$resources )
