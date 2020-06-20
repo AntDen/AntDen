@@ -30,7 +30,7 @@ post '/api/antdencli/submitJob' => sub {
     my ( @auth, $err )= $dashboard::schedulerDB->selectAuthByUser( $owner, $group );
     #`executer`
     my %auth; map{ $auth{$_->[0]} = 1; }@auth;
-    map{ $err = 'no auth' unless $auth{$_->{executer}{name}} }@$config;
+    map{ $err = "no auth: $owner $group $_->{executer}{name}" unless $auth{$_->{executer}{name}} }@$config;
     return +{ stat => JSON::false, info => "err: $err" } if $err;
      
     my $jobid = $dashboard::schedulerCtrl->startJob( $config, $nice, $group, $owner, $name );
