@@ -23,7 +23,9 @@ return sub
     my $c = eval{ YAML::XS::Load $x };
     die "load docker.inspect fail: $@\n" if $@;
     die "nofind container status in docker.inspect.State.Status\n"
-        unless $c && ref $c eq 'ARRAY' && $c->[0]->{State} && defined $c->[0]->{State}{ExitCode};
+        unless $c && ref $c eq 'ARRAY';
+
+    return "exit:110" unless $c->[0]->{State} && defined $c->[0]->{State}{ExitCode};
 
     return "exit:$c->[0]->{State}{ExitCode}";
 

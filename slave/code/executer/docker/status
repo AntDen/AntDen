@@ -32,6 +32,6 @@ return sub
     }
     else
     {
-        return ( system "killall -0 $param->{executeid}" ) ? 'stoped' : 'running';
+        return ( system "killall -0 $param->{executeid}" ) ? 'stoped' : 'pulling';
     }
 };

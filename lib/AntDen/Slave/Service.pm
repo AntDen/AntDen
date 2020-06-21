@@ -162,9 +162,9 @@ sub run
                     next;
                 }
 
-                if( $tstatus eq 'running' )
+                if( $tstatus eq 'running' || $tstatus eq 'pulling' )
                 {
-                    $db->updateTaskStatus( $status2id{running}, $taskid );
+                    $db->updateTaskStatus( $status2id{$tstatus}, $taskid );
                     $statusDump = 1;
                 }
                 else{
@@ -174,6 +174,45 @@ sub run
                         $db->updateTaskMsg( 'start timeout', $taskid );
                         $statusDump = 1;
                     }
+                }
+            }
+
+            if( $id2status{$status} eq 'pulling' )
+            {
+                if( $id2status{$expect} eq 'running' )
+                {
+                    my $tstatus = eval{ $executer->status( $taskid, $executeid ); };
+                    if( $@ )
+                    {
+                        warn "get tsak status fail: $@";
+                        $db->updateTaskMsg( 'get task status fail', $taskid );
+                        $this->statusDump( $taskid );
+                        next;
+                    }
+                    if( $tstatus eq 'running' )
+                    {
+                        $db->updateTaskStatus( $status2id{running}, $taskid );
+                        $statusDump = 1;
+
+                        $status = $status2id{running};
+                    }
+
+                    if( $tstatus eq 'stoped' )
+                    {
+                        $db->updateTaskStatus( $status2id{stopping}, $taskid );
+                        $statusDump = 1;
+
+                        $status = $status2id{stopping};
+                    }
+                }
+                else
+                {
+                    $tasktimeout{$taskid}{stopping} = time + 60;
+
+                    $db->updateTaskStatus( $status2id{stopping}, $taskid );
+                    $statusDump = 1;
+
+                    $status = $status2id{stopping};
                 }
             }
 

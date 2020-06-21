@@ -70,7 +70,7 @@ sub status
 
     my $status = eval{ $this->{ec}->do( $conf->{executer}{name}, 'status', +{ executeid => $executeid } ) };
     die "run code $conf->{executer}{name}/status fail: $@" if $@;
-    die "get status error" unless $status && ( $status eq 'running' || $status eq 'stoped' );
+    die "get status error" unless $status && ( $status eq 'running' || $status eq 'stoped' || $status eq 'pulling' );
 
     return $status;
 }
