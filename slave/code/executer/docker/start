@@ -33,6 +33,14 @@ return sub
 {
     my $param = shift @_;
 
+    return $param->{taskid} if fork;
+    $0 = $param->{taskid};
+
+    $SIG{INT} = $SIG{TERM} = sub {
+        system "pkill -15 -P $$";
+        exit 1;
+    };
+
     if( $param->{param}{antden_repo} )
     {
         my ( $ip, $path ) = @{$param->{param}{antden_repo}};
@@ -91,5 +99,5 @@ warn "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$
     chomp $containerid;
     die "containerid format error" unless $containerid =~ /^[a-z0-9]+$/;
     die "link log fail: $@" if system "ln -fsn /var/lib/docker/containers/$containerid/$containerid-json.log $AntDen::PATH/logs/task/$param->{taskid}.log";
-    return $param->{taskid};
+    exit;
 };

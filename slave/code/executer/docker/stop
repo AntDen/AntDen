@@ -17,8 +17,16 @@ return sub
 {
     my $param = shift @_;
 
-    my $kill = $param->{stopcount} > 5 ? 'kill' : 'stop';
-    system "docker $kill $param->{executeid}";
+    if( $param->{stopcount} && $param->{stopcount} > 5 )
+    {
+        system "killall -KILL $param->{executeid}";
+        system "docker kill $param->{executeid}";
+    }
+    else
+    {
+        system "killall -TERM $param->{executeid}";
+        system "docker stop $param->{executeid}";
+    }
 
     return;
 };

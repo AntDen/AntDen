@@ -22,9 +22,16 @@ return sub
     my $x = `docker inspect $param->{executeid}`;
     my $c = eval{ YAML::XS::Load $x };
     die "load docker.inspect fail: $@\n" if $@;
-    die "nofind container status in docker.inspect.State.Status\n"
-        unless $c && ref $c eq 'ARRAY' && $c->[0]->{State} && $c->[0]->{State}{Status};
+    die "nofind container status\n" unless $c && ref $c eq 'ARRAY';
 
-    return $c->[0]->{State}{Status} eq 'running' ? 'running' : 'stoped';;
-
+    if( @$c )
+    {
+        die "nofind container status in docker.inspect.State.Status\n"
+            unless $c->[0]->{State} && $c->[0]->{State}{Status};
+        return $c->[0]->{State}{Status} eq 'running' ? 'running' : 'stoped';
+    }
+    else
+    {
+        return ( system "killall -0 $param->{executeid}" ) ? 'stoped' : 'running';
+    }
 };
