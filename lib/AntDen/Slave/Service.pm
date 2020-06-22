@@ -133,8 +133,8 @@ sub run
                     }
                     if ( $@ )
                     {
-                        warn "start tsak fail: $@";
-                        $db->updateTaskMsg( 'start tsak fail', $taskid );
+                        warn "start task fail: $@";
+                        $db->updateTaskMsg( 'start task fail', $taskid );
                         $this->statusDump( $taskid );
                         next;
                     }
@@ -156,7 +156,7 @@ sub run
                 my $tstatus = eval{ $executer->status( $taskid, $executeid ); };
                 if( $@ )
                 {
-                    warn "get tsak status fail: $@";
+                    warn "get task status fail: $@";
                     $db->updateTaskMsg( 'get task status fail', $taskid );
                     $this->statusDump( $taskid );
                     next;
@@ -184,7 +184,7 @@ sub run
                     my $tstatus = eval{ $executer->status( $taskid, $executeid ); };
                     if( $@ )
                     {
-                        warn "get tsak status fail: $@";
+                        warn "get task status fail: $@";
                         $db->updateTaskMsg( 'get task status fail', $taskid );
                         $this->statusDump( $taskid );
                         next;
@@ -223,7 +223,7 @@ sub run
                     my $tstatus = eval{ $executer->status( $taskid, $executeid ); };
                     if( $@ )
                     {
-                        warn "get tsak status fail: $@";
+                        warn "get task status fail: $@";
                         $db->updateTaskMsg( 'get task status fail', $taskid );
                         $this->statusDump( $taskid );
                         next;
@@ -263,7 +263,7 @@ sub run
                 my $tstatus = eval{ $executer->status( $taskid, $executeid ); };
                 if( $@ )
                 {
-                    warn "get tsak status fail: $@";
+                    warn "get task status fail: $@";
                     $db->updateTaskMsg( 'get task status fail', $taskid );
                     $this->statusDump( $taskid );
                     next;
@@ -283,7 +283,7 @@ sub run
                 my $result = eval{ $executer->result( $taskid, $executeid ); };
                 if( $@ )
                 {
-                    warn "get tsak status fail: $@";
+                    warn "get task status fail: $@";
                     $db->updateTaskMsg( 'get task status fail', $taskid );
                     $this->statusDump( $taskid );
                     next;

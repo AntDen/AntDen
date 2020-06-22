@@ -41,63 +41,73 @@ return sub
         exit 1;
     };
 
-    if( $param->{param}{antden_repo} )
-    {
-        my ( $ip, $path ) = @{$param->{param}{antden_repo}};
-warn "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$ip' --sp '$path.tar.gz' && mkdir -p '$path' && tar -zxvf '$path.tar.gz' -C '$path' && cd '$path'\n";
-        die "download antden_repo fail: $!" if system "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$ip' --sp '$path.tar.gz' && mkdir -p '$path' && tar -zxvf '$path.tar.gz' -C '$path'";
-    }
+    eval{
 
-    $param->{param}{cmd} ||= '';
-
-    my $volumes = '';
-    $volumes = join ' ', map{ " -v $_ " }@{$param->{param}{volumes}} if $param->{param}{volumes};
-
-    die "mkdir output fail:$!" if system "mkdir -p '/data/AntDen_output/$param->{taskid}'";
-    $volumes .= " -v /data/AntDen_output/$param->{taskid}:/_output/ ";
-
-    my $workdir = '';
-    $workdir = " --workdir $param->{param}{workdir}" if $param->{param}{workdir};
-
-    my $resources = $param->{resources};
-    my ( $mem, $cpu, $gpu ) = ('','','');
-    if( -e "/dev/nvidia0" )
-    {
-        if( my @gpu = grep{ $_->[0] eq 'GPU' }@$resources )
+        if( $param->{param}{antden_repo} )
         {
-            $gpu = sprintf " -e NVIDIA_VISIBLE_DEVICES=%s ", join ',', map{ $_->[1] }@gpu;
+            my ( $ip, $path ) = @{$param->{param}{antden_repo}};
+            my $cmd = "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$ip' --sp '$path.tar.gz' && mkdir -p '$path' && tar -zxvf '$path.tar.gz' -C '$path'";
+            warn "$cmd\n";
+            die "download antden_repo fail: $!" if system $cmd;
         }
-        else { $gpu = ' --runtime runc '; }
-    }
 
-    if( my @mem = grep{ $_->[0] eq 'MEM' }@$resources )
+        $param->{param}{cmd} ||= '';
+
+        my $volumes = '';
+        $volumes = join ' ', map{ " -v $_ " }@{$param->{param}{volumes}} if $param->{param}{volumes};
+
+        die "mkdir output fail:$!" if system "mkdir -p '/data/AntDen_output/$param->{taskid}'";
+        $volumes .= " -v /data/AntDen_output/$param->{taskid}:/_output/ ";
+
+        my $workdir = '';
+        $workdir = " --workdir $param->{param}{workdir}" if $param->{param}{workdir};
+
+        my $resources = $param->{resources};
+        my ( $mem, $cpu, $gpu ) = ('','','');
+        if( -e "/dev/nvidia0" )
+        {
+            if( my @gpu = grep{ $_->[0] eq 'GPU' }@$resources )
+            {
+                $gpu = sprintf " -e NVIDIA_VISIBLE_DEVICES=%s ", join ',', map{ $_->[1] }@gpu;
+            }
+            else { $gpu = ' --runtime runc '; }
+        }
+
+        if( my @mem = grep{ $_->[0] eq 'MEM' }@$resources )
+        {
+            my $c; map{ $c += $_->[2] }@mem;
+            $mem = " --memory ${c}m ";
+        }
+
+        if( my @cpu = grep{ $_->[0] eq 'CPU' }@$resources )
+        {
+            my $c; map{ $c += $_->[2] }@cpu;
+            die "get cpu fail" unless `cat /proc/cpuinfo | grep "processor" | wc -l` =~ /(\d+)/;
+            my $cc = $1;
+           $cpu = sprintf " -c %d ", int( $c / $cc ) || 1;
+        }
+
+        #TODO
+
+        my $shmsize = '';
+        for my $x ( `df -h` )
+        {
+            chomp $x;
+            next unless $x =~ /\s+(\d+\w)\s+\d+\w\s+\d+\w\s+\d+%\s+\/dev\/shm$/;
+            $shmsize = " --shm-size=$1 "
+        }
+
+        my $cmd = "docker run $shmsize --name $param->{taskid} $volumes $workdir $gpu $mem $cpu -d $param->{param}{image} $param->{param}{cmd}";
+        warn "$cmd\n";
+        die "docker run fail" unless my $containerid = `$cmd`;
+        chomp $containerid;
+        die "containerid format error" unless $containerid =~ /^[a-z0-9]+$/;
+        die "link log fail: $@" if system "ln -fsn /var/lib/docker/containers/$containerid/$containerid-json.log $AntDen::PATH/logs/task/$param->{taskid}.log";
+    };
+    if( $@ )
     {
-        my $c; map{ $c += $_->[2] }@mem;
-        $mem = " --memory ${c}m ";
+        warn "start docker fail: $@\n";
+        #TODO Return this information to slave service
     }
-
-    if( my @cpu = grep{ $_->[0] eq 'CPU' }@$resources )
-    {
-        my $c; map{ $c += $_->[2] }@cpu;
-        die "get cpu fail" unless `cat /proc/cpuinfo | grep "processor" | wc -l` =~ /(\d+)/;
-        my $cc = $1;
-        $cpu = sprintf " -c %d ", int( $c / $cc ) || 1;
-    }
-
-    #TODO
-
-    my $shmsize = '';
-    for my $x ( `df -h` )
-    {
-        chomp $x;
-        next unless $x =~ /\s+(\d+\w)\s+\d+\w\s+\d+\w\s+\d+%\s+\/dev\/shm$/;
-        $shmsize = " --shm-size=$1 "
-    }
-
-    warn "docker run $shmsize --name $param->{taskid} $volumes $workdir $gpu $mem $cpu -d $param->{param}{image} $param->{param}{cmd}\n";
-    die "docker run fail" unless my $containerid = `docker run $shmsize --name $param->{taskid} $volumes $workdir $gpu $mem $cpu -d $param->{param}{image} $param->{param}{cmd}`;
-    chomp $containerid;
-    die "containerid format error" unless $containerid =~ /^[a-z0-9]+$/;
-    die "link log fail: $@" if system "ln -fsn /var/lib/docker/containers/$containerid/$containerid-json.log $AntDen::PATH/logs/task/$param->{taskid}.log";
     exit;
 };
