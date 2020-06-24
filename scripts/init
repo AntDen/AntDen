@@ -25,8 +25,9 @@ if( $name eq 'slave' )
 
         system 'ln -fsn /opt/AntDen/slave/code/mydan/antden /opt/mydan/dan/agent/code/antden';
         system 'ln -fsn /opt/AntDen/slave/code/mydan/vsync /opt/mydan/dan/agent/code/vsync';
-        system "mkdir -p /opt/AntDen/scheduler/conf/job /opt/AntDen/scheduler/conf/task  /opt/AntDen/logs/task /opt/AntDen/database /opt/AntDen/slave/conf/task /opt/AntDen/slave/conf/sync/{in,out} ";
-        system "yum install psmisc -y";
+        system 'ln -fsn /opt/AntDen/slave/code/mydan/free.load_antden /opt/mydan/dan/agent/code/free.load_antden';
+        system "mkdir -p /opt/AntDen/scheduler/conf/job /opt/AntDen/scheduler/conf/task /opt/AntDen/logs/task /opt/AntDen/database /opt/AntDen/slave/conf/task /opt/AntDen/slave/conf/sync/in /opt/AntDen/slave/conf/sync/out";
+        map{ system "$_ install psmisc -y" unless system "$_ --help >/dev/null 2>&1" }qw( yum apt-get );
         system "antden slave c --restart";
     }
 }
@@ -34,8 +35,6 @@ else
 {
     system 'cd /opt/mydan/etc/agent/auth && ssh-keygen -f antden -P "" && mv antden antden.key && echo success'
         unless -f '/opt/mydan/etc/agent/auth/antden.key' || -f '/opt/mydan/etc/agent/auth/antden.pub';
-
-    system 'ln -fsn /opt/AntDen/slave/code/mydan/free.load_antden /opt/mydan/dan/agent/code/free.load_antden';
 
     map{
         system "/opt/mydan/perl//bin/cpan install $_";
