@@ -93,7 +93,7 @@ return sub
         for my $x ( `df -h` )
         {
             chomp $x;
-            next unless $x =~ /\s+(\d+\w)\s+\d+\w\s+\d+\w\s+\d+%\s+\/dev\/shm$/;
+            next unless $x =~ /\s+(\d+\w)\s+\d+\w*\s+\d+\w*\s+\d+%\s+\/dev\/shm$/;
             $shmsize = " --shm-size=$1 "
         }
 
