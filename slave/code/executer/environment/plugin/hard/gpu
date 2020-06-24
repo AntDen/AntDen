@@ -1,0 +1,19 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+=head3 return
+
+  return version
+
+=cut
+
+return sub
+{
+    my (@x, %x) = `nvidia-smi -L 2>/dev/null`;
+
+    map{ $x{$1} ++ if $_ =~ /:\s+([a-zA-Z0-9\s]+)\s+\(/ }@x;
+    return 'empty' unless %x;
+
+    return join ':', map{ "(${_})x$x{$_}" }sort keys %x;
+};
