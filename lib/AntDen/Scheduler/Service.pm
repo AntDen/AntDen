@@ -4,11 +4,13 @@ use warnings;
 use YAML::XS;
 use AE;
 
+use AntDen;
 use AntDen::Util::Event;
 use AntDen::Scheduler::DB;
 use AntDen::Controller::Ctrl;
 use AntDen::Scheduler::Temple;
 use AntDen::Scheduler::Mon;
+use AntDen::Scheduler::Log;
 
 sub new
 {
@@ -19,6 +21,10 @@ sub new
 
     $this{event} = AntDen::Util::Event->new(
         path => "$this{conf}/ctrl/in" );
+
+    $this{log} = AntDen::Scheduler::Log->new(
+        path => "$AntDen::PATH/logs/monitor",
+        name => 'scheduler' );
 
     $this{a} = AntDen::Scheduler::Temple->new(
         map{ $_ => $this{$_} }qw( db conf temple ) );
@@ -70,6 +76,7 @@ my $consume = sub
     {
         map{ die "$_ undef" unless defined $conf->{$_} }
             qw( MEM health hostip load );
+        $this->{log}->say( $conf );
         $this->{mon}->add( $conf );
     }
 
@@ -94,7 +101,11 @@ sub run
         $this->{mon}->save( $this->{a}->getMachine() );
     });
 
-    my $t3 = $this->{event}->receive( $this, $consume );
+    my $t3 = AnyEvent->timer ( after => 60, interval => 60, cb => sub{
+        $this->{log}->cut();
+    });
+
+    my $t4 = $this->{event}->receive( $this, $consume );
 
     $cv->recv;
 }

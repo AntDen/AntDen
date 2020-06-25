@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use Carp;
+use POSIX;
 use YAML::XS;
 use File::Basename;
 
@@ -26,6 +27,7 @@ sub do
 {
     my ( $this, %data ) = shift @_;
     map{ $data{$_} = &{$this->{code}{$_}}; }keys %{$this->{code}};
+    $data{time} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     return \%data;
 }
 
