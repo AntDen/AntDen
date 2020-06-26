@@ -1,0 +1,54 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+=head3 return
+
+  return 
+    ID1: values1
+    ID2: values3
+
+    or 
+
+    value
+
+=cut
+
+my ( $do, $time, $prev_in, $prev_out, $iface, $lan ) = ( 1, 0, 0, 0, '/opt/AntDen/slave/conf/iface' );
+
+return sub
+{
+    return unless $do;
+    return unless my @stat = `cat /proc/net/dev`;
+
+    unless( defined $lan )
+    {
+        unless( -f $iface )
+        {
+            my @lan; map{ push( @lan, $1 ) if $_ =~ /([a-z0-9]+):/ }@stat;
+            system "echo $lan[0] > $iface" if @lan;
+        }
+        $lan = `cat $iface`;
+        chomp $lan;
+        die "get iface fail" unless $lan && $lan =~ /^[a-z0-9]+$/;
+     }
+
+     my $stat; map{ $stat = $_ if $_ =~ /$lan:/ }@stat;
+     unless( $stat ) { $do = 0; return; }
+
+     $stat =~ s/^\s+//;
+
+     my @x = split /\s+/, $stat;
+     my ( $in, $out ) = @x[1,9];
+
+     my ( $diffin, $diffout ) = ( $in - $prev_in, $out - $prev_out );
+     ( $prev_in, $prev_out ) = ( $in, $out );
+
+     unless( $time ) { $time = time; return; }
+
+     my $due = time - $time;
+     $time += $due;
+     $due = 1 unless $due;
+
+     return +{ in => sprintf( "%0.2f", $diffin / 1024 / $due ), out => sprintf( "%0.2f", $diffout / 1024 / $due ) };
+};

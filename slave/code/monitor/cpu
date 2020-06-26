@@ -1,0 +1,34 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+=head3 return
+
+  return 
+    ID1: values1
+    ID2: values3
+
+    or 
+
+    value
+
+=cut
+
+my ( $prev_total, $prev_idle ) = ( 0, 0 );
+
+return sub
+{
+    return unless my @stat = `cat /proc/stat`;
+    my @cpu = split /\s+/, $stat[0];
+    return unless @cpu && $cpu[0] eq 'cpu';
+
+    my $idle = $cpu[4];
+    my $total; map{ $total += $cpu[$_] } 1 .. $#cpu;
+
+    my $diff_idle = $idle - $prev_idle;
+    my $diff_total = $total - $prev_total;
+
+    ( $prev_idle, $prev_total ) = ( $idle, $total );
+
+    return sprintf "%0.2f", 100 * ( $diff_total - $diff_idle ) / $diff_total;
+};

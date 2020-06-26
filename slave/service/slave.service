@@ -5,6 +5,7 @@ use AntDen;
 
 use MYDan::Util::OptConf;
 use AntDen::Slave::Service;
+use FindBin qw( $RealBin );
 
 $| ++;
 
@@ -20,4 +21,5 @@ $0 = 'AntDen_slave_service';
 
 my %o = MYDan::Util::OptConf->load()->get()->dump();
 
+system "$RealBin/slave.nvidia-smi";
 AntDen::Slave::Service->new( %{$o{slave}} )->run();

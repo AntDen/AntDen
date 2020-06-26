@@ -3,7 +3,6 @@ use strict;
 use warnings;
 
 use Carp;
-use POSIX;
 use YAML::XS;
 use File::Basename;
 
@@ -26,8 +25,17 @@ sub new
 sub do
 {
     my ( $this, %data ) = shift @_;
-    map{ $data{$_} = &{$this->{code}{$_}}; }keys %{$this->{code}};
-    $data{time} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+    for my $name ( keys %{$this->{code}} )
+    {
+        my $r = &{$this->{code}{$name}};
+        next unless defined $r;
+        if( ref $r eq 'HASH' )
+        {
+            map{ $data{"$name.$_"} = $r->{$_}; }keys %$r;
+        }
+        else { $data{$name} = $r; }
+    }
+    $data{time} = time;
     return \%data;
 }
 

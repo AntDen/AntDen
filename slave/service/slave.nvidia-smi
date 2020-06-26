@@ -1,0 +1,48 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+use POSIX qw( :sys_wait_h );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+ $0 
+
+=cut
+
+exit unless -e '/dev/nvidia0';
+
+my @x = `ps -ef|grep [A]ntDen_nvidia-smi`;
+die "Service is already running.\n" if @x;
+
+$0 = 'AntDen_nvidia-smi';
+
+exit if fork;
+
+while(1)
+{
+    if( my $pid = fork )
+    {
+        $SIG{TERM} = $SIG{INT} = sub { warn "exit!\n"; kill 'KILL', $pid; exit; };
+
+        wait;
+
+        if ($? == -1) {
+            warn "failed to execute: $!\n";
+        }
+        elsif ($? & 127) {
+            warn sprintf "child $pid died with signal %d, %s coredump\n",
+            ($? & 127),  ($? & 128) ? 'with' : 'without';
+        }
+        warn sprintf "child exited with value %d\n", $? >> 8;
+    }
+    else
+    {
+        open(STDOUT, ">$AntDen::PATH/logs/nvidia-smi.log") || die "STDOUT ERROR $!";
+        exec "nvidia-smi dmon -s u -c 1800";
+    }
+
+    sleep 1;
+}
