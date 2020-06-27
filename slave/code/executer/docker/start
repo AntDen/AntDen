@@ -20,6 +20,7 @@ use POSIX qw( :sys_wait_h );
       - 10.10.1.1
       - /data/AntDen_repo/username@xxx.com.1591002050.913979057238
     workdir: /tmp/abc
+    port: 80
 
   taskid: J.20191120.191012.907980.111.001
 
@@ -63,7 +64,7 @@ return sub
         $workdir = " --workdir $param->{param}{workdir}" if $param->{param}{workdir};
 
         my $resources = $param->{resources};
-        my ( $mem, $cpu, $gpu ) = ('','','');
+        my ( $mem, $cpu, $gpu, $port ) = ('','','','');
         if( -e "/dev/nvidia0" )
         {
             if( my @gpu = grep{ $_->[0] eq 'GPU' }@$resources )
@@ -87,6 +88,11 @@ return sub
            $cpu = sprintf " -c %d ", int( $c / $cc ) || 1;
         }
 
+        if( my @port = grep{ $_->[0] eq 'PORT' }@$resources )
+        {
+            $port = " -p $port[0][1]:$param->{param}{port} " if $param->{param}{port};
+        }
+
         #TODO
 
         my $shmsize = '';
@@ -97,7 +103,9 @@ return sub
             $shmsize = " --shm-size=$1 "
         }
 
-        my $cmd = "docker run $shmsize --name $param->{taskid} $volumes $workdir $gpu $mem $cpu -d $param->{param}{image} $param->{param}{cmd}";
+        my $entrypoint = $param->{param}{cmd};
+        $entrypoint = '' if $entrypoint eq '_null_';
+        my $cmd = "docker run $shmsize --name $param->{taskid} $port $volumes $workdir $gpu $mem $cpu -d $param->{param}{image} $entrypoint";
         warn "$cmd\n";
         die "docker run fail" unless my $containerid = `$cmd`;
         chomp $containerid;
