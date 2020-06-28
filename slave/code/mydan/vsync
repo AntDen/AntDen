@@ -142,6 +142,7 @@ my $t3 = AnyEvent->timer ( after => 0.01, interval => 0.01, cb => sub{
     while(1)
     {
         last if my $size = ( stat $file )[7];
+        return unless defined $size;
         sleep 0.2;
         warn "err: $file null\n";
     }
