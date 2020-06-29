@@ -18,10 +18,10 @@ sub replace
     #$s =~ s/.\[1m.\[32m/<font color="#00FF00">/g;
     #$s =~ s/\[31m.\[42m/<font color="#0000FF">/g;
     #$s =~ s/\[0m.\[0m/<\/font>/g;
-    $s =~ s/\n/<br>/g;
+    #$s =~ s/\r/<br>/g;
+    #$s =~ s/\n/<br>/g;
     return $s;
 }
-
 
 websocket_on_open sub {
     my( $conn, $env ) = @_;
@@ -55,7 +55,7 @@ websocket_on_open sub {
         }
     }
 
-    $cmd = "tail -n 30 -F $AntDen::PATH/logs/$uuid*/current" if grep{ $uuid eq $_ }qw( scheduler controller dashboard ); 
+    $cmd = "tail -n 300 -F $AntDen::PATH/logs/$uuid*/current" if grep{ $uuid eq $_ }qw( scheduler controller dashboard ); 
     $conn{$conn}{pid} = IPC::Open3::open3( undef, $rdr, $err, $cmd );
     #TODO
 
@@ -63,16 +63,14 @@ websocket_on_open sub {
         fh => $err, poll => "r",
         cb => sub {
             my $input;my $n = sysread $err, $input, 102400;
-            chomp $input;
-            $conn->send(replace($input)) if $input;
+            $conn->send(replace($input)) if $n;
         }
     );
     $conn{$conn}{rdr} = AnyEvent->io (
         fh => $rdr, poll => "r",
         cb => sub {
             my $input;my $n = sysread $rdr, $input, 102400;
-            chomp $input;
-            $conn->send(replace($input)) if $input;
+            $conn->send(replace($input)) if $n;
         }
     );
 };

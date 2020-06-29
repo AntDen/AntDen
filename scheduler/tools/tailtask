@@ -92,7 +92,7 @@ $poll->mask( $soc => POLLIN  );
 ReadMode(4);
 
 syswrite( $soc, $uuid, 36 );
-my $cmd = "tail -F '$AntDen::PATH/logs/task/$o{taskid}.$o{type}'\n";
+my $cmd = "tail -n +1 -F '$AntDen::PATH/logs/task/$o{taskid}.$o{type}'\n";
 syswrite( $soc, $cmd, length $cmd );
 
 while ( $poll->handles && $soc ) {

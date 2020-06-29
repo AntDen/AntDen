@@ -91,8 +91,8 @@ $poll->mask( $soc => POLLIN  );
 ReadMode(4);
 
 syswrite( $soc, $uuid, 36 );
-my $cmd = "tail -F '$AntDen::PATH/logs/slave/current'\n";
-$cmd = "tail -F '$AntDen::PATH/logs/slave.use'\n" if $o{type} eq 'use';
+my $cmd = "tail -n 300 -F '$AntDen::PATH/logs/slave/current'\n";
+$cmd = "tail -n 300 -F '$AntDen::PATH/logs/slave.use'\n" if $o{type} eq 'use';
 syswrite( $soc, $cmd, length $cmd );
 
 while ( $poll->handles && $soc ) {

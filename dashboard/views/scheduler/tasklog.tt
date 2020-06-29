@@ -13,7 +13,10 @@
           };
           function setMessageInnerHTML(innerHTML) {
               var m = document.getElementById('message');
-              m.innerHTML += innerHTML + '<br/>';
+              innerHTML = innerHTML.replace(/\r\n/g,"<br/>");
+              innerHTML = innerHTML.replace(/\r/g,"<br/>");
+              innerHTML = innerHTML.replace(/\n/g,"<br/>");
+              m.innerHTML += innerHTML;
               if( scroll == 1 )
               {
                 m.scrollTop = m.scrollHeight;
