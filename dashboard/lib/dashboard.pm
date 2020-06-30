@@ -1,7 +1,9 @@
 package dashboard;
 use Dancer ':syntax';
 use POSIX;
+use AntDen;
 use FindBin qw( $RealBin );
+use File::Basename;
 use MYDan::Util::OptConf;
 use AntDen::Scheduler::Ctrl;
 use AntDen::Scheduler::DB;
@@ -125,7 +127,81 @@ get '/scheduler/submitJob' => sub {
     }
     $niceStr = 5 if ! defined $niceStr;
     template 'scheduler/submitJob', +{ config => $configStr, nice => $niceStr,
-        group => $groupStr, name => $nameStr, err => $err, jobid => $jobid };
+        group => $groupStr, name => $nameStr, err => $err, jobid => $jobid,
+        tt => 'scheduler/submitJob/default.tt', cmdsj => cmdsj() };
+};
+
+sub cmdsj
+{
+    my %x;
+    map{
+         $_ =~ s/\.tt$//;
+         $_ =~ /^([a-z]+)/;
+         my $n = $1 || 'default';
+         push( @{$x{$n}}, $_ );
+    }sort map{ basename $_ }
+    glob "$AntDen::PATH/dashboard/views/scheduler/submitJob/cmd/*";
+
+    $x{key} = [ sort keys %x ];
+    return \%x;
+}
+
+get '/scheduler/submitJob/cmd/:name' => sub {
+    return unless my $user = get_username();
+    my $param = params();
+    my ( $err, $jobid, $uuid ) = ( '', '' );
+
+    my $ws_url = request->env->{HTTP_HOST};
+    $ws_url =~ s/:\d+$//;
+    $ws_url .= ":3001";
+    $ws_url = "ws://$ws_url/ws";
+
+    if( $param->{group} )
+    {
+        $err = "ip error:$param->{ip}" unless $param->{ip} && $param->{ip} =~ /^\d+\.\d+\.\d+\.\d+$/;
+        $err = "group error:$param->{group}" unless $param->{group} && $param->{group} =~ /^[a-z0-9_\.\-]+$/;
+        $err = "cmd err:$param->{cmd}" unless $param->{cmd} && $param->{cmd} =~ /^[\/a-zA-Z0-9_:\.\- ]+$/;
+    
+        my $cmd = $param->{cmd};
+        my @arg = $cmd =~ /:::([a-zA-Z0-9]+):::/g;
+        map{
+            $cmd =~ s/:::${_}:::/$param->{$_}/g;
+            $err = "$_ err" unless defined $param->{$_} && $param->{$_} =~ /^[\/a-z0-9_:\.\@\-]+$/;
+        }@arg;
+
+        if( ( @arg == grep{ $param->{$_} }@arg ) && @arg && ! $err )
+        {
+             my $config = [ +{
+                 executer => +{
+                     name => 'exec',
+                     param => +{
+                         exec => $cmd
+                     },
+                 },
+                 scheduler => +{
+                     envhard => 'arch=x86_64,os=Linux',
+                     envsoft => 'app1=1.0',
+                     count => 1,
+                     ip => $param->{ip},
+                     resources => [ [ 'CPU', '.', 2 ] ]
+                 }
+             } ];
+             my @auth = $schedulerDB->selectAuthByUser( $user, $param->{group} );
+             #`executer`
+             my %auth; map{ $auth{$_->[0]} = 1; }@auth;
+             map{ $err = "no auth $param->{group}.$_->{executer}{name}" unless $auth{$_->{executer}{name}} }@$config;
+
+             unless( $err )
+             {
+                 $jobid = $schedulerCtrl->startJob( $config, 5, $param->{group}, $user, $param->{name} );
+                 $uuid = $jobid. ".001_$param->{ip}.log";
+                 $uuid =~ s/^J/T/;
+             }
+        }
+    }
+
+    template 'scheduler/submitJob', +{ err => $err, jobid => $jobid,
+        tt => "scheduler/submitJob/cmd/" . $param->{name} . ".tt", ws_url => $ws_url, uuid => $uuid, cmdsj => cmdsj() };
 };
 
 get '/scheduler/job' => sub {

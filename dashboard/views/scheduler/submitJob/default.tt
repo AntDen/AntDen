@@ -1,0 +1,37 @@
+<div>
+    <form action="#">
+    Nice
+    <select id="submitJobNice" name="nice" >
+        <option value ="0" [% IF nice == 0 %]selected = "selected" [% END %]>0</option>
+        <option value ="1" [% IF nice == 1 %]selected = "selected" [% END %]>1</option>
+        <option value ="2" [% IF nice == 2 %]selected = "selected" [% END %]>2</option>
+        <option value ="3" [% IF nice == 3 %]selected = "selected" [% END %]>3</option>
+        <option value ="4" [% IF nice == 4 %]selected = "selected" [% END %]>4</option>
+        <option value ="5" [% IF nice == 5 %]selected = "selected" [% END %]>5</option>
+        <option value ="6" [% IF nice == 6 %]selected = "selected" [% END %]>6</option>
+        <option value ="7" [% IF nice == 7 %]selected = "selected" [% END %]>7</option>
+        <option value ="8" [% IF nice == 8 %]selected = "selected" [% END %]>8</option>
+        <option value ="9" [% IF nice == 9 %]selected = "selected" [% END %]>9</option>
+    </select>
+    Group
+    <input id="submitJobGroup" name="group" value="[% group %]"></input>
+    Name
+    <input id="submitJobName" name="name" value="[% name %]"></input><br>
+    <textarea id="submitJobConfig" rows="30" cols="100" name="config">[% config %]</textarea>
+    <br>
+    <button type="button" onclick="setDemo()">Demo</button>
+    <button type="submit" value="Submit">Submit</button>
+    </form> 
+    [% IF err %] [Error] [% err %] [% END %]
+    [% IF jobid %] [Success] JobId: <a href="/scheduler/job/[% jobid %]">[% jobid %]</a> [% END %]
+</div>
+<script>
+    function setDemo() {
+        var demo = "-\n  executer:\n    name: exec\n    param:\n      exec: 'sleep 300'\n  scheduler:\n    envhard: 'arch=x86_64,os=Linux'\n    envsoft: 'app1=1.0'\n    count: 3\n    resources:\n      - [ 'CPU', '.', 2 ]\n";
+        $("#submitJobConfig").val(demo);
+        $("#submitJobGroup").val('foo');
+        $("#submitJobName").val('job.abc');
+        $("#submitJobNice").val(5);
+    }
+</script>
+
