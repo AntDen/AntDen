@@ -14,6 +14,9 @@ $| ++;
 
 exit unless -e '/dev/nvidia0';
 
+my $cronfile = '/etc/cron.d/antden_slave_nvidia_smi';
+system "echo '* * * * * root /opt/AntDen/slave/service/slave.nvidia-smi >/dev/null 2>&1' > $cronfile" unless -e $cronfile;
+
 my @x = `ps -ef|grep [A]ntDen_nvidia-smi`;
 die "Service is already running.\n" if @x;
 
