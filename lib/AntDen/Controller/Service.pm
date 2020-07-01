@@ -56,7 +56,7 @@ sub run
             system "mkdir -p '$AntDen::PATH/controller/conf/slave/$_/in'";
             system "ln -fsn ../../../../scheduler/conf/ctrl/in $AntDen::PATH/controller/conf/slave/$_/out";
             warn "start AntConnect $_ fail: $!" if 
-                system sprintf "$supervisor --%s %s --cmd '$vsync --%s %s --%s %s --%s %s' --%s '%s'", @cmd;
+                system sprintf "$supervisor --count 3 --%s %s --cmd '$vsync --%s %s --%s %s --%s %s' --%s '%s'", @cmd;
         }
     });
 
