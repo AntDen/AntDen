@@ -1,0 +1,46 @@
+#!# perl: code/
+use warnings;
+use strict;
+
+=head3 return
+
+  return 
+    ID1: values1
+    ID2: values3
+
+    or 
+
+    value
+
+=cut
+
+my $c = do "/opt/AntDen/slave/code/monitor/gpu";
+die "load monitor.gpu fail"  unless $c && ref $c eq 'CODE';
+
+return sub
+{
+    my ( @x, %x )= `cat /opt/AntDen/logs/docker-stat.log`;
+    map{
+        $x{$1} = +{ tcpu => $2, tmem => $3  }
+            if $_ =~ /(T\.[\.\d]+).+\s+([\d\.]+)%.+\s+([\d\.]+)%/;
+    }@x;
+
+    my $gpu = &$c();
+
+    for my $taskid ( keys %x )
+    {
+         my $gpuf = "/opt/AntDen/logs/gpu.use.$taskid";
+         next unless -f $gpuf;
+         my $conf = eval{ YAML::XS::LoadFile $gpuf; };
+         if( $@ )
+         {
+             warn "load $gpuf fail: $@";
+             next;
+         }
+         map{
+             $x{$taskid}{tgpu} += $gpu->{$_} if $gpu->{$_};
+         }@$conf if $conf && ref $conf eq 'ARRAY';
+    }
+
+    return \%x;
+};

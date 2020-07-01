@@ -5,6 +5,7 @@ use warnings;
 use Carp;
 use YAML::XS;
 use File::Basename;
+use Sys::Hostname;
 
 sub new
 {
@@ -19,6 +20,8 @@ sub new
         $this{code}{basename $file} = $code;
     }
 
+    $this{hostname} = hostname;
+
     bless \%this, ref $class || $class;
 }
 
@@ -29,13 +32,15 @@ sub do
     {
         my $r = &{$this->{code}{$name}};
         next unless defined $r;
-        if( ref $r eq 'HASH' )
+
+        if( $name ne 'TASK' && ref $r eq 'HASH' )
         {
             map{ $data{"$name.$_"} = $r->{$_}; }keys %$r;
         }
         else { $data{$name} = $r; }
     }
     $data{time} = time;
+    $data{hostname} = $this->{hostname};
     return \%data;
 }
 

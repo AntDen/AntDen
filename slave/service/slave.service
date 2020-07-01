@@ -22,4 +22,5 @@ $0 = 'AntDen_slave_service';
 my %o = MYDan::Util::OptConf->load()->get()->dump();
 
 system "$RealBin/slave.nvidia-smi";
+system "$RealBin/slave.docker-stat";
 AntDen::Slave::Service->new( %{$o{slave}} )->run();

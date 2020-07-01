@@ -1,0 +1,33 @@
+#!/opt/mydan/perl/bin/perl -I/opt/AntDen/lib
+use strict;
+use warnings;
+use AntDen;
+use POSIX qw( :sys_wait_h );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+ $0 
+
+=cut
+
+exit unless -e '/dev/nvidia0';
+
+my $cronfile = '/etc/cron.d/antden_slave_docker_stat';
+system "echo '* * * * * root /opt/AntDen/slave/service/slave.docker-stat >/dev/null 2>&1' > $cronfile" unless -e $cronfile;
+
+
+my @x = `ps -ef|grep [A]ntDen_docker-stats`;
+die "Service is already running.\n" if @x;
+
+$0 = 'AntDen_docker-stats';
+
+exit if fork;
+
+while( 1 )
+{
+    system "docker stats --no-stream > /opt/AntDen/logs/docker-stat.tmp";
+    system "mv /opt/AntDen/logs/docker-stat.tmp /opt/AntDen/logs/docker-stat.log";
+    sleep 3;
+}

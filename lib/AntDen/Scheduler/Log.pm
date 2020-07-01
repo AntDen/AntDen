@@ -2,7 +2,6 @@ package AntDen::Scheduler::Log;
 use strict;
 use warnings;
 use JSON;
-use POSIX;
 
 $|++;
 
@@ -38,6 +37,14 @@ sub say
     map{ $data->{$_} += 0 if $data->{$_} =~ /^\d+$/ || $data->{$_} =~ /^\d+\.\d+$/ }keys %$data;
     syswrite $this->{H}, JSON::to_json( $data )."\n";
 
+    if( my $task = $data->{TASK} )
+    {
+        for my $taskid ( keys %$task )
+        {
+            my %d = ( taskid => $taskid, time => $data->{time}, %{$task->{$taskid}} );
+            $this->say( \%d );
+        }
+    }
     return $this;
 }
 
