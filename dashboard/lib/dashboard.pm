@@ -186,10 +186,11 @@ get '/scheduler/submitJob/cmd/:name' => sub {
                      resources => [ [ 'CPU', '.', 2 ] ]
                  }
              } ];
-             my @auth = $schedulerDB->selectAuthByUser( $user, $param->{group} );
+             my $authgroup = $param->{name} =~ /^([a-z]+)/ ? $1 : 'default';
+             my @auth = $schedulerDB->selectAuthByUser( $user, $authgroup );
              #`executer`
              my %auth; map{ $auth{$_->[0]} = 1; }@auth;
-             map{ $err = "no auth $param->{group}.$_->{executer}{name}" unless $auth{$_->{executer}{name}} }@$config;
+             $err = "no auth $authgroup.cmd" unless $auth{cmd};
 
              unless( $err )
              {
