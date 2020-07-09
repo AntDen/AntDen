@@ -166,10 +166,10 @@ get '/scheduler/submitJob/cmd/:name' => sub {
         my @arg = $cmd =~ /:::([a-zA-Z0-9]+):::/g;
         map{
             $cmd =~ s/:::${_}:::/$param->{$_}/g;
-            $err = "$_ err" unless defined $param->{$_} && $param->{$_} =~ /^[\/a-z0-9_:\.\@\-]+$/;
+            $err = "$_ err" unless defined $param->{$_} && $param->{$_} =~ /^[\.\/a-z0-9_:\.\@\-]+$/;
         }@arg;
 
-        if( ( @arg == grep{ $param->{$_} }@arg ) && @arg && ! $err )
+        if( ( @arg == grep{ $param->{$_} }@arg ) && ! $err )
         {
              my $config = [ +{
                  executer => +{
