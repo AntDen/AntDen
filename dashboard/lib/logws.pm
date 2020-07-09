@@ -6,6 +6,7 @@ use EV;
 use FindBin qw( $RealBin );
 use IPC::Open2;
 use Symbol 'gensym';
+use Encode qw(encode);
 
 set show_errors => 1;
 
@@ -13,12 +14,15 @@ our %conn;
 
 sub replace
 {
-    my $s = shift;
-    #$s =~ s/.\[1m.\[31m/<font color="#FF0000">/g;
-    #$s =~ s/.\[1m.\[32m/<font color="#00FF00">/g;
-    #$s =~ s/\[31m.\[42m/<font color="#0000FF">/g;
-    #$s =~ s/\[0m.\[0m/<\/font>/g;
-    #$s =~ s/\r/<br>/g;
+    my ( $name, $s, @x ) = @_;
+    $conn{$name}{cache} = '' unless defined $conn{$name}{cache};
+    $conn{$name}{cache} .= $s;
+
+    @x = split /\n/, $conn{$name}{cache};
+    $conn{$name}{cache} = $conn{$name}{cache} =~ /\n$/ ? '' :  pop @x;
+
+    $s = join "\n", @x;
+    Encode::_utf8_on($s);
     #$s =~ s/\n/<br>/g;
     return $s;
 }
@@ -63,14 +67,14 @@ websocket_on_open sub {
         fh => $err, poll => "r",
         cb => sub {
             my $input;my $n = sysread $err, $input, 102400;
-            $conn->send(replace($input)) if $n;
+            $conn->send( replace( $conn, $input ) ) if $n;
         }
     );
     $conn{$conn}{rdr} = AnyEvent->io (
         fh => $rdr, poll => "r",
         cb => sub {
             my $input;my $n = sysread $rdr, $input, 102400;
-            $conn->send(replace($input)) if $n;
+            $conn->send( replace( $conn, $input ) ) if $n;
         }
     );
 };
