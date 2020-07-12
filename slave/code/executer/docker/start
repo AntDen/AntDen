@@ -21,6 +21,7 @@ use POSIX qw( :sys_wait_h );
       - /data/AntDen_repo/username@xxx.com.1591002050.913979057238
     workdir: /tmp/abc
     port: 80
+    datasets: data123
 
   taskid: J.20191120.191012.907980.111.001
 
@@ -50,6 +51,13 @@ return sub
             my $cmd = "MYDan_Agent_Load_Code=free.load_antden /opt/mydan/dan/tools/load --host '$ip' --sp '$path.tar.gz' && mkdir -p '$path' && tar -zxvf '$path.tar.gz' -C '$path'";
             warn "$cmd\n";
             die "download antden_repo fail: $!" if system $cmd;
+        }
+
+        if( $param->{param}{datasets} )
+        {
+            map{
+                die "mount datasets $_ fail: $!" if system "/opt/mydan/dan/antden/tools/datasets/slave $_ --mount";
+            }split /,/, $param->{param}{datasets};
         }
 
         $param->{param}{cmd} ||= '';
