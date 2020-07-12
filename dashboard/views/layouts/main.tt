@@ -63,6 +63,14 @@
         </div>
         <hr>
         <div class="item">
+            <div class="title" onclick="show(this)">datasets</div>
+            <div class="con">
+                <div><a href="/admin/datasets/data" >datasets</a></div>
+                <div><a href="/admin/datasets/auth" >auth</a></div>
+            </div>
+        </div>
+        <hr>
+        <div class="item">
             <div class="title" onclick="show(this)">log</div>
             <div class="con">
                 <div><a href="/admin/tasklog/scheduler" >scheduler</a></div>

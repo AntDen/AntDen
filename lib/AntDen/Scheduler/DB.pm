@@ -58,6 +58,20 @@ sub define
         group => 'TEXT NOT NULL',
         executer => 'TEXT NOT NULL',
     ],
+    datasets => [
+        id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        name => 'TEXT NOT NULL',
+        info => 'TEXT NOT NULL',
+        type => 'TEXT NOT NULL',
+        group => 'TEXT NOT NULL',
+        token => 'TEXT NOT NULL',
+    ],
+    datasetsauth => [
+        id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        name => 'TEXT NOT NULL',
+        group => 'TEXT NOT NULL',
+        user => 'TEXT NOT NULL',
+    ],
 };
 
 sub stmt
@@ -109,9 +123,20 @@ sub stmt
     insertAuth => "insert into `auth` (`user`,`group`,`executer`) values(?,?,?)",
     selectAuth => "select `id`,`user`,`group`,`executer` from auth",
     selectAuthByUser => "select `executer` from auth where user=? and `group`=?",
+
     deleteAuthById => "delete from `auth` where id=?",
     deleteAdminById => "delete from `user` where id=? and isadmin=1",
     selectMon => "select count(*) from machine",
+
+    insertDatasets => "insert into `datasets` (`name`,`info`,`type`,`group`,`token`) values(?,?,?,?,?)",
+    deleteDatasetsById => "delete from `datasets` where id=?",
+    selectDatasets => "select `id`,`name`,`info`,`type`,`group`,`token` from datasets",
+
+    insertDatasetsauth => "insert into `datasetsauth` (`name`,`group`,`user`) values(?,?,?)",
+    deleteDatasetsauthById => "delete from `datasetsauth` where id=?",
+    selectDatasetsauth => "select `id`,`name`,`group`,`user` from datasetsauth",
+
+    selectDatasetsByUser => "select datasets.id,datasets.name,datasets.info,datasets.type,datasets.group,datasets.token from datasets,datasetsauth where datasets.group=datasetsauth.group and datasets.name=datasetsauth.name and user=?",
 
     insertAdmin => "insert into `user` (`name`,`isadmin`) values(?,1)",
     #api

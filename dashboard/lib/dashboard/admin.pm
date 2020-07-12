@@ -49,6 +49,34 @@ get '/admin/authorization/admin' => sub {
     template 'admin/authorization/admin', +{ admin => 1, user => \@user, level => $level };
 };
 
+get '/admin/datasets/data' => sub {
+    my ( $username, $level ) = adminInfo();
+    return 'Unauthorized:'. $username unless $level;
+    my $param = params();
+
+    $dashboard::schedulerDB->insertDatasets( @$param{qw( name info type group token ) } )
+        if 5 eq grep{ $param->{$_} }qw( name info type group token );
+
+    $dashboard::schedulerDB->deleteDatasetsById( $param->{deleteid} ) if $param->{deleteid};
+
+    my @datasets = $dashboard::schedulerDB->selectDatasets();
+    template 'admin/datasets/data', +{ admin => 1, datasets => \@datasets };
+};
+
+get '/admin/datasets/auth' => sub {
+    my ( $username, $level ) = adminInfo();
+    return 'Unauthorized:'. $username unless $level;
+    my $param = params();
+
+    $dashboard::schedulerDB->insertDatasetsauth( $param->{name}, $param->{group}, $param->{user} )
+        if $param->{name} && $param->{group} && $param->{user};
+
+    $dashboard::schedulerDB->deleteDatasetsauthById( $param->{deleteid} ) if $param->{deleteid};
+
+    my @auth = $dashboard::schedulerDB->selectDatasetsauth();
+    template 'admin/datasets/auth', +{ admin => 1, auth => \@auth };
+};
+
 get '/admin/log/slave' => sub {
     my ( $username, $level ) = adminInfo();
     return 'Unauthorized:'. $username unless $level;

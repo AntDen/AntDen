@@ -1,0 +1,31 @@
+<div>
+    <form action="#">
+    Name
+    <input name="name" value=""></input>
+    Group
+    <input name="group" value=""></input>
+    User
+    <input name="user" value=""></input>
+    <button type="submit" >Add</button>
+    </form> 
+    <hr>
+    <table border="1">
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>group</th>
+            <th>user</th>
+            <th>delete</th>
+        </tr>
+        [% FOR t IN auth %]
+        <tr>
+            <td>[% t.0 %]</td>
+            <td>[% t.1 %]</td>
+            <td>[% t.2 %]</td>
+            <td>[% t.3 %]</td>
+            <td><a href="/admin/datasets/auth?deleteid=[% t.0 %]">delete</a></td>
+        </tr>
+        [% END %]
+    </table>
+
+</div>
