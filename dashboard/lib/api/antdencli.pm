@@ -163,4 +163,21 @@ get '/api/antdencli/resources' => sub {
     } };
 };
 
+get '/api/antdencli/datasets' => sub {
+    my $addr = request->env->{REMOTE_ADDR};
+    return( 'Unauthorized:' . $addr ) unless $addr{$addr};
+    my $param = params();
+
+    my @datasets = $dashboard::schedulerDB->selectDatasetsByUser( $param->{owner} );
+    #`id`,`name`,`info`,`type`,`group`,`token`
+
+    return +{ stat => JSON::true, data => [ map{
+        +{
+            id => $_->[0], name => $_->[1],
+            info => $_->[2], type => $_->[3],
+            group => $_->[4], token => $_->[5]
+        }
+    } @datasets] };
+};
+
 true;
