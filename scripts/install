@@ -1,0 +1,44 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use Expect;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--user root] [--host 10.10.10.1] [--password abc] [--group foo] [--role slave]
+ 
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( user => 'root', group => 'foo', password => 'abc', role => 'slave' )
+    ->get( qw( user=s host=s password=s group=s role=s ) )->dump();
+$option->assert(qw( host ));
+
+chdir $RealBin or die "chdir fail:$!";
+
+run( $o{password}, "ssh $o{user}\@$o{host} 'curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash'" );
+run( $o{password}, "scp /opt/mydan/etc/agent/auth/antden.pub $o{user}\@$o{host}:/opt/mydan/etc/agent/auth/antden.pub" );
+
+my $time = time;
+system "cd /opt/AntDen && tar -zcvf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job --exclude scheduler/conf/ctrl --exclude scheduler/temple/run --exclude controller/conf/slave --exclude scheduler/temple/run --exclude slave/conf/sync --exclude dashboard/auth --exclude controller/conf/slave.ip";
+
+run( $o{password}, "scp /opt/AntDen.$time.tar.gz $o{user}\@$o{host}:/opt/AntDen.$time.tar.gz" );
+
+run( $o{password}, "ssh $o{user}\@$o{host} 'mkdir -p /opt/AntDen && tar -zxvf /opt/AntDen.$time.tar.gz  -C /opt/AntDen && /opt/AntDen/scripts/init slave'" );
+
+system "antden s am $o{host} --group $o{group} --role $o{role}";
+
+sub run
+{
+    my ( $pass, @cmd ) = @_;
+    my $exp = Expect->new();
+    $exp->spawn( join ' ', @cmd );
+    $exp->expect( 60,
+        [ qr/yes\/no/ => sub { $exp->send( "yes\n" ); exp_continue; } ],
+        [ qr/assword/ => sub { $exp->send( "$pass\n" ); exp_continue; } ],
+    );
+}
