@@ -1,7 +1,6 @@
 <div>
     <form action="#">
     usr <input id="usr" name="usr" value="foo"></input>
-    <input id="ip" name="ip" value="10.10.10.10" type="hidden"></input>
     <input id="group" name="group" value="foo" type="hidden"></input>
     <input id="cmd" name="cmd" value="echo Hello :::usr:::" type="hidden"></input>
     

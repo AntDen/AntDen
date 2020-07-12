@@ -158,6 +158,13 @@ get '/scheduler/submitJob/cmd/:name' => sub {
 
     if( $param->{group} )
     {
+        unless( $param->{ip} )
+        {
+            map{
+                $param->{ip} = $_->[0] if $_->[8] =~ /health=1/;
+            }$schedulerDB->selectMachineInfoByGroup( $param->{group} );
+        }
+
         $err = "ip error:$param->{ip}" unless $param->{ip} && $param->{ip} =~ /^\d+\.\d+\.\d+\.\d+$/;
         $err = "group error:$param->{group}" unless $param->{group} && $param->{group} =~ /^[a-z0-9_\.\-]+$/;
         $err = "cmd err:$param->{cmd}" unless $param->{cmd} && $param->{cmd} =~ /^[\/a-zA-Z0-9_:\.\- ]+$/;

@@ -102,6 +102,7 @@ sub stmt
     #dashboard
     selectMachineInfo => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine",
     selectMachineInfoByUser => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine where `group` in ( select `group` from auth where user=? )",
+    selectMachineInfoByGroup => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine where `group` = ?",
     selectMachineIpByUser => "select distinct `ip` from machine,auth where machine.group=auth.group and user=?",
     selectResourcesInfoByUser => "select distinct resources.ip,`name`,resources.id,`value` from resources,machine,auth where resources.ip=machine.ip and machine.group=auth.group and auth.user=?",
 
