@@ -59,6 +59,13 @@ my $consume = sub
         $this->{db}->stopTask( $status2id{stoped}, $conf->{taskid} );
     }
 
+    if( $conf->{ctrl} eq 'file' )
+    {
+         my ( $path, $cont ) = @$conf{qw( path cont )};
+         eval{ YAML::XS::DumpFile $path, YAML::XS::Load $cont; };
+         warn "dump fail $path fail: $@\n" if $@;
+    }
+
     if( $conf->{ctrl} eq 'start' )
     {
         unless( -f "$this->{conf}/task/$conf->{taskid}" )
