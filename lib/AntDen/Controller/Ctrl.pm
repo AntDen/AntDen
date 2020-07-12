@@ -51,6 +51,22 @@ sub stop
     map{ $this->_send( +{ %$_, ctrl => 'stop' } ); }@_;
 }
 
+=head3 file( $conf )
+
+  taskid: T.0
+  jobid: J.0
+  hostip: 127.0.0.1
+  path: /tmp/abc
+  cont: 'abc'
+
+=cut
+
+sub file
+{
+    my $this = shift @_;
+    map{ $this->_send( +{ %$_, ctrl => 'file' } ); }@_;
+}
+
 sub _send
 {
     my ( $this, $conf ) = @_;

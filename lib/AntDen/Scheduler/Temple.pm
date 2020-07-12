@@ -41,7 +41,7 @@ sub new
         $this{ingress}->setMachine( $ip => $hi );
         $this{temple}->setMachine( $ip => $hi );
 
-        $this{machineip}{$ip} ++;
+        $this{machineip}{$ip} = +{ %$hi, ip => $ip };
     }
 
     my ( @r, %r ) = $this{db}->selectResources();
@@ -128,7 +128,7 @@ sub setMachine
                 @{$this->{db}->column('machine')} );
         $this->{db}->commit();
 
-        $this->{machineip}{$ip} ++;
+        $this->{machineip}{$ip} = \%t;
     }
 
     $this->{ingress}->setMachine( %m );
@@ -139,6 +139,12 @@ sub getMachine
 {
     my $this = shift @_;
     return keys %{$this->{machineip}}
+}
+
+sub getMachineDetail
+{
+    my $this = shift @_;
+    return values %{$this->{machineip}}
 }
 
 sub setMachineAttr

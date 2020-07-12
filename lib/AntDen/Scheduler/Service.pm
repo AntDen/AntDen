@@ -107,6 +107,30 @@ sub run
 
     my $t4 = $this->{event}->receive( $this, $consume );
 
+    my %cachefile;
+    my $t5 = AnyEvent->timer ( after => 6, interval => 60, cb => sub{
+        my %file;
+        map{
+            push @{$file{$_->[4]}},
+                +{ name => $_->[1], info => $_->[2],
+                   type => $_->[3], group => $_->[4], token => $_->[5]
+            };
+        }$this->{db}->selectDatasets();
+        map{ $file{$_} = YAML::XS::Dump $file{$_}  }keys %file;
+
+        for my $machine ( $this->{a}->getMachineDetail() )
+        {
+            next unless $machine->{mon} =~ /health=1/;
+            my $cont = $file{$machine->{group}} || '';
+            next if defined $cachefile{$machine->{ip}} && $cachefile{$machine->{ip}} eq $cont;
+            $cachefile{$machine->{ip}} = $cont;
+            $c->file( +{ jobid => 'j.0', taskid => 't.0',
+                hostip => $machine->{ip}, cont => $cont,
+                path => "$AntDen::PATH/slave/conf/datasets.conf"
+            });
+        }
+    });
+
     $cv->recv;
 }
 1;
