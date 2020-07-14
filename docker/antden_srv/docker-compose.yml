@@ -1,4 +1,4 @@
-version: '3.0'
+version: '2.0'
 
 services:
   antden-mysql:
@@ -14,8 +14,6 @@ services:
         - "./mysql/db:/var/lib/mysql"
         - "./mysql/conf/my.cnf:/etc/my.cnf"
         - "./mysql/init:/docker-entrypoint-initdb.d/"
-    ports:
-        - "3306:3306"
     networks:
       AntDenNet:
         aliases:
@@ -36,6 +34,7 @@ services:
 
     networks:
       - AntDenNet
+
 networks:
   AntDenNet:
     driver: bridge
