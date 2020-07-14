@@ -53,8 +53,16 @@ sub run
                     remote => "$AntDen::PATH/slave/conf/sync",
                     log => "$AntDen::PATH/logs/controller_connect_$_"
                 );
-            system "mkdir -p '$AntDen::PATH/controller/conf/slave/$_/in'";
-            system "ln -fsn ../../../../scheduler/conf/ctrl/in $AntDen::PATH/controller/conf/slave/$_/out";
+            if( system "mkdir -p '$AntDen::PATH/controller/conf/slave/$_/in'" )
+            {
+                warn "mkdir slave/$_/in fail: $!";
+                next;
+            }
+            if( system "ln -fsn ../../../../scheduler/conf/ctrl/in $AntDen::PATH/controller/conf/slave/$_/out" )
+            {
+                warn "link slave/$_/out fail: $!";
+                next;
+            }
             warn "start AntConnect $_ fail: $!" if 
                 system sprintf "$supervisor --count 3 --%s %s --cmd '$vsync --%s %s --%s %s --%s %s' --%s '%s'", @cmd;
         }
