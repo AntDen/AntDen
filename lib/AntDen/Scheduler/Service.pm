@@ -74,8 +74,7 @@ my $consume = sub
     }
     if( $conf->{ctrl} eq 'mon' )
     {
-        map{ die "$_ undef" unless defined $conf->{$_} }
-            qw( M health hostip load );
+        map{ die "$_ undef" unless defined $conf->{$_} } qw( health hostip );
         $this->{log}->say( $conf );
         $this->{mon}->add( $conf );
     }
