@@ -8,7 +8,7 @@ our %MC =
 (
     'TEXT NOT NULL PRIMARY KEY' => 'VARCHAR(255) primary key',
     'INTEGER PRIMARY KEY AUTOINCREMENT' => 'int(32) unsigned not null primary key auto_increment',
-    'TEXT NOT NULL' => 'varchar(2000) NOT NULL',
+    'TEXT NOT NULL' => 'varchar(255) NOT NULL',
     'INTEGER NOT NULL' => 'int(32) NOT NULL',
 );
 
