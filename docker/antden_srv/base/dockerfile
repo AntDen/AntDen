@@ -1,0 +1,20 @@
+#This is AntDen Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+#Base image 基础镜像
+
+FROM centos:7
+MAINTAINER lijinfeng2011
+
+RUN yum -y install make git wget rsync gcc mysql-devel lsof
+RUN mkdir /etc/cron.d
+
+RUN curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash
+RUN /opt/mydan/perl/bin/cpan install Linux::Inotify2 DBI DBD::mysql Dancer
+RUN /opt/mydan/perl/bin/cpan -f install Dancer2::Plugin::WebSocket
+
+ADD AntDen /opt/AntDen
+
+RUN /opt/AntDen/scripts/init slave
+RUN /opt/AntDen/scripts/init master
+
+RUN rm -rf /opt/AntDen

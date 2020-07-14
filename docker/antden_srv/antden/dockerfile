@@ -1,0 +1,8 @@
+#This is MYDan Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+
+FROM antden/base:latest
+MAINTAINER lijinfeng2011
+
+ADD entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]

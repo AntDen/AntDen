@@ -1,0 +1,41 @@
+version: '3.0'
+
+services:
+  antden-mysql:
+    container_name: antden-mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: "antden123456^!"
+        MYSQL_USER: 'antden'
+        MYSQL_PASS: 'antden123456^!'
+        TZ: 'Asia/Shanghai'
+    image: "mysql:5.5"
+    restart: always
+    volumes:
+        - "./mysql/db:/var/lib/mysql"
+        - "./mysql/conf/my.cnf:/etc/my.cnf"
+        - "./mysql/init:/docker-entrypoint-initdb.d/"
+    ports:
+        - "3306:3306"
+    networks:
+      AntDenNet:
+        aliases:
+          - AntDen_DB_IP
+
+  antden-server:
+    build:
+      context: antden/
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+        TZ: 'Asia/Shanghai'
+    volumes:
+      - "../..:/opt/AntDen"
+    depends_on:
+      - antden-mysql
+
+    networks:
+      - AntDenNet
+networks:
+  AntDenNet:
+    driver: bridge
