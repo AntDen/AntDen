@@ -77,6 +77,7 @@ return sub
         {
             if( my @gpu = grep{ $_->[0] eq 'GPU' }@$resources )
             {
+                YAML::XS::DumpFile "$AntDen::PATH/logs/gpu.use.$param->{taskid}", [ map{ $_->[1] }@gpu ];
                 $gpu = sprintf " -e NVIDIA_VISIBLE_DEVICES=%s ", join ',', map{ $_->[1] }@gpu;
             }
             else { $gpu = ' --runtime runc '; }
