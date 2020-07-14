@@ -19,3 +19,5 @@ controller/conf/slave/
 *.pub
 docker/antden_srv/mysql/db/*
 slave/conf/iface
+slave/conf/datasets.conf
+docker/antden_srv/antden/auth/

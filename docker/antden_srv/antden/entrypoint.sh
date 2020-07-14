@@ -4,6 +4,8 @@
 
 echo MYDan started.
 
+/opt/AntDen/scripts/init master
+
 /opt/AntDen/bin/antden slave c --start
 /opt/AntDen/bin/antden c c --start
 /opt/AntDen/bin/antden s c --start

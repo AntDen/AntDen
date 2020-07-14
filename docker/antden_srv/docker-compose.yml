@@ -29,6 +29,7 @@ services:
         TZ: 'Asia/Shanghai'
     volumes:
       - "../..:/opt/AntDen"
+      - "./antden/auth:/opt/mydan/etc/agent/auth"
     depends_on:
       - antden-mysql
 
