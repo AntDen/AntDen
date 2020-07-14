@@ -17,3 +17,5 @@ logs/
 Use.*
 controller/conf/slave/
 *.pub
+docker/antden_srv/mysql/db/*
+slave/conf/iface
