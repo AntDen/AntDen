@@ -57,6 +57,7 @@
         <div class="item">
             <div class="title" onclick="show(this)">authorization</div>
             <div class="con">
+                <div><a href="/userinfo/adduser" >adduser</a></div>
                 <div><a href="/admin/authorization/user" >user</a></div>
                 <div><a href="/admin/authorization/admin" >admin</a></div>
             </div>
