@@ -1,0 +1,13 @@
+#!# perl: code/ssoconfig
+use strict;
+use warnings;
+
+return sub
+{
+    return +{
+        ssocallback => '/userinfo/login?callback=',
+        cookiekey => 'sid',
+        ssologout => '/userinfo/logout',
+    }
+};
+

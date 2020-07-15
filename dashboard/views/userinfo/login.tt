@@ -1,0 +1,11 @@
+<div style="text-align:center;" >
+<H1>AntDen</H1>
+</div>
+<div style="text-align:center;background: orange;" >
+    <form action="#" method="post">
+    User <input name="user" value=""></input>
+    Password <input name="pass" type="password" value=""></input>
+    <button type="submit" >Login</button>
+    </form> 
+    [% IF err %] [Error] [% err %] [% END %]
+</div>

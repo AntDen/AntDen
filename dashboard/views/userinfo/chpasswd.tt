@@ -1,0 +1,9 @@
+<div>
+    <form action="#">
+    Old Password <input name="oldpass" value=""></input>
+    New Password <input name="newpass1" value=""></input>
+    Repeat password <input name="newpass2" value=""></input>
+    <button type="submit" >submit</button>
+    </form> 
+    [% IF err %] [Error] [% err %] [% END %]
+</div>

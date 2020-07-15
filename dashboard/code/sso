@@ -2,5 +2,11 @@
 use strict;
 use warnings;
 
-return sub { return "antden"; };
+return sub
+{
+    my ( $sid, $db ) = @_;
+    return unless $sid && $sid =~ /^[a-zA-Z0-9]{64}$/;
+    return unless my @x = $db->selectUserinfoBySid( $sid );
+    return $x[0][0];
+};
 

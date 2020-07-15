@@ -6,8 +6,8 @@ our $VERSION = '0.1';
 
 sub adminInfo
 {
-    my $callback = sprintf "%s%s%s", config->{ssocallback}, "http://".request->{host},request->{path};
-    my $username = &{$dashboard::code{sso}}( cookie( config->{cookiekey} ) );
+    my $callback = sprintf "%s%s%s", $dashboard::ssoconfig->{ssocallback}, "http://".request->{host},request->{path};
+    my $username = &{$dashboard::code{sso}}( cookie( $dashboard::ssoconfig->{cookiekey} ), $dashboard::schedulerDB );
     redirect $callback unless $username;
     my @x = $dashboard::schedulerDB->selectIsAdmin( $username );
     my $level = 0; map{ $level = $_->[2] if $level < $_->[2] }@x;

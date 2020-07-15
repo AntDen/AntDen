@@ -72,6 +72,13 @@ sub define
         group => 'TEXT NOT NULL',
         user => 'TEXT NOT NULL',
     ],
+    userinfo => [
+        id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        name => 'TEXT NOT NULL',
+        pass => 'TEXT NOT NULL',
+        sid => 'TEXT NOT NULL',
+        expire => 'TEXT NOT NULL',
+    ],
 };
 
 sub stmt
@@ -140,6 +147,16 @@ sub stmt
     selectDatasetsByUser => "select datasets.id,datasets.name,datasets.info,datasets.type,datasets.`group`,datasets.token from datasets,datasetsauth where datasets.`group`=datasetsauth.`group` and datasets.name=datasetsauth.name and user=?",
 
     insertAdmin => "insert into `user` (`name`,`isadmin`) values(?,1)",
+
+    selectUserinfo => "select id,name from userinfo",
+    insertUserinfo => "insert into `userinfo` (`name`,`pass`,`sid`,`expire`) values( ?,?,'','')",
+    deleteUserinfoById => "delete from `userinfo` where id=?",
+    selectUserinfoByPass => "select name from userinfo where name=? and pass=?",
+    updateUserinfoExpire => "update userinfo set expire=?,sid=? where name=?",
+    updateUserinfoSid => "update userinfo set expire=0,sid='' where sid=?",
+    selectUserinfoBySid => "select name from `userinfo` where sid=?",
+    updateUserinfoPass => "update userinfo set pass=? where name=?",
+
     #api
     selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port,executer from task where taskid=?",
     selectJobStopedInfoByOwnerPage => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status` from job where owner=? ORDER BY id desc limit ?,?",

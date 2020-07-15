@@ -9,7 +9,7 @@ use AntDen::Scheduler::Ctrl;
 use AntDen::Scheduler::DB;
 set show_errors => 1;
 our $VERSION = '0.1';
-our ( $schedulerCtrl, $schedulerDB, %addr, %opt, %code );
+our ( $schedulerCtrl, $schedulerDB, %addr, %opt, %code, $ssoconfig );
 
 BEGIN{
     use FindBin qw( $RealBin );
@@ -17,7 +17,8 @@ BEGIN{
         my $code = do( -f "$RealBin/../private/code/$_" ? "$RealBin/../private/code/$_" : "$RealBin/../code/$_" );
         die "code/$_ no CODE" unless ref $code eq 'CODE';
         $code{$_} = $code;
-    }qw( sso );
+    }qw( sso ssoconfig );
+    $ssoconfig = &{$code{ssoconfig}}();
 
     $MYDan::Util::OptConf::THIS = 'antden';
     %opt = MYDan::Util::OptConf->load()->get()->dump();
@@ -27,14 +28,14 @@ BEGIN{
 
 sub get_username
 {
-    my $callback = sprintf "%s%s%s", config->{ssocallback}, "http://".request->{host},request->{path};
-    my $username = &{$code{sso}}( cookie( config->{cookiekey} ) );
+    my $callback = sprintf "%s%s%s", $ssoconfig->{ssocallback}, "http://".request->{host},request->{path};
+    my $username = &{$code{sso}}( cookie( $ssoconfig->{cookiekey} ), $schedulerDB );
     redirect $callback unless $username;
     return $username;
 }
 
 get '/logout' => sub {
-    redirect config->{ssologout};
+    redirect $ssoconfig->{ssologout};
 };
 
 get '/' => sub {
