@@ -20,3 +20,14 @@ CREATE TABLE `auth` (
 
 insert into auth (`user`,`group`,`executer`)values('antden','antden','cmd');
 insert into auth (`user`,`group`,`executer`)values('antden','foo','cmd');
+
+CREATE TABLE `userinfo` (
+  `id` int(32) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `pass` varchar(255) NOT NULL,
+  `sid` varchar(255) NOT NULL,
+  `expire` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+insert into `userinfo` (`name`,`pass`,`sid`,`expire`) values( 'antden','4cb9c8a8048fd02294477fcb1a41191a','','')
