@@ -24,4 +24,5 @@ my $option =  MYDan::Util::OptConf->load();
 my %o = $option->get( @ctrl )->dump();
 $option->assert() unless grep{ $o{$_} }@ctrl;
 
-map{ AntDen::Util::Control->new( ( split /\//, $Bin )[3] )->$_(); }grep{ $o{$_} }@ctrl;
+my $x = `cat /proc/1/cgroup 2>/dev/null`;
+map{ AntDen::Util::Control->new( ( split /\//, $Bin )[3], $x =~ /\b1:.+(docker|lxc|kubepods)/ )->$_(); }grep{ $o{$_} }@ctrl;

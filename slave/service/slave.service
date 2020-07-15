@@ -17,7 +17,9 @@ $MYDan::Util::OptConf::THIS = 'antden';
 
 =cut
 
-$0 = 'AntDen_slave_service';
+my $x = `cat /proc/1/cgroup 2>/dev/null`;
+my $indocker = $x =~ /\b1:.+(docker|lxc|kubepods)/ ? 'docker' : '';
+$0 = "AntDen_${indocker}slave_service";
 
 my %o = MYDan::Util::OptConf->load()->get()->dump();
 
