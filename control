@@ -1,0 +1,49 @@
+#!/bin/bash
+set -e
+
+usege () {
+    echo ==============================================================
+    echo "This script is meant for quick & easy control AntDen Service"
+    echo "Get more help: http://antden.github.io"
+    echo ==============================================================
+
+    echo "#srv"
+    echo
+    echo "$0 srv up"
+    echo "$0 srv up -d"
+    echo "$0 srv down"
+    echo "$0 srv kill"
+    echo "$0 srv logs"
+    echo
+    echo "#elk"
+    echo
+    echo "$0 elk up"
+    echo "$0 elk up -d"
+    echo "$0 elk down"
+    echo "$0 elk kill"
+    echo "$0 elk logs"
+    exit;
+}
+
+if [ -z $1 ]; then
+    usege
+fi
+
+service=$1
+shift
+
+case $service in
+    srv)
+        cd docker/antden-srv && docker-compose $@
+        ;;
+    elk)
+        if [ ! -d docker/docker-elk ]; then
+            cd docker && git clone https://github.com/AntDen/docker-elk
+            chmod 777 docker/docker-elk/logstash/sincedb
+        fi
+        cd docker/docker-elk && docker-compose $@
+        ;;
+      *)
+        usege
+        ;;
+esac
