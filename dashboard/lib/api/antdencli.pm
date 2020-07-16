@@ -18,7 +18,7 @@ BEGIN{
 
 post '/api/antdencli/submitJob' => sub {
     my $addr = request->env->{REMOTE_ADDR};
-    return( 'Unauthorized:' . $addr ) unless $addr{$addr};
+    return( 'Unauthorized:' . $addr ) unless $addr{$addr} || $addr =~ /^172\./;
     my $param = params();
     my ( $config, $nice, $group, $owner, $name ) = @$param{qw( config nice group owner name )};
 
@@ -39,7 +39,7 @@ post '/api/antdencli/submitJob' => sub {
 
 get '/api/antdencli/listJob' => sub {
     my $addr = request->env->{REMOTE_ADDR};
-    return( 'Unauthorized:' . $addr ) unless $addr{$addr};
+    return( 'Unauthorized:' . $addr ) unless $addr{$addr} || $addr =~ /^172\./;
     my $param = params();
     my $owner = $param->{owner};
     return return +{ stat => JSON::false, info => 'jobid format error' } unless $owner && $owner =~ /^[a-zA-Z0-9_\-\.@]+$/;
@@ -65,7 +65,7 @@ get '/api/antdencli/jobstop/:jobid' => sub {
 
 get '/api/antdencli/jobinfo/:jobid' => sub {
     my $addr = request->env->{REMOTE_ADDR};
-    return( 'Unauthorized:' . $addr ) unless $addr{$addr};
+    return( 'Unauthorized:' . $addr ) unless $addr{$addr} || $addr =~ /^172\./;
     my $param = params();
     my ( $jobid, $owner ) = @$param{qw(jobid owner)};
 
@@ -93,7 +93,7 @@ get '/api/antdencli/jobinfo/:jobid' => sub {
 
 get '/api/antdencli/taskinfo/:taskid' => sub {
     my $addr = request->env->{REMOTE_ADDR};
-    return( 'Unauthorized:' . $addr ) unless $addr{$addr};
+    return( 'Unauthorized:' . $addr ) unless $addr{$addr} || $addr =~ /^172\./;
     my $param = params();
     my $taskid = $param->{taskid};
     my @task = $dashboard::schedulerDB->selectTaskByTaskid( $taskid );
@@ -111,7 +111,7 @@ get '/api/antdencli/taskinfo/:taskid' => sub {
 
 get '/api/antdencli/resources' => sub {
     my $addr = request->env->{REMOTE_ADDR};
-    return( 'Unauthorized:' . $addr ) unless $addr{$addr};
+    return( 'Unauthorized:' . $addr ) unless $addr{$addr} || $addr =~ /^172\./;
     my $param = params();
 
     my @machine = $dashboard::schedulerDB->selectMachineInfoByUser( $param->{owner} );
@@ -165,7 +165,7 @@ get '/api/antdencli/resources' => sub {
 
 get '/api/antdencli/datasets' => sub {
     my $addr = request->env->{REMOTE_ADDR};
-    return( 'Unauthorized:' . $addr ) unless $addr{$addr};
+    return( 'Unauthorized:' . $addr ) unless $addr{$addr} || $addr =~ /^172\./;
     my $param = params();
 
     my @datasets = $dashboard::schedulerDB->selectDatasetsByUser( $param->{owner} );
