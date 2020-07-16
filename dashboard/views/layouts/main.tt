@@ -95,7 +95,7 @@
         <div class="item">
             <div class="title" onclick="show(this)">your</div>
                 <div><a href="/user/settings" >settings</a></div>
-                <div><a href="/userinfo/chpasswd" >chpasswd</a></div>
+                <div><a href="/chpasswd" >chpasswd</a></div>
                 <div><a href="/logout" >Sign Out</a></div>
             <div class="con">
             </div>

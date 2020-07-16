@@ -8,6 +8,7 @@ return sub
         ssocallback => '/userinfo/login?callback=',
         cookiekey => 'sid',
         ssologout => '/userinfo/logout',
+        chpasswd => '/userinfo/chpasswd',
     }
 };
 

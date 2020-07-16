@@ -37,6 +37,10 @@ sub get_username
 get '/logout' => sub {
     redirect $ssoconfig->{ssologout};
 };
+get '/chpasswd' => sub {
+    return template 'msg', +{ msg => 'Unsupported'  } unless $ssoconfig->{chpasswd};
+    redirect $ssoconfig->{chpasswd};
+};
 
 get '/' => sub {
     return unless my $user = get_username();
