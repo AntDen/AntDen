@@ -16,13 +16,12 @@ sub adminInfo
 
 get '/admin' => sub {
     my ( $username, $level ) = adminInfo();
-    return 'Unauthorized:'. $username unless $level;
-    template 'admin', +{ admin => 1 };
+    template 'msg', +{ admin => 1, msg => $level ? "hi $username" : "Unauthorized: $username"  };
 };
 
 get '/admin/authorization/user' => sub {
     my ( $username, $level ) = adminInfo();
-    return 'Unauthorized:'. $username unless $level;
+    return template 'msg', +{ admin => 1, msg => "Unauthorized: $username"  } unless $level;
     my $param = params();
 
     $dashboard::schedulerDB->insertAuth( $param->{user}, $param->{group}, $param->{executer} )
@@ -36,7 +35,7 @@ get '/admin/authorization/user' => sub {
 
 get '/admin/authorization/admin' => sub {
     my ( $username, $level ) = adminInfo();
-    return 'Unauthorized:'. $username unless $level;
+    return template 'msg', +{ admin => 1, msg => "Unauthorized: $username"  } unless $level;
     my $param = params();
 
     if( $level > 1 )
@@ -51,7 +50,7 @@ get '/admin/authorization/admin' => sub {
 
 get '/admin/datasets/data' => sub {
     my ( $username, $level ) = adminInfo();
-    return 'Unauthorized:'. $username unless $level;
+    return template 'msg', +{ admin => 1, msg => "Unauthorized: $username"  } unless $level;
     my $param = params();
 
     $dashboard::schedulerDB->insertDatasets( @$param{qw( name info type group token ) } )
@@ -65,7 +64,7 @@ get '/admin/datasets/data' => sub {
 
 get '/admin/datasets/auth' => sub {
     my ( $username, $level ) = adminInfo();
-    return 'Unauthorized:'. $username unless $level;
+    return template 'msg', +{ admin => 1, msg => "Unauthorized: $username"  } unless $level;
     my $param = params();
 
     $dashboard::schedulerDB->insertDatasetsauth( $param->{name}, $param->{group}, $param->{user} )
@@ -79,7 +78,7 @@ get '/admin/datasets/auth' => sub {
 
 get '/admin/log/slave' => sub {
     my ( $username, $level ) = adminInfo();
-    return 'Unauthorized:'. $username unless $level;
+    return template 'msg', +{ admin => 1, msg => "Unauthorized: $username"  } unless $level;
 
     my @machine = $dashboard::schedulerDB->selectMachineInfo();
     #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon`
@@ -88,7 +87,7 @@ get '/admin/log/slave' => sub {
 
 get '/admin/tasklog/:uuid' => sub {
     my ( $username, $level ) = adminInfo();
-    return 'Unauthorized:'. $username unless $level;
+    return template 'msg', +{ admin => 1, msg => "Unauthorized: $username"  } unless $level;
     my $uuid = params()->{uuid};
     my $ws_url = request->env->{HTTP_HOST};
     $ws_url =~ s/:\d+$//;
