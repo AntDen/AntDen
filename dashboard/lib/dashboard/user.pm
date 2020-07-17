@@ -48,6 +48,21 @@ any '/user/settings/docker' => sub {
     };
 };
 
+any '/user/antdencli' => sub {
+    my $param = params();
+    my ( $user, $md5 ) = @$param{qw( user md5 )};
+
+    return "user is undefined or malformed" unless $user && $user =~ /^[\.:a-zA-Z0-9_\@\-]+$/;
+    return "md5 is undefined or malformed" unless $md5 && $md5 =~ /^[a-zA-Z0-9]+$/;
+
+     my $host = request->{host};
+    return <<"END";
+#!/bin/bash
+wget 'http://$host/user/settings/antdencli?user=$user&md5=$md5' -O antdencli
+chmod +x antdencli
+END
+};
+
 any '/user/settings/antdencli' => sub {
     my $param = params();
     my ( $user, $md5 ) = @$param{qw( user md5 )};
