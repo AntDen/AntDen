@@ -38,6 +38,11 @@ any '/user/settings/docker' => sub {
         $err = "ssh-keygen fail: $!" if system "ssh-keygen -t rsa -f $path/$username -P \"\" >/dev/null 2>&1";
     }
 
+    unless( -f "$path/$username.pub" || -f "$path/$username" )
+    {
+        $err = "ssh-keygen fail: $!" if system "ssh-keygen -t rsa -f $path/$username -P \"\" >/dev/null 2>&1";
+    }
+
     my $cont = `cat '$path/$username'`;
     my $md5 = Digest::MD5->new->add( $cont )->hexdigest;
     template 'user/settings/docker', +{ 
