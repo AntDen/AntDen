@@ -1,0 +1,15 @@
+#This is AntDen Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+#Base image 基础镜像
+
+FROM centos:7
+MAINTAINER lijinfeng2011
+
+RUN yum -y install wget make rsync gcc lsof
+
+RUN curl -L update.mydan.org | MYDanInstallLatestVersion=1 bash
+
+RUN mydan config agent.role=client
+
+ADD entrypoint.pl /
+ENTRYPOINT [ "/entrypoint.pl" ]
