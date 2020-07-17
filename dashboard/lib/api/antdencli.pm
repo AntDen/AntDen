@@ -145,7 +145,7 @@ get '/api/antdencli/resources' => sub {
 
     for my $v ( values %used )
     {
-        map{ $use{$_} += $v->{$_} }keys %$v;
+        map{ $use{$_} += $v->{$_} if $v->{$_} =~ /^\d+$/ || $v->{$_} =~ /^\d+\.\d+$/ }keys %$v;
     }
 
     $t{health} = scalar @machine;
