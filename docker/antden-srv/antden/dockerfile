@@ -5,6 +5,7 @@ FROM antden/base:latest
 MAINTAINER lijinfeng2011
 
 RUN sed -i 's/www.cpan.org/mirrors.163.com\/cpan/' /root/.cpan/CPAN/MyConfig.pm
+RUN curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash
 
 ADD entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
