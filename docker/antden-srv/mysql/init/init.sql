@@ -19,7 +19,11 @@ CREATE TABLE `auth` (
 );
 
 insert into auth (`user`,`group`,`executer`)values('antden','antden','cmd');
+insert into auth (`user`,`group`,`executer`)values('antden','antden','exec');
+insert into auth (`user`,`group`,`executer`)values('antden','antden','docker');
 insert into auth (`user`,`group`,`executer`)values('antden','foo','cmd');
+insert into auth (`user`,`group`,`executer`)values('antden','foo','exec');
+insert into auth (`user`,`group`,`executer`)values('antden','foo','docker');
 
 CREATE TABLE `userinfo` (
   `id` int(32) unsigned NOT NULL AUTO_INCREMENT,
