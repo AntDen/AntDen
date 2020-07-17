@@ -10,7 +10,6 @@
               <p>Execute the following command in your shell<br><br>
               [% err %]
               <form action="#" method="post" >
-                  <input id="regen" name="regen" value="1" type="hidden"></input>
                   <input type="submit" value="Regenerate key">
               </form>
               <textarea readOnly rows="4" cols="80" style="background-color:#000;color:#FFF;">

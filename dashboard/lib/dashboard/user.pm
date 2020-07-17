@@ -32,7 +32,7 @@ any '/user/settings/docker' => sub {
     my ( $param, $err ) = params();
     return unless my $username = dashboard::get_username();
 
-    if( $param->{regen} )
+    if( request->method eq 'POST' )
     {
         unlink "$path/$username.pub", "$path/$username";
         $err = "ssh-keygen fail: $!" if system "ssh-keygen -t rsa -f $path/$username -P \"\" >/dev/null 2>&1";
