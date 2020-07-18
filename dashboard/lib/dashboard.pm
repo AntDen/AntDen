@@ -213,7 +213,7 @@ get '/scheduler/submitJob/cmd/:name' => sub {
         }
     }
 
-    template 'scheduler/submitJob', +{ err => $err, jobid => $jobid,
+    template 'scheduler/submitJob', +{ err => $err, jobid => $jobid, host => request->{host},
         tt => "scheduler/submitJob/cmd/" . $param->{name} . ".tt", ws_url => $ws_url, uuid => $uuid, cmdsj => cmdsj() };
 };
 

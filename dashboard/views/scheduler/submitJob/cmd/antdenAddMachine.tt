@@ -3,17 +3,38 @@ Installing antden client through SSH
     <form action="#">
     user <input id="user" name="user" value="root"></input>
     host <input id="host" name="host" value=""></input>
-    password <input id="password" name="password" value=""></input>
+    password <input id="password" name="password" value=""></input><br><br>
     group <input id="slavegroup" name="slavegroup" value=""></input>
     role <input id="role" name="role" value="slave"></input>
     <input id="group" name="group" value="antden" type="hidden"></input>
     <input id="cmd" name="cmd" value="/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password :::password::: --group :::slavegroup:::  --role :::role:::" type="hidden"></input>
-    
+    <br><br>
     <button type="submit" value="Submit">Submit</button>
     </form> 
+</div>
+<hr>
+Installing antden client through MYDan
+<div>
+    <br>
+    Install the agent on the machine first:<br><br>
+    curl http://[% host %]/mydan/install.sh|sudo bash
+    <br> <br>
+    submit machine to the cluster:
+    <form action="#">
+    host <input id="host" name="host" value=""></input>
+    group <input id="slavegroup" name="slavegroup" value=""></input>
+    role <input id="role" name="role" value="slave"></input>
+    <input id="group" name="group" value="antden" type="hidden"></input>
+    <input id="cmd" name="cmd" value="/opt/AntDen/bin/antden s addmachine :::host::: --group :::slavegroup:::  --role :::role:::" type="hidden"></input>
+    <button type="submit" value="Submit">Submit</button>
+    </form> 
+</div>
+<hr>
+<div>
     [% IF err %] [Error] [% err %] [% END %]
     [% IF jobid %] 
         [Success] JobId: <a href="/scheduler/job/[% jobid %]">[% jobid %]</a>
         [% INCLUDE 'scheduler/tasklog.tt' %]
     [% END %]
 </div>
+<hr>
