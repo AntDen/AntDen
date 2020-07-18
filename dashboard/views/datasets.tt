@@ -1,0 +1,25 @@
+<div>
+    Datasets
+    <div>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Info</th>
+            <th>Type</th>
+            <th>Group</th>
+            <th>Token</th>
+        </tr>
+        [% FOR d IN datasets %]
+        <tr>
+            <td>[% d.0 %]</td>
+            <td>[% d.1 %]</td>
+            <td>[% d.2 %]</td>
+            <td>[% d.3 %]</td>
+            <td>[% d.4 %]</td>
+            <td>[% d.5 %]</td>
+        </tr>
+        [% END %]
+    </table>
+
+</div>

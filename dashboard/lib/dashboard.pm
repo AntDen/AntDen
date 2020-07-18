@@ -86,6 +86,13 @@ get '/' => sub {
     template 'index', +{ machine => \@machine, total => \@total };
 };
 
+get '/datasets' => sub {
+    return unless my $user = get_username();
+    my @datasets = $schedulerDB->selectDatasetsByUser( $user );
+    #id,name,info,type,group,token
+    template 'datasets', +{ datasets => \@datasets };
+};
+
 get '/scheduler/submitJob' => sub {
     return unless my $user = get_username();
     my $param = params();
