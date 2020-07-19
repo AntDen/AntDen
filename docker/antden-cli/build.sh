@@ -1,2 +1,6 @@
 #!/bin/bash
-docker build -t antden/cli:latest .
+VERSION=$1
+if [ -z $VERSION ]; then
+    VERSION=latest
+fi
+docker build -t antden/cli:$VERSION .

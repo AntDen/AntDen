@@ -13,7 +13,7 @@
                   <input type="submit" value="Regenerate key">
               </form>
               <textarea readOnly rows="4" cols="80" style="background-color:#000;color:#FFF;">
-curl '[% serveraddr %]/user/antdencli?user=[% username %]&md5=[% md5 %]'|bash
+curl '[% serveraddr %]/user/antdencli?user=[% username %]&md5=[% md5 %]' |bash
               </textarea>
             </li>
             <li>
