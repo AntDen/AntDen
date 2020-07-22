@@ -11,5 +11,9 @@ RUN curl -L update.mydan.org | MYDanInstallLatestVersion=1 bash
 
 RUN mydan config agent.role=client
 
+ADD https://github.com/AntDen/datasets/archive/latest.tar.gz /tmp/latest.tar.gz
+RUN cd /tmp && tar -zxvf latest.tar.gz
+RUN rsync -av /tmp/datasets-latest/ /opt/mydan/dan/antden/
+
 ADD entrypoint.pl /
 ENTRYPOINT [ "/entrypoint.pl" ]
