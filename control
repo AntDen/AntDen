@@ -34,14 +34,14 @@ shift
 
 case $service in
     srv)
-        cd docker/antden-srv && docker-compose $@
+        cd docker/antden-srv && ../../scripts/docker-compose $@
         ;;
     elk)
         if [ ! -d docker/docker-elk ]; then
             cd docker && git clone https://github.com/AntDen/docker-elk
-            chmod 777 docker/docker-elk/logstash/sincedb
         fi
-        cd docker/docker-elk && docker-compose $@
+        chmod 777 docker/docker-elk/logstash/sincedb
+        cd docker/docker-elk && ../../scripts/docker-compose $@
         ;;
       *)
         usege
