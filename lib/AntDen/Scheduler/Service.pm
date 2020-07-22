@@ -121,8 +121,8 @@ sub run
         {
             next unless $machine->{mon} =~ /health=1/;
             my $cont = $file{$machine->{group}} || '';
-            next if defined $cachefile{$machine->{ip}} && $cachefile{$machine->{ip}} eq $cont;
-            $cachefile{$machine->{ip}} = $cont;
+            next if defined $cachefile{$machine->{ip}} && $cachefile{$machine->{ip}}{cont} eq $cont;
+            $cachefile{$machine->{ip}} = +{ cont => $cont, time => time + 300 };
             $c->file( +{ jobid => 'j.0', taskid => 't.0',
                 hostip => $machine->{ip}, cont => $cont,
                 path => "$AntDen::PATH/slave/conf/datasets.conf"
@@ -130,6 +130,14 @@ sub run
         }
     });
 
+    my $t6 = AnyEvent->timer ( after => 6, interval => 63, cb => sub{
+        my ( $i, $time ) = ( 0, time );
+        for my $ip ( keys %cachefile )
+        {
+             delete $cachefile{$ip} if $cachefile{$ip}{time} < $time;
+             last if $i ++ >= 3;
+        }
+    });
     $cv->recv;
 }
 1;
