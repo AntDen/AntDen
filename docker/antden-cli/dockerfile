@@ -7,6 +7,9 @@ MAINTAINER lijinfeng2011
 
 RUN yum -y install wget make rsync gcc lsof
 
+ARG VERSION
+RUN echo version:$VERSION
+
 RUN curl -L update.mydan.org | MYDanInstallLatestVersion=1 bash
 
 RUN mydan config agent.role=client

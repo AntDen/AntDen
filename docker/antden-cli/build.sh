@@ -3,4 +3,4 @@ VERSION=$1
 if [ -z $VERSION ]; then
     VERSION=latest
 fi
-docker build -t antden/cli:$VERSION .
+docker build -t antden/cli:$VERSION --build-arg VERSION=$VERSION .
