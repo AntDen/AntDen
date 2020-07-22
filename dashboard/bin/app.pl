@@ -9,6 +9,7 @@ use dashboard::user;
 use dashboard::userinfo;
 use dashboard::mydan;
 use api::antdencli;
+use api::datasets;
 use api::agent;
 $0 = 'AntDen_dashboard_service';
 dance;
