@@ -22,3 +22,4 @@ slave/conf/iface
 slave/conf/datasets.conf
 docker/antden-srv/antden/auth/
 docker/docker-elk/
+antdencli/
