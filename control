@@ -34,6 +34,9 @@ shift
 
 case $service in
     srv)
+        if [ ! -d antdencli ]; then
+            git clone https://github.com/AntDen/datasets antdencli
+        fi
         cd docker/antden-srv && ../../scripts/docker-compose $@
         ;;
     elk)
