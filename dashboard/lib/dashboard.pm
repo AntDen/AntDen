@@ -168,6 +168,7 @@ get '/scheduler/submitJob/cmd/:name' => sub {
     $ws_url .= ":3001";
     $ws_url = "ws://$ws_url/ws";
 
+    $param->{username} ||= $user;
     if( $param->{group} )
     {
         unless( $param->{ip} )

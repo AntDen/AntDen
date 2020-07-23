@@ -2,9 +2,8 @@
     <form action="#">
     dataset name <input id="namex" name="namex" value=""></input>
     dataset group <input id="dgroup" name="dgroup" value=""></input>
-    user <input id="user" name="user" value=""></input>
     <input id="group" name="group" value="antden" type="hidden"></input>
-    <input id="cmd" name="cmd" value="/opt/AntDen/antdencli/tools/datasets/create --name :::namex::: --group :::dgroup::: --user :::user:::" type="hidden"></input>
+    <input id="cmd" name="cmd" value="/opt/AntDen/antdencli/tools/datasets/create --name :::namex::: --group :::dgroup::: --user :::username:::" type="hidden"></input>
     
     <button type="submit" value="Submit">Submit</button>
     </form> 
