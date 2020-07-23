@@ -107,6 +107,12 @@
             <div class="con">
             </div>
         </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">help</div>
+                <div><a href="http://antden.github.io" target="_blank" >book</a></div>
+            <div class="con">
+            </div>
+        </div>
         <hr>
        [% END %]
     </div>
