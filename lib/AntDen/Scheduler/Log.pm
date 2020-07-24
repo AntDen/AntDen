@@ -34,7 +34,7 @@ sub say
 {
     my ( $this, $data ) = @_;
 
-    map{ $data->{$_} += 0 if $data->{$_} =~ /^\d+$/ || $data->{$_} =~ /^\d+\.\d+$/ }keys %$data;
+    map{ $data->{$_} += 0 if defined $data->{$_} && ( $data->{$_} =~ /^\d+$/ || $data->{$_} =~ /^\d+\.\d+$/ ) }keys %$data;
     syswrite $this->{H}, JSON::to_json( $data )."\n";
 
     if( my $task = $data->{TASK} )

@@ -11,6 +11,7 @@ use AntDen::Controller::Ctrl;
 use AntDen::Scheduler::Temple;
 use AntDen::Scheduler::Mon;
 use AntDen::Scheduler::Log;
+our %machinegroup;
 
 sub new
 {
@@ -75,7 +76,7 @@ my $consume = sub
     if( $conf->{ctrl} eq 'mon' )
     {
         map{ die "$_ undef" unless defined $conf->{$_} } qw( health hostip );
-        $this->{log}->say( $conf );
+        $this->{log}->say( +{ %$conf, group => $machinegroup{$conf->{hostip}} } );
         $this->{mon}->add( $conf );
     }
 
@@ -119,6 +120,7 @@ sub run
 
         for my $machine ( $this->{a}->getMachineDetail() )
         {
+            $machinegroup{$machine->{ip}} = $machine->{group};
             next unless $machine->{mon} =~ /health=1/;
             my $cont = $file{$machine->{group}} || '';
             next if defined $cachefile{$machine->{ip}} && $cachefile{$machine->{ip}}{cont} eq $cont;
