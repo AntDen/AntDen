@@ -366,7 +366,7 @@ sub _applyByJobid
         $this->{machine}{$_}{temp} = +{};
         $this->{machine}{$_}{task} ||= +{};
     }keys %{$this->{machine}};
-    my ( $id, @conf ) = ( 1 );
+    my ( $id, @conf, %task ) = ( 1 );
 
     for my $conf ( @$conf )
     {
@@ -395,12 +395,13 @@ sub _applyByJobid
             };
             push @conf, $c;
 
-            $this->{job}{$jobid}{task}{$taskid} = $c;
+            $task{$taskid} = $c;
             $this->{task}{$jobid} = $taskid;
             $this->{machine}{$hostip}{temp}{$taskid} = $res;
         }
     }
 
+    $this->{job}{$jobid}{task} = \%task;
     map{ 
         %{$this->{machine}{$_}{task}} =
             ( %{$this->{machine}{$_}{task}}, %{$this->{machine}{$_}{temp}} );
