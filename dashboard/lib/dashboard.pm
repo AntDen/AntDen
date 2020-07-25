@@ -161,7 +161,7 @@ sub cmdsj
 get '/scheduler/submitJob/cmd/:name' => sub {
     return unless my $user = get_username();
     my $param = params();
-    my ( $err, $jobid, $uuid ) = ( '', '' );
+    my ( $err, $jobid, $uuid, @ip ) = ( '', '' );
 
     my $ws_url = request->env->{HTTP_HOST};
     $ws_url =~ s/:\d+$//;
@@ -175,6 +175,7 @@ get '/scheduler/submitJob/cmd/:name' => sub {
         {
             map{
                 $param->{ip} = $_->[0] if $_->[8] =~ /health=1/;
+                push( @ip, $_->[0] ) if $_->[8] =~ /health=1/ && $_->[7] eq 'slave' && $param->{allslave};
             }$schedulerDB->selectMachineInfoByGroup( $param->{group} );
         }
 
@@ -182,6 +183,7 @@ get '/scheduler/submitJob/cmd/:name' => sub {
         $err = "group error:$param->{group}" unless $param->{group} && $param->{group} =~ /^[a-z0-9_\.\-]+$/;
         $err = "cmd err:$param->{cmd}" unless $param->{cmd} && $param->{cmd} =~ /^[\/a-zA-Z0-9_:\.\- ]+$/;
     
+        @ip = ( $param->{ip} ) unless @ip;
         my $cmd = $param->{cmd};
         my @arg = $cmd =~ /:::([a-zA-Z0-9]+):::/g;
         map{
@@ -191,21 +193,23 @@ get '/scheduler/submitJob/cmd/:name' => sub {
 
         if( ( @arg == grep{ $param->{$_} }@arg ) && ! $err )
         {
-             my $config = [ +{
-                 executer => +{
-                     name => 'exec',
-                     param => +{
-                         exec => $cmd
+             my $config = [
+                 map{ +{
+                     executer => +{
+                         name => 'exec',
+                         param => +{
+                             exec => $cmd
+                         },
                      },
-                 },
-                 scheduler => +{
-                     envhard => 'arch=x86_64,os=Linux',
-                     envsoft => 'app1=1.0',
-                     count => 1,
-                     ip => $param->{ip},
-                     resources => [ [ 'CPU', '.', 2 ] ]
-                 }
-             } ];
+                     scheduler => +{
+                         envhard => 'arch=x86_64,os=Linux',
+                         envsoft => 'app1=1.0',
+                         count => 1,
+                         ip => $_,
+                         resources => [ [ 'CPU', '.', 2 ] ]
+                    }
+                 } }@ip
+             ];
              my $authgroup = $param->{name} =~ /^([a-z]+)/ ? $1 : 'default';
              my @auth = $schedulerDB->selectAuthByUser( $user, $authgroup );
              #`executer`
@@ -215,7 +219,7 @@ get '/scheduler/submitJob/cmd/:name' => sub {
              unless( $err )
              {
                  $jobid = $schedulerCtrl->startJob( $config, 5, $param->{group}, $user, $param->{name} );
-                 $uuid = $jobid. ".001_$param->{ip}.log";
+                 $uuid = $jobid. ".001_$ip[0].log";
                  $uuid =~ s/^J/T/;
              }
         }
