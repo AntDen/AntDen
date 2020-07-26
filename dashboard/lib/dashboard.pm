@@ -35,8 +35,13 @@ sub get_username
 }
 
 get '/logout' => sub {
-    redirect $ssoconfig->{ssologout};
+    redirect $ssoconfig->{ssologout} || '/default/logout';
 };
+
+get '/default/logout' => sub {
+    template 'default/logout', +{ cookiekey => $ssoconfig->{cookiekey} };
+};
+
 get '/chpasswd' => sub {
     return template 'msg', +{ msg => 'Unsupported'  } unless $ssoconfig->{chpasswd};
     redirect $ssoconfig->{chpasswd};

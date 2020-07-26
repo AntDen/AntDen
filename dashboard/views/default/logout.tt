@@ -1,0 +1,7 @@
+<h1>logout</h1>
+<script>
+    var d = document.domain.split(".")
+    d[0] = ''
+    document.cookie = '[% cookiekey %]=0;path=/;domain=' + d.join('.') + ';expires=' + new Date(0).toUTCString();
+    window.location.href="/"
+</script>
