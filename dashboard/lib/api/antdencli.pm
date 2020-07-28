@@ -151,7 +151,7 @@ get '/api/antdencli/resources' => sub {
     $t{health} = scalar @machine;
     $t{load} = int( $t{CPU} / 1024 ) if $t{CPU};
 
-    my @total = map{ [ $_, $use{$_}, $t{$_} ] }sort keys %t;
+    my @total = map{ [ $_, $use{$_} || 0, $t{$_} ] }sort keys %t;
     return +{ stat => JSON::true, data => +{
         machine => [ map{ +{
             ip => $_->[0], hostname => $_->[1],
