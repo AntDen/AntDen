@@ -1,21 +1,20 @@
 <div class="outer">
-    <div class="menu">
+    <div class="menu-sub">
         <div class="item">
-            <div class="title" onclick="show(this)">default</div>
+            <div class="title" onclick="show(this)">Common job</div>
             <div class="con">
-                <div><a href="/scheduler/submitJob" >submit job</a></div>
+                <div class="con-item-sub" ><a href="/scheduler/submitJob" >Submit Job</a></div>
             </div>
         </div>
         [% FOR g in cmdsj.key %]
         <div class="item">
             <div class="title" onclick="show(this)">[% g %]</div>
                 [% FOR cmd in cmdsj.$g %]
-                <div><a href="/scheduler/submitJob/cmd/[% cmd %]" >[% cmd%]</a></div>
+                <div class="con-item-sub" ><a href="/scheduler/submitJob/cmd/[% cmd %]" >[% cmd%]</a></div>
                 [% END %]
             <div class="con">
             </div>
         </div>
-        <hr>
         [% END %]
     </div>
     <div class="content">

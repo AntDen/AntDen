@@ -58,6 +58,16 @@
             padding-right: 5px;
             padding-left: 4px;
         }
+        .menu-sub {
+            height: 100%;
+            width: 200px;
+            border-right: 5px grey solid;
+            background: #fff;
+            float: left;
+            padding-right: 5px;
+            padding-left: 4px;
+        }
+ 
         .title {
             background: #fff;
             line-height: 1.5;
@@ -73,6 +83,11 @@
             background: #ddf;
             line-height: 1.5;
         }
+        .con-item-sub {
+            background: #dfd;
+            line-height: 1.5;
+        }
+ 
         a{
              text-decoration: none;
              color: #0000cc;
@@ -115,7 +130,7 @@
         <div class="item">
             <div class="title" onclick="show(this)">Datasets</div>
             <div class="con">
-                <div class="con-item" > <a href="/admin/datasets/data" >Managing Datasets</a></div>
+                <div class="con-item" ><a href="/admin/datasets/data" >Managing Datasets</a></div>
                 <div class="con-item" ><a href="/admin/datasets/auth" >Authorization To Users</a></div>
             </div>
         </div>
@@ -163,7 +178,6 @@
             <div class="con">
             </div>
         </div>
-        <hr>
        [% END %]
     </div>
     <div class="content">
