@@ -16,6 +16,32 @@
             height: 100%;
             background-color:#fff!important;
         }
+        table.altrowstable {
+            font-family: verdana,arial,sans-serif;
+            font-size:11px;
+            color:#333333;
+            border-width: 1px;
+            border-color: #fff;
+            border-collapse: collapse;
+        }
+        table.altrowstable th {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #fff;
+        }
+        table.altrowstable td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #fff;
+        }
+        .oddrowcolor{
+            background-color:#f7f7f7;
+        }
+        .evenrowcolor{
+            background-color:#d8d8d8;
+        }
         .user {
             background: #bfb;
             border: green solid 2px;
@@ -191,5 +217,21 @@
         $(self).next().removeClass("hide");
         $(self).parent().siblings().children(".con").addClass("hide")
     }
+    function altRows(id){
+        if(document.getElementsByTagName){
+
+            var table = document.getElementById(id);
+            var rows = table.getElementsByTagName("tr");
+
+            for(i = 0; i < rows.length; i++){
+                if(i % 2 == 0){
+                    rows[i].className = "evenrowcolor";
+                }else{
+                    rows[i].className = "oddrowcolor";
+                }
+            }
+        }
+    }
+
 </script>
 </html>

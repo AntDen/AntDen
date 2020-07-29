@@ -69,7 +69,8 @@ get '/' => sub {
             my @x = split /=/, $_, 2;
             $used{$ip}{$x[0]} = $x[1] || 0;
         }split ',', $mon;
-    }    
+        $_->[8] = $_->[8] =~ /health=1/ ? 'health=1' : 'health=0';
+    }
 
     for my $ip ( keys %r )
     {
