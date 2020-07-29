@@ -14,26 +14,54 @@
     <style>
         body,html {
             height: 100%;
+            background-color:#fff!important;
+        }
+        .user {
+            background: #bfb;
+            border: green solid 2px;
+            width: 289px;
+            text-align: center;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+         }
+        .top {
+             height: 80px;
+             background: #fff;
+             position: relative;
+             text-align: center;
+        }
+        .top-title {
+            font-size: 16px;
+            font-weight: 700;
+            position: relative;
+            top: 15px;
         }
         .content {
             height: 1000px;
             width: 100%;
-            margin-left: 200px;
+            margin-left: 219px;
         }
         .outer {
             height: 100%;
             width: 100%;
-            display: flex;
+            margin-top: 20px;		
         }
         .menu {
             height: 100%;
             width: 200px;
-            position: fixed;
-            background: #ccc;
+            border-right: 5px red solid;
+            background: #fff;
+            float: left;
+            padding-right: 5px;
+            padding-left: 4px;
         }
         .title {
-            background: #999;
-            line-height: 40px;
+            background: #fff;
+            line-height: 1.5;
+            padding-top: 0.5em;
         }
         .hide{
             display: none;
@@ -41,75 +69,97 @@
         hr{
             line-height: 10px;
         }
+        .con-item {
+            background: #ddf;
+            line-height: 1.5;
+        }
+        a{
+             text-decoration: none;
+             color: #0000cc;
+             font-size: small;
+             font-family: sans-serif;
+        }
     </style>
 </head>
 <body>
+<div class="top" >
+    <span class="top-title" >The [AntDen Scheduler] User Console</span>
+    [% IF usr %]
+    <div class="user">
+        <span>Welcome [% usr %]
+        <br>
+        <span>encryted session</span>
+   </div>
+    [% END %]
+</div>
 <div class="outer">
     <div class="menu">
         [% IF admin %]
         <div class="item">
-            <div class="title" onclick="show(this)">home</div>
-            <div class="con">
-                <div><a href="/" >home</a></div>
-            </div>
+            <div class="title" style="font-weight: 700;" >Administrator menu</div>
         </div>
-        <hr>
         <div class="item">
-            <div class="title" onclick="show(this)">authorization</div>
+            <div class="title" onclick="show(this)"></div>
             <div class="con">
-                <div><a href="/userinfo/adduser" >adduser</a></div>
-                <div><a href="/admin/authorization/user" >user</a></div>
-                <div><a href="/admin/authorization/admin" >admin</a></div>
+                <div class="con-item" ><a href="/" >Back to home page</a></div>
             </div>
         </div>
-        <hr>
         <div class="item">
-            <div class="title" onclick="show(this)">datasets</div>
+            <div class="title" onclick="show(this)">Authorization</div>
             <div class="con">
-                <div><a href="/admin/datasets/data" >datasets</a></div>
-                <div><a href="/admin/datasets/auth" >auth</a></div>
+                <div class="con-item" ><a href="/userinfo/adduser" >Manage login users</a></div>
+                <div class="con-item" ><a href="/admin/authorization/user" >Manage User Resource</a></div>
+                <div class="con-item" ><a href="/admin/authorization/admin" >Management Administrator</a></div>
             </div>
         </div>
-        <hr>
         <div class="item">
-            <div class="title" onclick="show(this)">log</div>
+            <div class="title" onclick="show(this)">Datasets</div>
             <div class="con">
-                <div><a href="/admin/tasklog/scheduler" >scheduler</a></div>
-                <div><a href="/admin/tasklog/controller" >controller</a></div>
-                <div><a href="/admin/tasklog/dashboard" >dashboard</a></div>
-                <div><a href="/admin/log/slave" >slave</a></div>
+                <div class="con-item" > <a href="/admin/datasets/data" >Managing Datasets</a></div>
+                <div class="con-item" ><a href="/admin/datasets/auth" >Authorization To Users</a></div>
             </div>
         </div>
-        <hr>
+        <div class="item">
+            <div class="title" onclick="show(this)">System Log</div>
+            <div class="con">
+                <div class="con-item" ><a href="/admin/tasklog/scheduler" >Scheduler</a></div>
+                <div class="con-item" ><a href="/admin/tasklog/controller" >Controller</a></div>
+                <div class="con-item" ><a href="/admin/tasklog/dashboard" >Dashboard</a></div>
+                <div class="con-item" ><a href="/admin/log/slave" >Slave</a></div>
+            </div>
+        </div>
         [% ELSE %]
         <div class="item">
-            <div class="title" onclick="show(this)">scheduler</div>
+            <div class="title" style="font-weight: 700;" >User menu</div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">Scheduler</div>
             <div class="con">
-                <div><a href="/" >resources</a></div>
-                <div><a href="/datasets" >datasets</a></div>
-                <div><a href="/scheduler/submitJob" >submit job</a></div>
-                <div><a href="/scheduler/job" >running job</a></div>
-                <div><a href="/scheduler/ingress" >ingress</a></div>
-                <div><a href="/scheduler/jobHistory" >job history</a></div>
+                <div class="con-item" ><a href="/" >Show My Machine Resources</a></div>
+                <div class="con-item" ><a href="/datasets" >Show My Datasets</a></div>
+                <div class="con-item" ><a href="/scheduler/submitJob" >Submit a Job</a></div>
+                <div class="con-item" ><a href="/scheduler/job" >Show Running Job</a></div>
+                <div class="con-item" ><a href="/scheduler/ingress" >Show My Ingress</a></div>
+                <div class="con-item" ><a href="/scheduler/jobHistory" >Show My History Job</a></div>
             </div>
         </div>
         <div class="item">
-            <div class="title" onclick="show(this)">your</div>
-                <div><a href="/user/settings/docker" >settings</a></div>
-                <div><a href="/chpasswd" >chpasswd</a></div>
-                <div><a href="/logout" >Sign Out</a></div>
-            <div class="con">
-            </div>
-        </div>
-        <div class="item">
-            <div class="title" onclick="show(this)">admin</div>
-                <div><a href="/admin" >admin</a></div>
+            <div class="title" onclick="show(this)">Account</div>
+                <div class="con-item" ><a href="/user/settings/docker" >Settings Antdencli</a></div>
+                <div class="con-item" ><a href="/chpasswd" >Change Password</a></div>
+                <div class="con-item" ><a href="/logout" >Logging Out</a></div>
             <div class="con">
             </div>
         </div>
         <div class="item">
-            <div class="title" onclick="show(this)">help</div>
-                <div><a href="http://antden.github.io" target="_blank" >book</a></div>
+            <div class="title" onclick="show(this)">Administrators</div>
+                <div class="con-item" ><a href="/admin" >Administrator entrance</a></div>
+            <div class="con">
+            </div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">Help</div>
+                <div class="con-item"><a href="http://antden.github.io" target="_blank" >Book</a></div>
             <div class="con">
             </div>
         </div>

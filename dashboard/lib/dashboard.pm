@@ -88,14 +88,14 @@ get '/' => sub {
 
     my @total = map{ [ $_, $use{$_}, $t{$_} ] }sort keys %t;
     
-    template 'index', +{ machine => \@machine, total => \@total };
+    template 'index', +{ machine => \@machine, total => \@total, usr => $user };
 };
 
 get '/datasets' => sub {
     return unless my $user = get_username();
     my @datasets = $schedulerDB->selectDatasetsByUser( $user );
     #id,name,info,type,group,token
-    template 'datasets', +{ datasets => \@datasets };
+    template 'datasets', +{ datasets => \@datasets, usr => $user };
 };
 
 get '/scheduler/submitJob' => sub {
@@ -145,7 +145,7 @@ get '/scheduler/submitJob' => sub {
     $niceStr = 5 if ! defined $niceStr;
     template 'scheduler/submitJob', +{ config => $configStr, nice => $niceStr,
         group => $groupStr, name => $nameStr, err => $err, jobid => $jobid,
-        tt => 'scheduler/submitJob/default.tt', cmdsj => cmdsj() };
+        tt => 'scheduler/submitJob/default.tt', cmdsj => cmdsj(), usr => $user };
 };
 
 sub cmdsj
@@ -230,7 +230,7 @@ get '/scheduler/submitJob/cmd/:name' => sub {
         }
     }
 
-    template 'scheduler/submitJob', +{ err => $err, jobid => $jobid, host => request->{host},
+    template 'scheduler/submitJob', +{ err => $err, jobid => $jobid, host => request->{host}, usr => $user,
         tt => "scheduler/submitJob/cmd/" . $param->{name} . ".tt", ws_url => $ws_url, uuid => $uuid, cmdsj => cmdsj() };
 };
 
@@ -238,7 +238,7 @@ get '/scheduler/job' => sub {
     return unless my $user = get_username();
     my @job = $schedulerDB->selectJobWorkInfoByUser( $user );
     #`id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`,`ingress`
-    template 'scheduler/jobs', +{ jobs => \@job };
+    template 'scheduler/jobs', +{ jobs => \@job, usr => $user };
 };
 
 get '/scheduler/ingress' => sub {
@@ -246,7 +246,7 @@ get '/scheduler/ingress' => sub {
     my @job = $schedulerDB->selectIngressJobByUser( $user );
     #`id`,`jobid`,`nice`,`group`,`status`,`ingress`
     my %ingress; map{ map{ my @x = split /:/, $_; $ingress{$x[0]}++; }split /,/, $_->[5] }@job;
-    template 'scheduler/ingress', +{ ingress => [ sort keys %ingress ] };
+    template 'scheduler/ingress', +{ usr => $user, ingress => [ sort keys %ingress ] };
 };
 
 get '/scheduler/ingress/:domain' => sub {
@@ -279,7 +279,7 @@ get '/scheduler/ingress/:domain' => sub {
     map{ push @{$group{$_->[5]}}, $_->[0]; }@group;
     map{ $group{$_} = join ',', @{$group{$_}} }keys %group;
     
-    template 'scheduler/ingressInfo', +{ ingress => \%ingress, group => \%group, domain => $domain };
+    template 'scheduler/ingressInfo', +{ ingress => \%ingress, group => \%group, domain => $domain, usr => $user };
 };
 
 get '/scheduler/task/:taskid' => sub {
@@ -288,7 +288,7 @@ get '/scheduler/task/:taskid' => sub {
     my $taskid = $param->{taskid};
     my $config = eval{ YAML::XS::Dump YAML::XS::LoadFile "$opt{scheduler}{conf}/task/$taskid" };
 
-    template 'scheduler/task', +{ config => $config };
+    template 'scheduler/task', +{ config => $config, usr => $user };
 };
 
 get '/scheduler/job/:jobid' => sub {
@@ -304,7 +304,7 @@ get '/scheduler/job/:jobid' => sub {
     #id,jobid,nice,group,status
     my $config = eval{ YAML::XS::Dump YAML::XS::LoadFile "$opt{scheduler}{conf}/job/$jobid" };
 
-    template 'scheduler/job', +{ config => $config, task => \@task, job => $job[0] };
+    template 'scheduler/job', +{ config => $config, task => \@task, job => $job[0], usr => $user };
 };
 
 get '/scheduler/job/renice/:renice/:jobid' => sub {
@@ -337,7 +337,7 @@ get '/scheduler/jobHistory' => sub {
     my $pagesize = 50;
     my @job = $schedulerDB->selectJobStopedInfoByOwnerPage( $user , $page * $pagesize, $pagesize );
     #`id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`
-    template 'scheduler/jobHistory', +{ jobs => \@job, page => $page, pagesize => $pagesize, joblen => scalar @job };
+    template 'scheduler/jobHistory', +{ jobs => \@job, page => $page, pagesize => $pagesize, usr => $user, joblen => scalar @job };
 };
 
 get '/tasklog/:uuid' => sub {
@@ -347,7 +347,7 @@ get '/tasklog/:uuid' => sub {
     $ws_url =~ s/:\d+$//;
     $ws_url .= ":3001";
     $ws_url = "ws://$ws_url/ws";
-    template 'scheduler/tasklog', +{ ws_url => $ws_url, uuid => $uuid };
+    template 'scheduler/tasklog', +{ ws_url => $ws_url, uuid => $uuid, usr => $user };
 };
 
 any '/mon' => sub {

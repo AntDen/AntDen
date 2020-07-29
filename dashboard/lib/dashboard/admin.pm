@@ -16,7 +16,7 @@ sub adminInfo
 
 get '/admin' => sub {
     my ( $username, $level ) = adminInfo();
-    template 'msg', +{ admin => 1, msg => $level ? "hi $username" : "Unauthorized: $username"  };
+    template 'msg', +{ admin => 1, msg => $level ? "hi $username" : "Unauthorized: $username" , usr => $username };
 };
 
 get '/admin/authorization/user' => sub {
@@ -30,7 +30,7 @@ get '/admin/authorization/user' => sub {
     $dashboard::schedulerDB->deleteAuthById( $param->{deleteid} ) if $param->{deleteid};
 
     my @auth = $dashboard::schedulerDB->selectAuth();
-    template 'admin/authorization/user', +{ admin => 1, auth => \@auth };
+    template 'admin/authorization/user', +{ admin => 1, auth => \@auth, usr => $username };
 };
 
 get '/admin/authorization/admin' => sub {
@@ -45,7 +45,7 @@ get '/admin/authorization/admin' => sub {
     }
 
     my @user = $dashboard::schedulerDB->selectIsAdminAll();
-    template 'admin/authorization/admin', +{ admin => 1, user => \@user, level => $level };
+    template 'admin/authorization/admin', +{ admin => 1, user => \@user, level => $level, usr => $username };
 };
 
 get '/admin/datasets/data' => sub {
@@ -59,7 +59,7 @@ get '/admin/datasets/data' => sub {
     $dashboard::schedulerDB->deleteDatasetsById( $param->{deleteid} ) if $param->{deleteid};
 
     my @datasets = $dashboard::schedulerDB->selectDatasets();
-    template 'admin/datasets/data', +{ admin => 1, datasets => \@datasets };
+    template 'admin/datasets/data', +{ admin => 1, datasets => \@datasets, usr => $username };
 };
 
 get '/admin/datasets/auth' => sub {
@@ -73,7 +73,7 @@ get '/admin/datasets/auth' => sub {
     $dashboard::schedulerDB->deleteDatasetsauthById( $param->{deleteid} ) if $param->{deleteid};
 
     my @auth = $dashboard::schedulerDB->selectDatasetsauth();
-    template 'admin/datasets/auth', +{ admin => 1, auth => \@auth };
+    template 'admin/datasets/auth', +{ admin => 1, auth => \@auth, usr => $username };
 };
 
 get '/admin/log/slave' => sub {
@@ -82,7 +82,7 @@ get '/admin/log/slave' => sub {
 
     my @machine = $dashboard::schedulerDB->selectMachineInfo();
     #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon`
-    template 'admin/log/slave', +{ admin => 1, machine => \@machine };
+    template 'admin/log/slave', +{ admin => 1, machine => \@machine, usr => $username };
 };
 
 get '/admin/tasklog/:uuid' => sub {
@@ -93,7 +93,7 @@ get '/admin/tasklog/:uuid' => sub {
     $ws_url =~ s/:\d+$//;
     $ws_url .= ":3001";
     $ws_url = "ws://$ws_url/ws";
-    template 'admin/tasklog', +{ admin => 1, ws_url => $ws_url, uuid => $uuid };
+    template 'admin/tasklog', +{ admin => 1, ws_url => $ws_url, uuid => $uuid, usr => $username };
 };
 
 true;
