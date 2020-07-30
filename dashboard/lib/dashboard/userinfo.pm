@@ -29,7 +29,7 @@ any '/userinfo/login' => sub {
         }
     }
 
-    template 'userinfo/login', +{ err => $err }, { layout => 0 };
+    template 'userinfo/login', +{ err => $err };
 };
 
 any '/userinfo/logout' => sub {
