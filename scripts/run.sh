@@ -31,13 +31,6 @@ if [ $dockerversion -lt 19 ]; then
 
 fi
 
-docker-compose --version 2>/dev/null
-if [ $? != 0 ];then
-    curl -L https://github.com/docker/compose/releases/download/1.8.0/run.sh > /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
-    docker-compose --version
-fi
-
 git --version 2>/dev/null|| yum install git -y
 if [ ! -d AntDen ];then
     git clone https://github.com/data-o/AntDen
@@ -50,3 +43,12 @@ cd AntDen || exit 1
 if [ "X$elk" != "X" ]; then
     ./control srv up -d
 fi
+
+curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash
+cp docker/antden-srv/antden/auth/antden.pub /opt/mydan/etc/agent/auth/antden.pub
+
+mkdir -p /opt/AntDen
+
+time=$(date +%s)
+tar -zcvf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job --exclude scheduler/conf/ctrl --exclude scheduler/temple/run --exclude controller/conf/slave --exclude scheduler/temple/run --exclude slave/conf/sync --exclude dashboard/auth --exclude controller/conf/slave.ip
+tar -zxvf /opt/AntDen.$time.tar.gz  -C /opt/AntDen && /opt/AntDen/scripts/init slave
