@@ -24,7 +24,8 @@ any '/user/settings/machine' => sub {
     template 'user/settings/machine', +{ 
         serveraddr => "http://".request->{host},
         username => $username,
-        token => join( "\n", @token), 
+        token => join( "\n", @token),
+        usr => $username,
     };
 };
 
@@ -48,8 +49,8 @@ any '/user/settings/docker' => sub {
     template 'user/settings/docker', +{ 
         serveraddr => "http://".request->{host},
         username => $username,
-        md5 => $md5,
-        err => $err,
+        md5 => $md5, err => $err,
+        usr => $username,
     };
 };
 

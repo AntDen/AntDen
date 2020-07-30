@@ -120,7 +120,7 @@
             line-height: 1.5;
         }
         .con-item-sub {
-            background: #dfd;
+            background: #ddd;
             line-height: 1.5;
         }
         a{
@@ -138,11 +138,13 @@
         <img src="/images/AntDenLogo.png"  border="0" alt="AntDen Logo" width="177" heigth="43" align="left">
     </a>
     <span class="top-title" >The [AntDen Scheduler] User Console</span>
+    [% IF usr %]
     <div class="user">
         <span>Welcome [% usr %]
         <br>
         <span>encryted session</span>
    </div>
+   [% END %]
 </div>
 <div class="outer">
     <div class="menu">

@@ -28,9 +28,10 @@ BEGIN{
 
 sub get_username
 {
+    my $alone = shift @_;
     my $callback = sprintf "%s%s%s", $ssoconfig->{ssocallback}, "http://".request->{host},request->{path};
     my $username = &{$code{sso}}( cookie( $ssoconfig->{cookiekey} ), $schedulerDB );
-    redirect $callback unless $username;
+    redirect $callback if ! $alone && ! $username;
     return $username;
 }
 
@@ -48,7 +49,8 @@ get '/chpasswd' => sub {
 };
 
 get '/' => sub {
-    template 'index';
+    my $user = get_username(1);
+    template 'index', +{ usr => $user };
 };
 
 get '/resources' => sub {

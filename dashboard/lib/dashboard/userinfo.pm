@@ -60,7 +60,7 @@ get '/userinfo/adduser' => sub {
     $dashboard::schedulerDB->deleteUserinfoById( $param->{deleteid} ) if $param->{deleteid};
 
     my @user = $dashboard::schedulerDB->selectUserinfo();
-    template 'userinfo/adduser', +{ admin => 1, user => \@user };
+    template 'userinfo/adduser', +{ admin => 1, user => \@user, usr => $username };
 };
 
 any '/userinfo/chpasswd' => sub {
@@ -86,7 +86,7 @@ any '/userinfo/chpasswd' => sub {
         }
     }
 
-    template 'userinfo/chpasswd', +{ err => $err };
+    template 'userinfo/chpasswd', +{ err => $err, usr => $user };
 };
 
 true;
