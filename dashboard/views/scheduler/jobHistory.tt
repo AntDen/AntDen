@@ -13,7 +13,7 @@
     [% END %]
     </div>
 
-    <table border="1">
+    <table class="altrowstable" id="alternatecolor">
         <tr>
             <th>id</th>
             <th>jobid</th>
@@ -37,3 +37,9 @@
         [% END %]
     </table>
 </div>
+
+<script type="text/javascript">
+     window.onload=function(){
+         altRows('alternatecolor');
+     }
+</script>

@@ -1,7 +1,7 @@
 <div>
     Datasets
     <div>
-    <table border="1">
+    <table class="altrowstable" id="alternatecolor">
         <tr>
             <th>ID</th>
             <th>Name</th>
@@ -23,3 +23,9 @@
     </table>
 
 </div>
+
+<script type="text/javascript">
+     window.onload=function(){
+         altRows('alternatecolor');
+     }
+</script>

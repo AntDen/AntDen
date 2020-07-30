@@ -1,5 +1,5 @@
 <div>
-    <table border="1">
+    <table class="altrowstable" id="alternatecolor">
         <tr>
             <th>id</th>
             <th>jobid</th>
@@ -53,5 +53,7 @@ function test(url){
         re.send(null);
         setTimeout("javascript:window.location.reload()", 3000);
     }
-
+     window.onload=function(){
+         altRows('alternatecolor');
+     }
 </script>

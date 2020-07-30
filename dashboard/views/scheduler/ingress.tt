@@ -1,5 +1,5 @@
 <div>
-    <table border="1">
+    <table class="altrowstable" id="alternatecolor">
         <tr>
             <th>ingress</th>
         </tr>
@@ -10,3 +10,9 @@
         [% END %]
     </table>
 </div>
+
+<script type="text/javascript">
+     window.onload=function(){
+         altRows('alternatecolor');
+     }
+</script>
