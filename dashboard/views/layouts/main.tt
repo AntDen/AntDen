@@ -4,6 +4,7 @@
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=[% settings.charset %]" />
 <title>AntDen dashboard</title>
+<link rel="shortcut icon" href="/images/AntDenLogoMin.png" type="image/jpeg">
 <link rel="stylesheet" href="[% request.uri_base %]/css/style.css" />
 
 <!-- Grab jQuery from a CDN, fall back to local if necessary -->
@@ -59,11 +60,21 @@
              position: relative;
              text-align: center;
         }
+        .top-logo {
+            font-size: 16px;
+            font-weight: 700;
+            position: relative;
+            top: 15px;
+            margin-left: 3px;
+            float: left;
+        }
         .top-title {
             font-size: 16px;
             font-weight: 700;
             position: relative;
             top: 15px;
+            margin-left: 3px;
+            float: left;
         }
         .content {
             height: 1000px;
@@ -93,7 +104,6 @@
             padding-right: 5px;
             padding-left: 4px;
         }
- 
         .title {
             background: #fff;
             line-height: 1.5;
@@ -113,7 +123,6 @@
             background: #dfd;
             line-height: 1.5;
         }
- 
         a{
              text-decoration: none;
              color: #0000cc;
@@ -123,7 +132,11 @@
     </style>
 </head>
 <body>
+
 <div class="top" >
+    <a href="/" class="top-logo" >
+        <img src="/images/AntDenLogo.png"  border="0" alt="AntDen Logo" width="177" heigth="43" align="left">
+    </a>
     <span class="top-title" >The [AntDen Scheduler] User Console</span>
     [% IF usr %]
     <div class="user">
