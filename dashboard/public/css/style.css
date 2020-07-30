@@ -185,3 +185,9 @@ padding-right: 160px;
 font-family: sans-serif;
 font-size: 10px;
 }
+
+button, textarea, input, object, select {
+display:inline-block;
+background-color: #fff;
+font-size: 14px;
+}
