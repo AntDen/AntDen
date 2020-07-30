@@ -48,6 +48,10 @@ get '/chpasswd' => sub {
 };
 
 get '/' => sub {
+    template 'index';
+};
+
+get '/resources' => sub {
     return unless my $user = get_username();
     my @machine = $schedulerDB->selectMachineInfoByUser( $user );
     #`ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon`
@@ -89,7 +93,7 @@ get '/' => sub {
 
     my @total = map{ [ $_, $use{$_}, $t{$_} ] }sort keys %t;
     
-    template 'index', +{ machine => \@machine, total => \@total, usr => $user };
+    template 'resources', +{ machine => \@machine, total => \@total, usr => $user };
 };
 
 get '/datasets' => sub {

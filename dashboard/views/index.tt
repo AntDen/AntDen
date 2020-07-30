@@ -1,50 +1,13 @@
-<div>
-    <div>
-    Resources:
-    [% FOR t IN total %]
-            [% t.0 %]([% t.1 %]/[% t.2 %])
-    [% END %]
-    </div>
+<h1>A message to the user</h1>
+
+<blockquote>
+
+<div style="background: #e0ffff;width:600px; height:160px;font-size:15px;">
+Welcome to the antden system.<br><br>
+
+If you don't know how to use the antden system, please check the help <a href="http://antden.github.io" target="_blank" >document</a>.<br><br>
+
+If you have any improvement suggestions, Please <a href="https://github.com/data-o/AntDen/issues" target="_blank" >submit issues</a>. Have a good time,<b>Thank you.</b>
 </div>
+<blockquote>
 
-<hr>
-
-<div>
-    Machine
-    <div>
-    <table class="altrowstable" id="alternatecolor">
-        <tr>
-            <th>Ip</th>
-            <th>Hostname</th>
-            <th>envhard</th>
-            <th>envsoft</th>
-            <th>switchable</th>
-            <th>group</th>
-            <th>workable</th>
-            <th>role</th>
-            <th>resources</th>
-            <th>mon</th>
-        </tr>
-        [% FOR m IN machine %]
-        <tr>
-            <td>[% m.0 %]</td>
-            <td>[% m.1 %]</td>
-            <td>[% m.2 %]</td>
-            <td>[% m.3 %]</td>
-            <td>[% m.4 %]</td>
-            <td>[% m.5 %]</td>
-            <td>[% m.6 %]</td>
-            <td>[% m.7 %]</td>
-            <td>[% m.9 %]</td>
-            <td>[% m.8 %]</td>
-        </tr>
-        [% END %]
-    </table>
-
-</div>
-
-<script type="text/javascript">
-     window.onload=function(){
-         altRows('alternatecolor');
-     }
-</script>

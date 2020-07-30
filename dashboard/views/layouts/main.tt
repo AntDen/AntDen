@@ -138,13 +138,11 @@
         <img src="/images/AntDenLogo.png"  border="0" alt="AntDen Logo" width="177" heigth="43" align="left">
     </a>
     <span class="top-title" >The [AntDen Scheduler] User Console</span>
-    [% IF usr %]
     <div class="user">
         <span>Welcome [% usr %]
         <br>
         <span>encryted session</span>
    </div>
-    [% END %]
 </div>
 <div class="outer">
     <div class="menu">
@@ -187,9 +185,15 @@
             <div class="title" style="font-weight: 700;" >User menu</div>
         </div>
         <div class="item">
+            <div class="title" onclick="show(this)"></div>
+            <div class="con">
+                <div class="con-item" ><a href="/" >Home Page</a></div>
+            </div>
+        </div>
+        <div class="item">
             <div class="title" onclick="show(this)">Scheduler</div>
             <div class="con">
-                <div class="con-item" ><a href="/" >Show My Machine Resources</a></div>
+                <div class="con-item" ><a href="/resources" >Show My Machine Resources</a></div>
                 <div class="con-item" ><a href="/datasets" >Show My Datasets</a></div>
                 <div class="con-item" ><a href="/scheduler/submitJob" >Submit a Job</a></div>
                 <div class="con-item" ><a href="/scheduler/job" >Show Running Job</a></div>
