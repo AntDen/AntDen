@@ -8,6 +8,7 @@ use dashboard::admin;
 use dashboard::user;
 use dashboard::userinfo;
 use dashboard::mydan;
+use dashboard::organization;
 use api::antdencli;
 use api::datasets;
 use api::agent;

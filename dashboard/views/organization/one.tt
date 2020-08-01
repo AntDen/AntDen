@@ -1,0 +1,141 @@
+<div class="outer">
+    <div class="menu-sub">
+        <div class="item">
+            <div class="title" onclick="show(this)">New organization</div>
+            <div class="con">
+                <div class="con-item-sub" ><a href="/organization" >Create</a></div>
+            </div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">My organization</div>
+                [% FOR o in owner %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[owner]</div>
+                [% END %]
+                [% FOR o in master %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[master]</div>
+                [% END %]
+                [% FOR o in guest %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[guest]</div>
+                [% END %]
+            <div class="con">
+            </div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">Public organization</div>
+                [% FOR o in public %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a></div>
+                [% END %]
+            <div class="con">
+            </div>
+        </div>
+    </div>
+    <div class="content">
+
+        <h1>Basic information</h1>
+        <blockquote>
+            <div style="width:700px; font-size:15px;">
+                <p><b>Organization name:</b>[% groupname %]</p>
+                <p><b>Organization description:</b>[% describe %]</p>
+                <p><b>My role:</b>[% myrole %]</p>
+            </div>
+        </blockquote>
+        <h1>Organization members</h1>
+        <blockquote>
+            <div style="width:600px; font-size:15px;">
+                <div>
+                    <form action="#">
+                    User <input name="user" value=""></input>
+                    Role 
+                    <select id="role" name="role" >
+                        <option value ="3" >owner</option>
+                        <option value ="2" >master</option>
+                        <option value ="1" >guest</option>
+                    </select>
+ 
+                    <button type="submit" >Add</button>
+                    </form> 
+                </div>
+                [% IF err %]
+                    <p style="background:#ffe0ff;width: 500px; padding: 0.5em;" ><b>Error:</b>[% err %]</p>
+                [% END %]
+ 
+                <table class="altrowstable" id="alternatecolor">
+                    <tr>
+                        <th>Id</th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Delete</th>
+                    </tr>
+                    [% FOR m IN members %]
+                    <tr>
+                        <td>[% m.0 %]</td>
+                        <td>[% m.2 %]</td>
+                        <td>[% m.3 %]</td>
+                       <td><a href="/organization/[% groupname %]?deleteid=[% m.0 %]">delete</a></td>
+                    </tr>
+                    [% END %]
+                </table>
+            </div>
+        </blockquote>
+
+        <h1>Machine</h1>
+        <blockquote>
+            <div style="width:600px; font-size:15px;">
+                <table class="altrowstable" id="alternatecolor2">
+                    <tr>
+                        <th>Ip</th>
+                        <th>Hostname</th>
+                        <th>envhard</th>
+                        <th>envsoft</th>
+                        <th>switchable</th>
+                        <th>workable</th>
+                        <th>role</th>
+                        <th>mon</th>
+                    </tr>
+                    [% FOR m IN machine %]
+                    <tr>
+                        <td>[% m.0 %]</td>
+                        <td>[% m.1 %]</td>
+                        <td>[% m.2 %]</td>
+                        <td>[% m.3 %]</td>
+                        <td>[% m.4 %]</td>
+                        <td>[% m.6 %]</td>
+                        <td>[% m.7 %]</td>
+                        <td>[% m.8 %]</td>
+                    </tr>
+                    [% END %]
+                </table>
+            </div>
+        </blockquote>
+
+        <h1>Datasets</h1>
+        <blockquote>
+            <div style="width:600px; font-size:15px;">
+                <table class="altrowstable" id="alternatecolor3">
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Info</th>
+                        <th>Type</th>
+                    </tr>
+                    [% FOR d IN datasets %]
+                    <tr>
+                        <td>[% d.0 %]</td>
+                        <td>[% d.1 %]</td>
+                        <td>[% d.2 %]</td>
+                        <td>[% d.3 %]</td>
+                    </tr>
+                    [% END %]
+                </table>
+            </div>
+        </blockquote>
+    </div>
+</div>
+
+<script type="text/javascript">
+     window.onload=function(){
+         altRows('alternatecolor');
+         altRows('alternatecolor2');
+         altRows('alternatecolor3');
+     }
+</script>

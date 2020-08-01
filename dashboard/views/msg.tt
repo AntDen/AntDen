@@ -1,3 +1,6 @@
 <div>
 [% msg %]
+[% IF err %]
+<p style="background:#ffe0ff;width: 400px; padding: 0.5em;" ><b>Error:</b>[% err %]</p>
+[% END %]
 </div>

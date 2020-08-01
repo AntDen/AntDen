@@ -218,6 +218,12 @@
             </div>
         </div>
         <div class="item">
+            <div class="title" onclick="show(this)">Organization</div>
+                <div class="con-item" ><a href="/organization" >My organization</a></div>
+            <div class="con">
+            </div>
+        </div>
+        <div class="item">
             <div class="title" onclick="show(this)">Help</div>
                 <div class="con-item"><a href="http://antden.github.io" target="_blank" >Book</a></div>
             <div class="con">

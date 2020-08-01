@@ -1,0 +1,44 @@
+<div class="outer">
+    <div class="menu-sub">
+        <div class="item">
+            <div class="title" onclick="show(this)">New organization</div>
+            <div class="con">
+                <div class="con-item-sub" ><a href="/organization" >Create</a></div>
+            </div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">My organization</div>
+                [% FOR o in owner %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[owner]</div>
+                [% END %]
+                [% FOR o in master %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[master]</div>
+                [% END %]
+                [% FOR o in guest %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[guest]</div>
+                [% END %]
+            <div class="con">
+            </div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">Public organization</div>
+                [% FOR o in public %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a></div>
+                [% END %]
+            <div class="con">
+            </div>
+        </div>
+    </div>
+    <div class="content">
+         <div>
+            <form action="#">
+            Name <input name="name" value=""></input>
+            Describe <input name="describe" value=""></input>
+            <button type="submit" >Add</button>
+            </form> 
+            [% IF err %]
+                <p style="background:#ffe0ff;width: 400px; padding: 0.5em;" ><b>Error:</b>[% err %]</p>
+            [% END %]
+        </div>
+    </div>
+</div>

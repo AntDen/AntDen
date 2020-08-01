@@ -79,6 +79,18 @@ sub define
         sid => 'TEXT NOT NULL',
         expire => 'TEXT NOT NULL',
     ],
+    organization => [
+        id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        name => 'TEXT NOT NULL',
+        owner => 'TEXT NOT NULL',
+        describe => 'TEXT NOT NULL',
+    ],
+    organizationauth => [
+        id => 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        name => 'TEXT NOT NULL',
+        user => 'TEXT NOT NULL',
+        role => 'TEXT NOT NULL',
+    ],
 };
 
 sub stmt
@@ -139,6 +151,7 @@ sub stmt
     insertDatasets => "insert into `datasets` (`name`,`info`,`type`,`group`,`token`) values(?,?,?,?,?)",
     deleteDatasetsById => "delete from `datasets` where id=?",
     selectDatasets => "select `id`,`name`,`info`,`type`,`group`,`token` from datasets",
+    selectDatasetsByGroup => "select `id`,`name`,`info`,`type` from datasets where `group`=?",
 
     insertDatasetsauth => "insert into `datasetsauth` (`name`,`group`,`user`) values(?,?,?)",
     deleteDatasetsauthById => "delete from `datasetsauth` where id=?",
@@ -156,6 +169,15 @@ sub stmt
     updateUserinfoSid => "update userinfo set expire=0,sid='' where sid=?",
     selectUserinfoBySid => "select name from `userinfo` where sid=?",
     updateUserinfoPass => "update userinfo set pass=? where name=?",
+
+    insertOrganization => "insert into `organization` (`owner`,`name`,`describe`) values(?,?,?)",
+    selectOrganizationByOwner => "select `id`,`name`,`describe` from organization where owner=?",
+    selectOrganizationByName => "select `id`,`name`,`describe` from organization where name=?",
+
+    insertOrganizationauth => "insert into `organizationauth` (`name`,`user`,`role`) values(?,?,?)",
+    deleteOrganizationauthById => "delete from `organizationauth` where id=?",
+    selectOrganizationauthByUser => "select `id`,`name`,`user`,`role` from organizationauth where user='_public_' or user=?",
+    selectOrganizationauthByName => "select `id`,`name`,`user`,`role` from organizationauth where name=?",
 
     #api
     selectTaskByTaskid => "select id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port,executer from task where taskid=?",
