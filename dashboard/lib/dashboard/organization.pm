@@ -111,4 +111,32 @@ get '/organization/:groupname' => sub {
     };
 };
 
+get '/organization/:groupname/jobHistory' => sub {
+    my $param = params();
+    return unless my $username = dashboard::get_username();
+
+    my %group = +{ owner => [], guest => [], master => [], public => [] };
+    my $myrole = 0;
+    my @o = $dashboard::schedulerDB->selectOrganizationauthByUser( $username );
+    #`id`,`name`,`user`,`role`
+    map{
+        push @{$group{ $_->[2] eq '_public_' ? 'public' : $id2role{$_->[3]}}}, $_->[1];
+        $myrole = $_->[3] if ( $_->[2] eq '_public_' || $_->[2] eq $username ) && $param->{groupname} eq $_->[1] && $_->[3] > $myrole;
+    }@o;
+
+    return template 'msg', +{ %group, usr => $username, err => 'Permission denied' } unless $myrole;
+
+    my $page = $param->{page};
+    $page = 0 unless $page && $page =~ /^\d+$/;
+    my $pagesize = 50;
+
+    my @job = $dashboard::schedulerDB->selectJobStopedInfoByGroupPage( $param->{groupname} , $page * $pagesize, $pagesize );
+    #`id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`
+    template 'organization/jobHistory', +{
+        %group, groupname => $param->{groupname}, jobs => \@job,
+        page => $page, pagesize => $pagesize,
+        usr => $username, joblen => scalar @job,
+    };
+};
+
 true;

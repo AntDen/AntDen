@@ -131,6 +131,7 @@
         </blockquote>
 
         <h1>Running jobs</h1>
+        Click to view <a href="/organization/[% groupname %]/jobHistory">jobs history</a>
         <blockquote>
             <div style="width:800px; font-size:15px;">
                 <table class="altrowstable" id="alternatecolor4">
