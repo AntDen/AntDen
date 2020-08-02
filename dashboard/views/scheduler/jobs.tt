@@ -42,7 +42,7 @@
 </div>
 
 <script language="javascript">
-function test(url){
+    function test(url){
         var re = new XMLHttpRequest();
         re.open('GET',url);
         re.onreadystatechange = function(){
@@ -53,7 +53,7 @@ function test(url){
         re.send(null);
         setTimeout("javascript:window.location.reload()", 3000);
     }
-     window.onload=function(){
-         altRows('alternatecolor');
-     }
+    window.onload=function(){
+        altRows('alternatecolor');
+    }
 </script>

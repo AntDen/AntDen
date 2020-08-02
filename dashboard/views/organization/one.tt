@@ -129,13 +129,70 @@
                 </table>
             </div>
         </blockquote>
+
+        <h1>Running jobs</h1>
+        <blockquote>
+            <div style="width:800px; font-size:15px;">
+                <table class="altrowstable" id="alternatecolor4">
+                    <tr>
+                        <th>Id</th>
+                        <th>Jobid</th>
+                        <th>Owner</th>
+                        <th>Name</th>
+                        <th>Nice</th>
+                        <th>Status</th>
+                        <th>Ingress</th>
+                        <th>Renice</th>
+                        <th>Stop</th>
+                    </tr>
+                    [% FOR j IN job %]
+                    <tr>
+                        <td>[% j.0 %]</td>
+                        <td><a href="/scheduler/job/[% j.1 %]">[% j.1 %]</a></td>
+
+                        <td>[% j.2 %]</td>
+                        <td>[% j.3 %]</td>
+                        <td>[% j.4 %]</td>
+                        <td>[% j.6 %]</td>
+                        <td>[% j.7 %]</td>
+                        <td>
+                            <a href="javascript:test('/scheduler/job/renice/0/[% j.1 %]');">0</a>
+                            <a href="javascript:test('/scheduler/job/renice/1/[% j.1 %]');">1</a>
+                            <a href="javascript:test('/scheduler/job/renice/2/[% j.1 %]');">2</a>
+                            <a href="javascript:test('/scheduler/job/renice/3/[% j.1 %]');">3</a>
+                            <a href="javascript:test('/scheduler/job/renice/4/[% j.1 %]');">4</a>
+                            <a href="javascript:test('/scheduler/job/renice/5/[% j.1 %]');">5</a>
+                            <a href="javascript:test('/scheduler/job/renice/6/[% j.1 %]');">6</a>
+                            <a href="javascript:test('/scheduler/job/renice/7/[% j.1 %]');">7</a>
+                            <a href="javascript:test('/scheduler/job/renice/8/[% j.1 %]');">8</a>
+                            <a href="javascript:test('/scheduler/job/renice/9/[% j.1 %]');">9</a>
+                        </td>
+                        <td><a href="javascript:test('/scheduler/job/stop/[% j.1 %]');">stop</a></td>
+                    </tr>
+                    [% END %]
+                </table>
+            </div>
+        </blockquote>
+
     </div>
 </div>
 
 <script type="text/javascript">
-     window.onload=function(){
-         altRows('alternatecolor');
-         altRows('alternatecolor2');
-         altRows('alternatecolor3');
-     }
+    function test(url){
+        var re = new XMLHttpRequest();
+        re.open('GET',url);
+        re.onreadystatechange = function(){
+            if(re.readyState === 4 && re.status === 200){            
+                alert(re.responseText);
+            }
+        };
+        re.send(null);
+        setTimeout("javascript:window.location.reload()", 3000);
+    }
+    window.onload=function(){
+        altRows('alternatecolor');
+        altRows('alternatecolor2');
+        altRows('alternatecolor3');
+        altRows('alternatecolor4');
+    }
 </script>

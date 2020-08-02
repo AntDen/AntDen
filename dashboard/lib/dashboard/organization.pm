@@ -99,11 +99,14 @@ get '/organization/:groupname' => sub {
 
     my @org = $dashboard::schedulerDB->selectOrganizationByName( $param->{groupname} );
     #`id`,`name`,`describe`
+    my @job = $dashboard::schedulerDB->selectJobWorkInfoByGroup( $param->{groupname} );
+
     template 'organization/one', +{
         %group, usr => $username, members => \@members,
         groupname => $param->{groupname},
         machine => \@machine, datasets => \@datasets,
         err => $err, myrole => $id2role{$myrole},
+        job => \@job,
         describe => @org ? $org[0][2] : 'null',
     };
 };
