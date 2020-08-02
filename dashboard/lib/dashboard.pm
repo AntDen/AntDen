@@ -303,7 +303,7 @@ get '/scheduler/job/:jobid' => sub {
     my $param = params();
     my $jobid = $param->{jobid};
 
-    return 'noauth' unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $user );
+    return 'noauth' unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $user, $user );
 
     my @task = $schedulerDB->selectTaskByJobid( $jobid );
     #id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port
@@ -322,6 +322,7 @@ get '/scheduler/job/renice/:renice/:jobid' => sub {
     return "jobid format error" unless $jobid && $jobid =~ /^J[0-9\.]+$/;
     return "renice format error" unless defined $renice && $renice =~ /^\d+$/;
 
+    return "renice job: $jobid fail noauth" unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $user, $user );
     $schedulerCtrl->reniceJob( $jobid, $renice );
     return "renice job: $jobid success";
 };
@@ -331,7 +332,7 @@ get '/scheduler/job/stop/:jobid' => sub {
     my $param = params();
     my $jobid = $param->{jobid};
     return "jobid format error" unless $jobid && $jobid =~ /^J[0-9\.]+$/;
-    return "stop job: $jobid fail noauth" unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $user );
+    return "stop job: $jobid fail noauth" unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $user, $user );
     $schedulerCtrl->stopJob( $jobid );
     return "stop job: $jobid success";
 };

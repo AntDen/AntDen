@@ -57,7 +57,7 @@ get '/api/antdencli/jobstop/:jobid' => sub {
     return +{ stat => JSON::false, info => 'jobid format error' } unless $jobid && $jobid =~ /^J[0-9\.]+$/;
 
     return +{ stat => JSON::false, info => 'noauth' }
-        unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $owner );
+        unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $owner, $owner );
 
     $dashboard::schedulerCtrl->stopJob( $jobid );
     return  +{ stat => JSON::true, data => $jobid };
@@ -70,7 +70,7 @@ get '/api/antdencli/jobinfo/:jobid' => sub {
     my ( $jobid, $owner ) = @$param{qw(jobid owner)};
 
     return +{ stat => JSON::false, info => 'noauth' }
-        unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $owner );
+        unless my @m = $dashboard::schedulerDB->selectJobByJobidAndOwner( $jobid, $owner, $owner );
 
     my @task = $dashboard::schedulerDB->selectTaskByJobid( $jobid );
     #id,jobid,taskid,hostip,status,result,msg,usetime,domain,location,port
