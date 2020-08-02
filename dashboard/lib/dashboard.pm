@@ -2,6 +2,7 @@ package dashboard;
 use Dancer ':syntax';
 use POSIX;
 use AntDen;
+use Digest::MD5;
 use FindBin qw( $RealBin );
 use File::Basename;
 use MYDan::Util::OptConf;
@@ -173,6 +174,14 @@ sub cmdsj
 get '/scheduler/submitJob/cmd/:name' => sub {
     return unless my $user = get_username();
     my $param = params();
+
+    my $cts = config->{cts}{$param->{name}};
+    if( $param->{cmd} && $cts )
+    {
+        my $md5 = Digest::MD5->new->add( $param->{cmd} )->hexdigest;
+        return template 'msg', +{ err => "Command template security check failed: $md5: $param->{cmd}"  } unless $cts->{$md5};
+    }
+
     my ( $err, $jobid, $uuid, @ip ) = ( '', '' );
 
     my $ws_url = request->env->{HTTP_HOST};

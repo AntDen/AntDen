@@ -28,3 +28,8 @@ engines:
 
 # For session support enable the following line and see Dancer::Session
 # session: "YAML"
+
+cts:
+  antdenAddMachine:
+    86a4acd7efe02aacc2a362b7f730136e: 1
+    c704e5b175e78871e8a9f2ec2c3a34d2: 1
