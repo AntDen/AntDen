@@ -9,13 +9,13 @@
         <div class="item">
             <div class="title" onclick="show(this)">My organization</div>
                 [% FOR o in owner %]
-                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[owner]</div>
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;">[owner]</a></div>
                 [% END %]
                 [% FOR o in master %]
-                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[master]</div>
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;">[master]</a></div>
                 [% END %]
                 [% FOR o in guest %]
-                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a>[guest]</div>
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;">[guest]</a></div>
                 [% END %]
             <div class="con">
             </div>

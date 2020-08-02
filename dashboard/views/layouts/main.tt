@@ -122,6 +122,7 @@
         .con-item-sub {
             background: #ddd;
             line-height: 1.5;
+            overflow:hidden;
         }
         a{
              text-decoration: none;
