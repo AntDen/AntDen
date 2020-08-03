@@ -79,6 +79,7 @@
         </blockquote>
 
         <h1>Machine</h1>
+        Click to <a href="/organization/[% groupname %]/submitJob/addMachine">add machine</a>
         <blockquote>
             <div style="width:600px; font-size:15px;">
                 <table class="altrowstable" id="alternatecolor2">

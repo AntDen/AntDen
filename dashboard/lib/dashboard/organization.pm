@@ -139,4 +139,79 @@ get '/organization/:groupname/jobHistory' => sub {
     };
 };
 
+get '/organization/:groupname/submitJob/:name' => sub {
+    my $param = params();
+    return unless my $username = dashboard::get_username();
+
+    my %group = +{ owner => [], guest => [], master => [], public => [] };
+    my $myrole = 0;
+    my @o = $dashboard::schedulerDB->selectOrganizationauthByUser( $username );
+    #`id`,`name`,`user`,`role`
+    map{
+        push @{$group{ $_->[2] eq '_public_' ? 'public' : $id2role{$_->[3]}}}, $_->[1];
+        $myrole = $_->[3] if ( $_->[2] eq '_public_' || $_->[2] eq $username ) && $param->{groupname} eq $_->[1] && $_->[3] > $myrole;
+    }@o;
+
+    return template 'msg', +{ %group, usr => $username, err => 'Permission denied' } unless $myrole;
+
+    my ( $err, $jobid, $uuid, @ip ) = ( '', '' );
+
+    my $ws_url = request->env->{HTTP_HOST};
+    $ws_url =~ s/:\d+$//;
+    $ws_url .= ":3001";
+    $ws_url = "ws://$ws_url/ws";
+
+    if( $param->{cmd} )
+    {
+        my ( $group, $role, $cmd ) = ( $param->{groupname}, 'slave', $param->{cmd} );
+        ( $group, $role, $cmd ) = 
+            ( 'antden', 'master', '/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password :::password::: --group :::groupname:::  --role :::role:::' ) 
+                if $param->{name} eq 'addMachine';
+
+        my $ip;
+        map{
+            $ip = $_->[0] if $_->[8] =~ /health=1/ && $_->[7] eq $role
+        }$dashboard::schedulerDB->selectMachineInfoByGroup( $group );
+
+        $err = "ip error:$ip" unless $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+        $err = "group error:$group" unless $group && $group =~ /^[a-z0-9_\.\-]+$/;
+        $err = "cmd err:$cmd" unless $cmd && $cmd =~ /^[\/a-zA-Z0-9_:\.\- ]+$/;
+
+        my @arg = $cmd =~ /:::([a-zA-Z0-9]+):::/g;
+        map{
+            $err = "$_ err" unless defined $param->{$_} && $param->{$_} =~ /^[\.\/a-zA-Z0-9_:%\.\@\-]+$/;
+            $cmd =~ s/:::${_}:::/$param->{$_}/g;
+        }@arg;
+
+        if( ( @arg == grep{ $param->{$_} }@arg ) && ! $err )
+        {
+             my $config = [
+                 +{
+                     executer => +{
+                         name => 'exec',
+                         param => +{
+                             exec => $cmd
+                         },
+                     },
+                     scheduler => +{
+                         envhard => 'arch=x86_64,os=Linux',
+                         envsoft => 'app1=1.0',
+                         count => 1,
+                         ip => $ip,
+                         resources => [ [ 'CPU', '.', 2 ] ]
+                    }
+                 } 
+             ];
+
+             $jobid = $dashboard::schedulerCtrl->startJob( $config, 5, $group, $username, $param->{name} );
+             $uuid = $jobid. ".001_$ip.log";
+             $uuid =~ s/^J/T/;
+        }
+    }
+
+    template 'organization/submitJob', +{ %group, groupname => $param->{groupname}, err => $err,
+        jobid => $jobid, host => request->{host}, usr => $username,
+        tt => "organization/submitJob/" . $param->{name} . ".tt", ws_url => $ws_url, uuid => $uuid };
+};
+
 true;

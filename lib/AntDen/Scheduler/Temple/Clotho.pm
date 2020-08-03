@@ -415,11 +415,17 @@ sub _search
     my ( $this, $group, $envhard, $envsoft, $resources, $ip ) = @_;
 
     my @host = grep{ $this->{machine}{$_}{info}{group} eq $group }
-               grep{ $this->{machine}{$_}{info}{role} eq 'slave'  }
                grep{ $this->{machine}{$_}{info}{mon} =~ /health=1/  }
                grep{ $this->{machine}{$_}{info} }keys %{$this->{machine}};
 
-    @host = grep{ $_ eq $ip }@host if defined $ip;
+    if( defined $ip )
+    {
+        @host = grep{ $_ eq $ip }@host;
+    }
+    else
+    {
+        @host = grep{ $this->{machine}{$_}{info}{role} eq 'slave'  }@host;
+    }
 
 #    @host = grep{ $this->_matchEnv( $this->{machine}{$_}{info}{envhard}, $envhard ) }@host;
 #    @host = grep{ $this->_matchEnv( $this->{machine}{$_}{info}{envhard}, $envsoft ) }@host;

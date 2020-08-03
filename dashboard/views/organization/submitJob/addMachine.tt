@@ -1,0 +1,23 @@
+<h1>organization / <a href="/organization/[% groupname %]" style="font-size: 28px;" >[% groupname %]</a> / addMachine</h1>
+<div>
+    <form action="#">
+    user <input id="user" name="user" value="root"></input>
+    host <input id="host" name="host" value=""></input>
+    password <input id="password" name="password" value=""></input>
+    role
+    <select id="role" name="role" >
+        <option value ="slave">slave</option>
+        <option value ="master">master</option>
+    </select>
+    <input id="cmd" name="cmd" value="/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password :::password::: --group :::slavegroup::: --role :::role:::" type="hidden"></input>
+    <button type="submit" value="Submit">Submit</button>
+    </form> 
+</div>
+<div>
+    [% IF err %] [Error] [% err %] [% END %]
+    [% IF jobid %] 
+        [Success] JobId: <a href="/scheduler/job/[% jobid %]">[% jobid %]</a>
+        [% INCLUDE 'scheduler/tasklog.tt' %]
+    [% END %]
+</div>
+<hr>
