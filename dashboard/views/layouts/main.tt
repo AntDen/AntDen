@@ -123,13 +123,18 @@
             background: #ddd;
             line-height: 1.5;
             overflow:hidden;
+            position: relative;
         }
         a{
-             text-decoration: none;
-             color: #0000cc;
-             font-size: small;
-             font-family: sans-serif;
+            text-decoration: none;
+            color: #0000cc;
+            font-size: small;
+            font-family: sans-serif;
         }
+        .menu-a {
+            width: 100%;
+            display: inline-block;
+       }
     </style>
 </head>
 <body>
@@ -156,31 +161,31 @@
         <div class="item">
             <div class="title" onclick="show(this)"></div>
             <div class="con">
-                <div class="con-item" ><a href="/" >Back to home page</a></div>
+                <div class="con-item" ><a href="/" class="menu-a" >Back to home page</a></div>
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">Authorization</div>
             <div class="con">
-                <div class="con-item" ><a href="/userinfo/adduser" >Manage login users</a></div>
-                <div class="con-item" ><a href="/admin/authorization/user" >Manage User Resource</a></div>
-                <div class="con-item" ><a href="/admin/authorization/admin" >Management Administrator</a></div>
+                <div class="con-item" ><a href="/userinfo/adduser" class="menu-a" >Manage login users</a></div>
+                <div class="con-item" ><a href="/admin/authorization/user" class="menu-a" >Manage User Resource</a></div>
+                <div class="con-item" ><a href="/admin/authorization/admin" class="menu-a" >Management Administrator</a></div>
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">Datasets</div>
             <div class="con">
-                <div class="con-item" ><a href="/admin/datasets/data" >Managing Datasets</a></div>
-                <div class="con-item" ><a href="/admin/datasets/auth" >Authorization To Users</a></div>
+                <div class="con-item" ><a href="/admin/datasets/data" class="menu-a" >Managing Datasets</a></div>
+                <div class="con-item" ><a href="/admin/datasets/auth" class="menu-a" >Authorization To Users</a></div>
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">System Log</div>
             <div class="con">
-                <div class="con-item" ><a href="/admin/tasklog/scheduler" >Scheduler</a></div>
-                <div class="con-item" ><a href="/admin/tasklog/controller" >Controller</a></div>
-                <div class="con-item" ><a href="/admin/tasklog/dashboard" >Dashboard</a></div>
-                <div class="con-item" ><a href="/admin/log/slave" >Slave</a></div>
+                <div class="con-item" ><a href="/admin/tasklog/scheduler" class="menu-a" >Scheduler</a></div>
+                <div class="con-item" ><a href="/admin/tasklog/controller" class="menu-a" >Controller</a></div>
+                <div class="con-item" ><a href="/admin/tasklog/dashboard" class="menu-a" >Dashboard</a></div>
+                <div class="con-item" ><a href="/admin/log/slave" class="menu-a" >Slave</a></div>
             </div>
         </div>
         [% ELSE %]
@@ -190,43 +195,43 @@
         <div class="item">
             <div class="title" onclick="show(this)"></div>
             <div class="con">
-                <div class="con-item" ><a href="/" >Home Page</a></div>
+                <div class="con-item" ><a href="/" class="menu-a" >Home Page</a></div>
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">Scheduler</div>
             <div class="con">
-                <div class="con-item" ><a href="/resources" >Show My Machine Resources</a></div>
-                <div class="con-item" ><a href="/datasets" >Show My Datasets</a></div>
-                <div class="con-item" ><a href="/scheduler/submitJob" >Submit a Job</a></div>
-                <div class="con-item" ><a href="/scheduler/job" >Show Running Job</a></div>
-                <div class="con-item" ><a href="/scheduler/ingress" >Show My Ingress</a></div>
-                <div class="con-item" ><a href="/scheduler/jobHistory" >Show My History Job</a></div>
+                <div class="con-item" ><a href="/resources" class="menu-a" >Show My Machine Resources</a></div>
+                <div class="con-item" ><a href="/datasets" class="menu-a" >Show My Datasets</a></div>
+                <div class="con-item" ><a href="/scheduler/submitJob" class="menu-a" >Submit a Job</a></div>
+                <div class="con-item" ><a href="/scheduler/job" class="menu-a" >Show Running Job</a></div>
+                <div class="con-item" ><a href="/scheduler/ingress" class="menu-a" >Show My Ingress</a></div>
+                <div class="con-item" ><a href="/scheduler/jobHistory" class="menu-a" >Show My History Job</a></div>
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">Account</div>
-                <div class="con-item" ><a href="/user/settings/docker" >Settings Antdencli</a></div>
-                <div class="con-item" ><a href="/chpasswd" >Change Password</a></div>
-                <div class="con-item" ><a href="/logout" >Logging Out</a></div>
+                <div class="con-item" ><a href="/user/settings/docker" class="menu-a" >Settings Antdencli</a></div>
+                <div class="con-item" ><a href="/chpasswd" class="menu-a" >Change Password</a></div>
+                <div class="con-item" ><a href="/logout" class="menu-a" >Logging Out</a></div>
             <div class="con">
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">Administrators</div>
-                <div class="con-item" ><a href="/admin" >Administrator entrance</a></div>
+                <div class="con-item" ><a href="/admin" class="menu-a" >Administrator entrance</a></div>
             <div class="con">
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">Organization</div>
-                <div class="con-item" ><a href="/organization" >My organization</a></div>
+                <div class="con-item" ><a href="/organization" class="menu-a" >My organization</a></div>
             <div class="con">
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">Help</div>
-                <div class="con-item"><a href="http://antden.github.io" target="_blank" >Book</a></div>
+                <div class="con-item"><a href="http://antden.github.io" target="_blank" class="menu-a" >Book</a></div>
             <div class="con">
             </div>
         </div>

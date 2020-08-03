@@ -3,14 +3,14 @@
         <div class="item">
             <div class="title" onclick="show(this)">Common job</div>
             <div class="con">
-                <div class="con-item-sub" ><a href="/scheduler/submitJob" >Submit Job</a></div>
+                <div class="con-item-sub" ><a href="/scheduler/submitJob" class="menu-a" >Submit Job</a></div>
             </div>
         </div>
         [% FOR g in cmdsj.key %]
         <div class="item">
             <div class="title" onclick="show(this)">[% g %]</div>
                 [% FOR cmd in cmdsj.$g %]
-                <div class="con-item-sub" ><a href="/scheduler/submitJob/cmd/[% cmd %]" >[% cmd%]</a></div>
+                <div class="con-item-sub" ><a href="/scheduler/submitJob/cmd/[% cmd %]" class="menu-a" >[% cmd%]</a></div>
                 [% END %]
             <div class="con">
             </div>

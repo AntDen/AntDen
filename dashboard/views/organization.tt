@@ -3,19 +3,19 @@
         <div class="item">
             <div class="title" onclick="show(this)">New organization</div>
             <div class="con">
-                <div class="con-item-sub" ><a href="/organization" >Create</a></div>
+                <div class="con-item-sub" ><a href="/organization" class="menu-a" >Create</a></div>
             </div>
         </div>
         <div class="item">
             <div class="title" onclick="show(this)">My organization</div>
                 [% FOR o in owner %]
-                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;">[owner]</a></div>
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;display:inline-block;width:100%;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;position:absolute;right:0;">[owner]</a></div>
                 [% END %]
                 [% FOR o in master %]
-                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;">[master]</a></div>
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;display:inline-block;width:100%;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;position:absolute;right:0;">[master]</a></div>
                 [% END %]
                 [% FOR o in guest %]
-                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;">[guest]</a></div>
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;display:inline-block;width:100%;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;position:absolute;right:0;">[guest]</a></div>
                 [% END %]
             <div class="con">
             </div>
