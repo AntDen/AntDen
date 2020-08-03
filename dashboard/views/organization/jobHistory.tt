@@ -23,7 +23,7 @@
         <div class="item">
             <div class="title" onclick="show(this)">Public organization</div>
                 [% FOR o in public %]
-                <div class="con-item-sub" ><a href="/organization/[% o %]" >[% o %]</a></div>
+                <div class="con-item-sub" ><a href="/organization/[% o %]" class="menu-a" >[% o %]</a></div>
                 [% END %]
             <div class="con">
             </div>
