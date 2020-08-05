@@ -7,7 +7,7 @@ Installing antden client through SSH
     group <input id="slavegroup" name="slavegroup" value=""></input>
     role <input id="role" name="role" value="slave"></input>
     <input id="group" name="group" value="antden" type="hidden"></input>
-    <input id="cmd" name="cmd" value="/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password :::password::: --group :::slavegroup:::  --role :::role:::" type="hidden"></input>
+    <input id="cmd" name="cmd" value="/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password ':::password:::' --group :::slavegroup:::  --role :::role:::" type="hidden"></input>
     <br><br>
     <button type="submit" value="Submit">Submit</button>
     </form> 
@@ -31,7 +31,9 @@ Installing antden client through MYDan
 </div>
 <hr>
 <div>
-    [% IF err %] [Error] [% err %] [% END %]
+    [% IF err %]
+       <p style="background:#ffe0ff;width: 400px; padding: 0.5em;" ><b>Error:</b>[% err %]</p>
+    [% END %]
     [% IF jobid %] 
         [Success] JobId: <a href="/scheduler/job/[% jobid %]">[% jobid %]</a>
         [% INCLUDE 'scheduler/tasklog.tt' %]

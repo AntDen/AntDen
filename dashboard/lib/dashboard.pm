@@ -202,14 +202,14 @@ get '/scheduler/submitJob/cmd/:name' => sub {
 
         $err = "ip error:$param->{ip}" unless $param->{ip} && $param->{ip} =~ /^\d+\.\d+\.\d+\.\d+$/;
         $err = "group error:$param->{group}" unless $param->{group} && $param->{group} =~ /^[a-z0-9_\.\-]+$/;
-        $err = "cmd err:$param->{cmd}" unless $param->{cmd} && $param->{cmd} =~ /^[\/a-zA-Z0-9_:\.\- ]+$/;
+        $err = "cmd err:$param->{cmd}" unless $param->{cmd} && $param->{cmd} =~ /^[\/a-zA-Z0-9_:'\.\- ]+$/;
     
         @ip = ( $param->{ip} ) unless @ip;
         my $cmd = $param->{cmd};
         my @arg = $cmd =~ /:::([a-zA-Z0-9]+):::/g;
         map{
             $cmd =~ s/:::${_}:::/$param->{$_}/g;
-            $err = "$_ err" unless defined $param->{$_} && $param->{$_} =~ /^[\.\/a-zA-Z0-9_:%\.\@\-]+$/;
+            $err = "$_ err" unless defined $param->{$_} && $param->{$_} =~ /^[\^\.\/a-zA-Z0-9_:%\.\@\-]+$/;
         }@arg;
 
         if( ( @arg == grep{ $param->{$_} }@arg ) && ! $err )
