@@ -120,7 +120,7 @@ sub stmt
 
     #dashboard
     selectMachineInfo => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine",
-    selectMachineInfoByUser => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine where `group` in ( select `group` from auth where user=? )",
+    selectMachineInfoByUser => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine where `group` in ( select `name` from organizationauth where user='_public_' or user=?)",
     selectMachineInfoByGroup => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine where `group` = ?",
     selectMachineIpByUser => "select distinct `ip` from machine,auth where machine.`group`=auth.`group` and user=?",
     selectResourcesInfoByUser => "select distinct resources.ip,`name`,resources.id,`value` from resources,machine,auth where resources.ip=machine.ip and machine.`group`=auth.`group` and auth.user=?",
@@ -158,7 +158,7 @@ sub stmt
     deleteDatasetsauthById => "delete from `datasetsauth` where id=?",
     selectDatasetsauth => "select `id`,`name`,`group`,`user` from datasetsauth",
 
-    selectDatasetsByUser => "select datasets.id,datasets.name,datasets.info,datasets.type,datasets.`group`,datasets.token from datasets,datasetsauth where datasets.`group`=datasetsauth.`group` and datasets.name=datasetsauth.name and user=?",
+    selectDatasetsByUser => "select id,name,info,type,`group`,token from datasets where `group` in ( select `name` from organizationauth where user='_public_' or user=? )",
 
     insertAdmin => "insert into `user` (`name`,`isadmin`) values(?,1)",
 
