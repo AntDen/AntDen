@@ -112,6 +112,10 @@ get '/scheduler/submitJob' => sub {
     my ( $configStr, $niceStr, $groupStr, $nameStr, $err, $jobid )
         = ( $param->{config}, $param->{nice}, $param->{group}, $param->{name}, '', '' );
 
+    my ( @auth, %group ) = $dashboard::schedulerDB->selectOrganizationauthByUser( $user );
+    #`id`,`name`,`user`,`role`
+    map{ $group{$_->[1]} = 1; }@auth;
+
     if( $configStr )
     {
         unless( defined $niceStr && $niceStr =~ /^\d+$/ )
@@ -137,10 +141,15 @@ get '/scheduler/submitJob' => sub {
             }
             else
             {
-                 my @auth = $schedulerDB->selectAuthByUser( $user, $groupStr );
-                 #`executer`
-                 my %auth; map{ $auth{$_->[0]} = 1; }@auth;
-                 map{ $err = 'no auth' unless $auth{$_->{executer}{name}} }@$config;
+                 my $auth = 0;
+                 map{
+                     $auth = $_->[3] if ( $_->[2] eq '_public_' || $_->[2] eq $user ) && $groupStr eq $_->[1] && $_->[3] > $auth;
+                 }@auth;
+                 my %match = ( exec => 2, docker => 1 );
+                 map{
+                     my $match = defined $match{$_->{executer}{name}} ? $match{$_->{executer}{name}} : 2;
+                     $err = 'no auth' unless $auth >= $match;
+                 }@$config;
                  
                  unless( $err )
                  {
@@ -153,17 +162,17 @@ get '/scheduler/submitJob' => sub {
     $niceStr = 5 if ! defined $niceStr;
     template 'scheduler/submitJob', +{ config => $configStr, nice => $niceStr,
         group => $groupStr, name => $nameStr, err => $err, jobid => $jobid,
-        tt => 'scheduler/submitJob/default.tt', cmdsj => cmdsj(), usr => $user };
+        tt => 'scheduler/submitJob/default.tt', cmdsj => cmdsj( %group ), usr => $user };
 };
 
 sub cmdsj
 {
-    my %x;
+    my ( %g, %x ) = @_;
     map{
          $_ =~ s/\.tt$//;
          $_ =~ /^([a-z]+)/;
          my $n = $1 || 'default';
-         push( @{$x{$n}}, $_ );
+         push( @{$x{$n}}, $_ ) if $g{$n};
     }sort map{ basename $_ }
     glob "$AntDen::PATH/dashboard/views/scheduler/submitJob/cmd/*";
 
@@ -182,6 +191,10 @@ get '/scheduler/submitJob/cmd/:name' => sub {
         return template 'msg', +{ err => "Command template security check failed: $md5: $param->{cmd}"  } unless $cts->{$md5};
     }
 
+    my ( @auth, %group ) = $dashboard::schedulerDB->selectOrganizationauthByUser( $user );
+    #`id`,`name`,`user`,`role`
+    map{ $group{$_->[1]} = 1; }@auth;
+
     my ( $err, $jobid, $uuid, @ip ) = ( '', '' );
 
     my $ws_url = request->env->{HTTP_HOST};
@@ -190,7 +203,10 @@ get '/scheduler/submitJob/cmd/:name' => sub {
     $ws_url = "ws://$ws_url/ws";
 
     $param->{username} ||= $user;
-    if( $param->{group} )
+    my $authgroup = $param->{name} =~ /^([a-z]+)/ ? $1 : 'default';
+    $param->{group} = $authgroup;
+    
+    if( $param->{cmd} )
     {
         unless( $param->{ip} )
         {
@@ -231,11 +247,12 @@ get '/scheduler/submitJob/cmd/:name' => sub {
                     }
                  } }@ip
              ];
-             my $authgroup = $param->{name} =~ /^([a-z]+)/ ? $1 : 'default';
-             my @auth = $schedulerDB->selectAuthByUser( $user, $authgroup );
-             #`executer`
-             my %auth; map{ $auth{$_->[0]} = 1; }@auth;
-             $err = "no auth $authgroup.cmd" unless $auth{cmd};
+             my $auth = 0;
+             map{
+                $auth = $_->[3] if ( $_->[2] eq '_public_' || $_->[2] eq $user ) && $authgroup eq $_->[1] && $_->[3] > $auth;
+             }@auth;
+ 
+             $err = 'no auth' unless $auth;
 
              unless( $err )
              {
@@ -247,7 +264,7 @@ get '/scheduler/submitJob/cmd/:name' => sub {
     }
 
     template 'scheduler/submitJob', +{ err => $err, jobid => $jobid, host => request->{host}, usr => $user,
-        tt => "scheduler/submitJob/cmd/" . $param->{name} . ".tt", ws_url => $ws_url, uuid => $uuid, cmdsj => cmdsj() };
+        tt => "scheduler/submitJob/cmd/" . $param->{name} . ".tt", ws_url => $ws_url, uuid => $uuid, cmdsj => cmdsj( %group ) };
 };
 
 get '/scheduler/job' => sub {
