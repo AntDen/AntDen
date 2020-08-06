@@ -14,7 +14,9 @@
     </form> 
 </div>
 <div>
-    [% IF err %] [Error] [% err %] [% END %]
+    [% IF err %]
+       <p style="background:#ffe0ff;width: 400px; padding: 0.5em;" ><b>Error:</b>[% err %]</p>
+    [% END %]
     [% IF jobid %] 
         [Success] JobId: <a href="/scheduler/job/[% jobid %]">[% jobid %]</a>
         [% INCLUDE 'scheduler/tasklog.tt' %]

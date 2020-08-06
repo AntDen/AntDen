@@ -110,6 +110,7 @@
         </blockquote>
 
         <h1>Datasets</h1>
+        Click to <a href="/organization/[% groupname %]/submitJob/addDatasets">add datasets</a>
         <blockquote>
             <div style="width:600px; font-size:15px;">
                 <table class="altrowstable" id="alternatecolor3">

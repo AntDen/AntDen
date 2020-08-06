@@ -1,0 +1,16 @@
+<h1>organization / <a href="/organization/[% groupname %]" style="font-size: 28px;" >[% groupname %]</a> / addDatasets</h1>
+<div>
+    <form action="#">
+    name <input id="namex" name="namex" value=""></input>
+    <input id="cmd" name="cmd" value="/opt/AntDen/antdencli/tools/datasets/create --name :::namex::: --group :::groupname::: --user :::username:::" type="hidden"></input>
+    
+    <button type="submit" value="Submit">Submit</button>
+    </form> 
+    [% IF err %]
+       <p style="background:#ffe0ff;width: 400px; padding: 0.5em;" ><b>Error:</b>[% err %]</p>
+    [% END %]
+    [% IF jobid %] 
+        [Success] JobId: <a href="/scheduler/job/[% jobid %]">[% jobid %]</a>
+        [% INCLUDE 'scheduler/tasklog.tt' %]
+    [% END %]
+</div>

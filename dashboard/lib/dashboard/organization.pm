@@ -161,12 +161,16 @@ get '/organization/:groupname/submitJob/:name' => sub {
     $ws_url .= ":3001";
     $ws_url = "ws://$ws_url/ws";
 
+    $param->{username} = $username;
     if( $param->{cmd} )
     {
         my ( $group, $role, $cmd ) = ( $param->{groupname}, 'slave', $param->{cmd} );
         ( $group, $role, $cmd ) = 
-            ( 'antden', 'master', '/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password :::password::: --group :::groupname:::  --role :::role:::' ) 
+            ( 'antden', 'master', '/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password :::password::: --group :::groupname:::  --role :::role:::' )
                 if $param->{name} eq 'addMachine';
+        ( $group, $role, $cmd ) = 
+            ( 'antden', 'master', '/opt/AntDen/antdencli/tools/datasets/create --name :::namex::: --group :::groupname::: --user :::username:::' )
+                if $param->{name} eq 'addDatasets';
 
         my $ip;
         map{
