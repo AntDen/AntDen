@@ -168,7 +168,9 @@
             <div class="title" onclick="show(this)">Authorization</div>
             <div class="con">
                 <div class="con-item" ><a href="/userinfo/adduser" class="menu-a" >Manage login users</a></div>
+                <!-- TODO
                 <div class="con-item" ><a href="/admin/authorization/user" class="menu-a" >Manage User Resource</a></div>
+                -->
                 <div class="con-item" ><a href="/admin/authorization/admin" class="menu-a" >Management Administrator</a></div>
             </div>
         </div>
@@ -176,7 +178,9 @@
             <div class="title" onclick="show(this)">Datasets</div>
             <div class="con">
                 <div class="con-item" ><a href="/admin/datasets/data" class="menu-a" >Managing Datasets</a></div>
+                <!-- TODO
                 <div class="con-item" ><a href="/admin/datasets/auth" class="menu-a" >Authorization To Users</a></div>
+                -->
             </div>
         </div>
         <div class="item">
