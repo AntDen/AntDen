@@ -1,0 +1,55 @@
+<div class="outer">
+    <div class="menu-sub">
+        <div class="item">
+            <div class="title" onclick="show(this)">New organization</div>
+            <div class="con">
+                <div class="con-item-sub" ><a href="/organization" class="menu-a" >Create</a></div>
+            </div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">My organization</div>
+                [% FOR o in owner %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;display:inline-block;width:100%;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;position:absolute;right:0;">[owner]</a></div>
+                [% END %]
+                [% FOR o in master %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;display:inline-block;width:100%;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;position:absolute;right:0;">[master]</a></div>
+                [% END %]
+                [% FOR o in guest %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" style="float:left;display:inline-block;width:100%;" >[% o %]</a><a style="float:right;pointer-events:none;color:gray;position:absolute;right:0;">[guest]</a></div>
+                [% END %]
+            <div class="con">
+            </div>
+        </div>
+        <div class="item">
+            <div class="title" onclick="show(this)">Public organization</div>
+                [% FOR o in public %]
+                <div class="con-item-sub" ><a href="/organization/[% o %]" class="menu-a" >[% o %]</a></div>
+                [% END %]
+            <div class="con">
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <h1>organization / <a href="/organization/[% groupname %]" style="font-size: 28px;" >[% groupname %]</a> / transfer</h1>
+        <div>
+            <div>
+            <b>Transfer ownership.</b>
+            <blockquote>
+                <form action="#">
+                    Transfer this organization to another user in its organization.<br>
+                    user
+                    <select id="user" name="user" >
+                    [% FOR m in members %]
+                        <option value ="[% m %]">[% m %]</option>
+                    [% END %]
+                     </select>
+                    <button type="submit" value="Submit">Transfer</button>
+                </form> 
+            </blockquote>
+            [% IF err %]
+                <p style="background:#ffe0ff;width: 400px; padding: 0.5em;" ><b>Error:</b>[% err %]</p>
+            [% END %]
+            </div>
+        </div>
+    </div>
+</div>

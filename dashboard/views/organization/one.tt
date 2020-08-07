@@ -177,6 +177,27 @@
             </div>
         </blockquote>
 
+        <h1>Danger Zone</h1>
+        <blockquote>
+            <div style="font-size:15px;">
+                <b>Change organization visibility.</b>
+                    <blockquote>
+                        This organization is currently [% currentlyvisibility %].<button style="background-color: red;" ><a href="/organization/[% groupname %]/changeVisibility">Change visibility</a></button>
+                    </blockquote>
+                <b>Transfer ownership.</b>
+                    <blockquote>
+                        Transfer this organization to another user.<button style="background-color: red;" ><a href="/organization/[% groupname %]/transfer">Transfer</a></button>
+                    </blockquote>
+                <b>Delete this organization.</b>
+                    <blockquote>
+                        Once you delete a organization, there is no going back. Please be certain.<button style="background-color: red;" ><a href="/organization/[% groupname %]/delete">Delete this organization</a></button>
+                    </blockquote>
+                <b>Leave the organization.</b>
+                    <blockquote>
+                        Resources in the organization cannot be used after leaving.<button style="background-color: red;" ><a href="/organization/[% groupname %]/leave">Leave</a></button>
+                    </blockquote>
+            </div>
+        </blockquote>
     </div>
 </div>
 

@@ -83,6 +83,9 @@ get '/organization/:groupname' => sub {
         }
     }
 
+    my $currentlyvisibility = 'private';
+    map{ $currentlyvisibility = 'public' if $_->[2] eq '_public_'; }@members;
+
     if( $param->{deleteid} )
     {
         my $delrole = 4;
@@ -106,7 +109,7 @@ get '/organization/:groupname' => sub {
         groupname => $param->{groupname},
         machine => \@machine, datasets => \@datasets,
         err => $err, myrole => $id2role{$myrole},
-        job => \@job,
+        job => \@job, currentlyvisibility => $currentlyvisibility,
         describe => @org ? $org[0][2] : 'null',
     };
 };
@@ -216,6 +219,144 @@ get '/organization/:groupname/submitJob/:name' => sub {
     template 'organization/submitJob', +{ %group, groupname => $param->{groupname}, err => $err,
         jobid => $jobid, host => request->{host}, usr => $username,
         tt => "organization/submitJob/" . $param->{name} . ".tt", ws_url => $ws_url, uuid => $uuid };
+};
+
+get '/organization/:groupname/changeVisibility' => sub {
+    my $param = params();
+    return unless my $username = dashboard::get_username();
+
+    my $myrole = 0;
+    my $currentlyvisibility = 'private';
+    my @members = $dashboard::schedulerDB->selectOrganizationauthByName( $param->{groupname} );
+    #`id`,`name`,`user`,`role`
+    map{
+        $myrole = $_->[3] if ( $_->[2] eq $username ) && $param->{groupname} eq $_->[1] && $_->[3] > $myrole;
+    }@members;
+    return template 'msg', +{ usr => $username, err => 'Permission denied' } unless $myrole;
+    my $err = 'Only owner operation is allowed' unless $myrole >= 3;
+
+    map{ $currentlyvisibility = 'public' if $_->[2] eq '_public_'; }@members;
+
+    if( ! $err && $param->{currentlyvisibility} )
+    {
+        if( $param->{currentlyvisibility} eq 'public' && $currentlyvisibility ne 'public' )
+        {
+            $dashboard::schedulerDB->insertOrganizationauth( $param->{groupname} , '_public_' , 1 );
+            $currentlyvisibility = 'public';
+        }
+        if( $param->{currentlyvisibility} eq 'private' && $currentlyvisibility ne 'private' )
+        {
+            $dashboard::schedulerDB->deleteOrganizationauthByUserAndName( '_public_', $param->{groupname} );
+            $currentlyvisibility = 'private'
+        }
+    }
+
+    my %group = +{ owner => [], guest => [], master => [], public => [] };
+    my @o = $dashboard::schedulerDB->selectOrganizationauthByUser( $username );
+    #`id`,`name`,`user`,`role`
+    map{
+        push @{$group{ $_->[2] eq '_public_' ? 'public' : $id2role{$_->[3]}}}, $_->[1];
+    }@o;
+
+    template 'organization/changeVisibility', +{
+        %group, groupname => $param->{groupname}, err => $err,
+        usr => $username, currentlyvisibility => $currentlyvisibility,
+    };
+};
+
+get '/organization/:groupname/transfer' => sub {
+    my $param = params();
+    return unless my $username = dashboard::get_username();
+
+    my $myrole = 0;
+    my @members = $dashboard::schedulerDB->selectOrganizationauthByName( $param->{groupname} );
+    #`id`,`name`,`user`,`role`
+    map{
+        $myrole = $_->[3] if ( $_->[2] eq $username ) && $param->{groupname} eq $_->[1] && $_->[3] > $myrole;
+    }@members;
+    return template 'msg', +{ usr => $username, err => 'Permission denied' } unless $myrole;
+    my $err = 'Only owner operation is allowed' unless $myrole >= 3;
+
+    if( ! $err && $param->{user} )
+    {
+        $dashboard::schedulerDB->deleteOrganizationauthByUserAndName( $param->{user}, $param->{groupname} );
+        $dashboard::schedulerDB->insertOrganizationauth( $param->{groupname} , $param->{user} , 3 );
+        $dashboard::schedulerDB->deleteOrganizationauthByUserAndName( $username, $param->{groupname} );
+    }
+
+    my %group = +{ owner => [], guest => [], master => [], public => [] };
+    my @o = $dashboard::schedulerDB->selectOrganizationauthByUser( $username );
+    #`id`,`name`,`user`,`role`
+    map{
+        push @{$group{ $_->[2] eq '_public_' ? 'public' : $id2role{$_->[3]}}}, $_->[1];
+    }@o;
+
+    template 'organization/transfer', +{
+        %group, groupname => $param->{groupname}, members => [ map{ $_->[2] }@members ],
+        usr => $username, err => $err,
+    };
+};
+
+get '/organization/:groupname/delete' => sub {
+    my $param = params();
+    return unless my $username = dashboard::get_username();
+
+    my $myrole = 0;
+    my @members = $dashboard::schedulerDB->selectOrganizationauthByName( $param->{groupname} );
+    #`id`,`name`,`user`,`role`
+    map{
+        $myrole = $_->[3] if ( $_->[2] eq $username ) && $param->{groupname} eq $_->[1] && $_->[3] > $myrole;
+    }@members;
+    return template 'msg', +{ usr => $username, err => 'Permission denied' } unless $myrole;
+    my $err = 'Only owner operation is allowed' unless $myrole >= 3;
+
+    if( ! $err && $param->{delete} )
+    {
+        $dashboard::schedulerDB->deleteOrganizationauthByName( $param->{groupname} );
+    }
+
+    my %group = +{ owner => [], guest => [], master => [], public => [] };
+    my @o = $dashboard::schedulerDB->selectOrganizationauthByUser( $username );
+    #`id`,`name`,`user`,`role`
+    map{
+        push @{$group{ $_->[2] eq '_public_' ? 'public' : $id2role{$_->[3]}}}, $_->[1];
+    }@o;
+
+    template 'organization/delete', +{
+        %group, groupname => $param->{groupname},
+        usr => $username, err => $err,
+    };
+};
+
+get '/organization/:groupname/leave' => sub {
+    my $param = params();
+    return unless my $username = dashboard::get_username();
+
+    my $myrole = 0;
+    my @members = $dashboard::schedulerDB->selectOrganizationauthByName( $param->{groupname} );
+    #`id`,`name`,`user`,`role`
+    map{
+        $myrole = $_->[3] if ( $_->[2] eq $username ) && $param->{groupname} eq $_->[1] && $_->[3] > $myrole;
+    }@members;
+    return template 'msg', +{ usr => $username, err => 'Permission denied' } unless $myrole;
+    my $err = 'The owner is not allowed to leave the organization. You can choose to delete or transfer the organization to another user.' if $myrole >= 3;
+
+    if( ! $err && $param->{leave} )
+    {
+        $dashboard::schedulerDB->deleteOrganizationauthByUserAndName( $username, $param->{groupname} );
+    }
+
+    my %group = +{ owner => [], guest => [], master => [], public => [] };
+    my @o = $dashboard::schedulerDB->selectOrganizationauthByUser( $username );
+    #`id`,`name`,`user`,`role`
+    map{
+        push @{$group{ $_->[2] eq '_public_' ? 'public' : $id2role{$_->[3]}}}, $_->[1];
+    }@o;
+
+    template 'organization/leave', +{
+        %group, groupname => $param->{groupname},
+        usr => $username, err => $err,
+    };
 };
 
 true;

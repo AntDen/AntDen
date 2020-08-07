@@ -177,6 +177,8 @@ sub stmt
 
     insertOrganizationauth => "insert into `organizationauth` (`name`,`user`,`role`) values(?,?,?)",
     deleteOrganizationauthById => "delete from `organizationauth` where id=?",
+    deleteOrganizationauthByName => "delete from `organizationauth` where name=?",
+    deleteOrganizationauthByUserAndName => "delete from `organizationauth` where user=? and name=?",
     selectOrganizationauthByUser => "select `id`,`name`,`user`,`role` from organizationauth where user='_public_' or user=?",
     selectOrganizationauthByName => "select `id`,`name`,`user`,`role` from organizationauth where name=?",
 
