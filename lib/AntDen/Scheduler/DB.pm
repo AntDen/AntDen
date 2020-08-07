@@ -123,7 +123,7 @@ sub stmt
     selectMachineInfoByUser => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine where `group` in ( select `name` from organizationauth where user='_public_' or user=?)",
     selectMachineInfoByGroup => "select `ip`,`hostname`,`envhard`,`envsoft`,`switchable`,`group`,`workable`,`role`,`mon` from machine where `group` = ?",
     selectMachineIpByUser => "select distinct `ip` from machine,auth where machine.`group`=auth.`group` and user=?",
-    selectResourcesInfoByUser => "select distinct resources.ip,`name`,resources.id,`value` from resources,machine,auth where resources.ip=machine.ip and machine.`group`=auth.`group` and auth.user=?",
+    selectResourcesInfoByUser => "select ip,name,id,value from resources where ip in ( select ip from machine where `group` in ( select `name` from organizationauth where user='_public_' or user=? ) )",
 
     selectJobWorkInfo => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`,`ingress` from job where status!='stoped'",
     selectJobWorkInfoByUser => "select `id`,`jobid`,`owner`,`name`,`nice`,`group`,`status`,`ingress` from job where status!='stoped' and owner=?",
