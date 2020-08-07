@@ -47,6 +47,11 @@ my $consume = sub
         $this->{a}->setResource( $conf->{machine}{ip} => $conf->{resources} );
         AntDen::Controller::Ctrl->new( %{$this->{controller}} )->dumpMachine( $this->{a}->getMachine() );
     }
+    if( $conf->{ctrl} eq 'delMachine' )
+    {
+        $this->{a}->delMachine( $conf->{ip} );
+        AntDen::Controller::Ctrl->new( %{$this->{controller}} )->dumpMachine( $this->{a}->getMachine() );
+    }
     if( $conf->{ctrl} eq 'startJob' )
     {
         $this->{a}->submitJob( $conf );

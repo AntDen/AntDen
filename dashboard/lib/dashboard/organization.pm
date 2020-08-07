@@ -43,7 +43,7 @@ get '/organization/:groupname' => sub {
     my $param = params();
     return unless my $username = dashboard::get_username();
 
-    my ( $err ,$err2 );
+    my ( $err ,$err2, $err3 );
     my %group = +{ owner => [], guest => [], master => [], public => [] };
     my @o = $dashboard::schedulerDB->selectOrganizationauthByUser( $username );
     #`id`,`name`,`user`,`role`
@@ -108,6 +108,16 @@ get '/organization/:groupname' => sub {
         else { $err2 = 'Permission denied'; }
     }
 
+    if( $param->{deleteMachineIp} )
+    {
+        if( $myrole >= 2 && grep{ $_->[0] eq $param->{deleteMachineIp} }@machine )
+        {
+            $dashboard::schedulerCtrl->delMachine( $param->{deleteMachineIp} );
+            $err3 = 'The delete task has been submitted and will take effect in a few seconds';
+        }
+        else { $err3 = 'Permission denied'; }
+    }
+
     map{ $_->[3] = $id2role{$_->[3]} }@members;
 
     my @org = $dashboard::schedulerDB->selectOrganizationByName( $param->{groupname} );
@@ -118,7 +128,7 @@ get '/organization/:groupname' => sub {
         %group, usr => $username, members => \@members,
         groupname => $param->{groupname},
         machine => \@machine, datasets => \@datasets,
-        err => $err, myrole => $id2role{$myrole}, err2 => $err2,
+        err => $err, myrole => $id2role{$myrole}, err2 => $err2, err3 => $err3,
         job => \@job, currentlyvisibility => $currentlyvisibility,
         describe => @org ? $org[0][2] : 'null',
     };

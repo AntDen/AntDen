@@ -137,4 +137,10 @@ sub addMachine
     $this->{event}->send( +{ %$conf, ctrl => 'addMachine' } );
 }
 
+sub delMachine
+{
+    my ( $this, $ip ) = @_;
+    $this->{event}->send( +{ ip => $ip , ctrl => 'delMachine' } );
+}
+
 1;

@@ -55,6 +55,12 @@ sub setMachine
     return sort keys %{$this->{machine}};
 }
 
+sub delMachine
+{
+    my ( $this, $ip ) = @_;
+    delete $this->{machine}{$ip};
+}
+
 sub setMachineAttr
 {
     my ( $this, $ip, $k, $v ) = @_;

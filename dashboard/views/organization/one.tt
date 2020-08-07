@@ -92,6 +92,7 @@
                         <th>workable</th>
                         <th>role</th>
                         <th>mon</th>
+                        <th>Delete</th>
                     </tr>
                     [% FOR m IN machine %]
                     <tr>
@@ -103,10 +104,14 @@
                         <td>[% m.6 %]</td>
                         <td>[% m.7 %]</td>
                         <td>[% m.8 %]</td>
+                        <td><a href="/organization/[% groupname %]?deleteMachineIp=[% m.0 %]">delete</a></td>
                     </tr>
                     [% END %]
                 </table>
             </div>
+            [% IF err3 %]
+                <p style="background:#ffe0ff;width: 500px; padding: 0.5em;" ><b>Error:</b>[% err3 %]</p>
+            [% END %]
         </blockquote>
 
         <h1>Datasets</h1>
@@ -135,7 +140,6 @@
             [% IF err2 %]
                 <p style="background:#ffe0ff;width: 500px; padding: 0.5em;" ><b>Error:</b>[% err2 %]</p>
             [% END %]
- 
         </blockquote>
 
         <h1>Running jobs</h1>

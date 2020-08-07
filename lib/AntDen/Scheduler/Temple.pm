@@ -135,6 +135,14 @@ sub setMachine
     $this->{temple}->setMachine( %m );
 }
 
+sub delMachine
+{
+    my ( $this, $ip ) = @_;
+    $this->{db}->deleteMachineByIp( $ip );
+    $this->{db}->commit();
+    $this->{temple}->delMachine( $ip );
+}
+
 sub getMachine
 {
     my $this = shift @_;
