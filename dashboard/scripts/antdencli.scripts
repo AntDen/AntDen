@@ -67,6 +67,18 @@ if [ -n "$HOME" ]; then
     VOLUMES="$VOLUMES -v $HOME:$HOME -v $HOME:/root" # mount $HOME in /root to share docker.config
 fi
 
+for i in $@
+do
+    if [ "X$CPM" == "Xcp"  ] ;then
+        DIR=$i
+    fi
+    CPM=$i
+done
+
+if [ "X$DIR" != "X" ] && [ -d $DIR ] ;then
+    VOLUMES="$VOLUMES -v $DIR:$DIR"
+fi
+
 # Only allocate tty if we detect one
 if [ -t 1 ]; then
     DOCKER_RUN_OPTIONS="-t"
