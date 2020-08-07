@@ -119,6 +119,7 @@
                         <th>Name</th>
                         <th>Info</th>
                         <th>Type</th>
+                        <th>Delete</th>
                     </tr>
                     [% FOR d IN datasets %]
                     <tr>
@@ -126,10 +127,15 @@
                         <td>[% d.1 %]</td>
                         <td>[% d.2 %]</td>
                         <td>[% d.3 %]</td>
+                        <td><a href="/organization/[% groupname %]?deleteDatasetsId=[% d.0 %]">delete</a></td>
                     </tr>
                     [% END %]
                 </table>
             </div>
+            [% IF err2 %]
+                <p style="background:#ffe0ff;width: 500px; padding: 0.5em;" ><b>Error:</b>[% err2 %]</p>
+            [% END %]
+ 
         </blockquote>
 
         <h1>Running jobs</h1>

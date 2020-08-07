@@ -151,6 +151,7 @@ sub stmt
 
     insertDatasets => "insert into `datasets` (`name`,`info`,`type`,`group`,`token`) values(?,?,?,?,?)",
     deleteDatasetsById => "delete from `datasets` where id=?",
+    deleteDatasetsByIdAndGroup => "delete from `datasets` where id=? and `group`=?",
     selectDatasets => "select `id`,`name`,`info`,`type`,`group`,`token` from datasets",
     selectDatasetsByGroup => "select `id`,`name`,`info`,`type` from datasets where `group`=?",
 

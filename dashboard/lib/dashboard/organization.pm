@@ -43,7 +43,7 @@ get '/organization/:groupname' => sub {
     my $param = params();
     return unless my $username = dashboard::get_username();
 
-    my $err;
+    my ( $err ,$err2 );
     my %group = +{ owner => [], guest => [], master => [], public => [] };
     my @o = $dashboard::schedulerDB->selectOrganizationauthByUser( $username );
     #`id`,`name`,`user`,`role`
@@ -98,6 +98,16 @@ get '/organization/:groupname' => sub {
         else { $err = 'Permission denied'; }
     }
 
+    if( $param->{deleteDatasetsId} )
+    {
+        if( $myrole >= 2 )
+        {
+            $dashboard::schedulerDB->deleteDatasetsByIdAndGroup( $param->{deleteDatasetsId}, $param->{groupname} );
+            @datasets = $dashboard::schedulerDB->selectDatasetsByGroup( $param->{groupname} );
+        }
+        else { $err2 = 'Permission denied'; }
+    }
+
     map{ $_->[3] = $id2role{$_->[3]} }@members;
 
     my @org = $dashboard::schedulerDB->selectOrganizationByName( $param->{groupname} );
@@ -108,7 +118,7 @@ get '/organization/:groupname' => sub {
         %group, usr => $username, members => \@members,
         groupname => $param->{groupname},
         machine => \@machine, datasets => \@datasets,
-        err => $err, myrole => $id2role{$myrole},
+        err => $err, myrole => $id2role{$myrole}, err2 => $err2,
         job => \@job, currentlyvisibility => $currentlyvisibility,
         describe => @org ? $org[0][2] : 'null',
     };
