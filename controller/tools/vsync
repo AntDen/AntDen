@@ -134,6 +134,7 @@ my $call = $result{$o{host}};
 die "call fail:$call\n" unless $call && $call =~ /--- 0\n$/;
 
 my $int = AnyEvent->signal( signal => "INT", cb => sub{ warn "kill.\n"; $cv->send; } );
+my $term = AnyEvent->signal( signal => "TERM", cb => sub{ warn "kill.\n"; $cv->send; } );
 
 my $t1 = AnyEvent->timer ( after => 15, interval => 15, cb => sub{
     return unless $hdl;

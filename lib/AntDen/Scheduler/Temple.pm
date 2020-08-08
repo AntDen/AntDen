@@ -140,6 +140,7 @@ sub delMachine
     my ( $this, $ip ) = @_;
     $this->{db}->deleteMachineByIp( $ip );
     $this->{db}->commit();
+    delete $this->{machineip}{$ip};
     $this->{temple}->delMachine( $ip );
 }
 

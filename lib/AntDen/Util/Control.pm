@@ -16,7 +16,7 @@ sub start
     my $this = shift @_;
     my ( $name, $docker ) = @$this{ qw( name docker ) };
 
-    if( my @x = `ps -ef|grep [A]ntDen_${docker}${name}_`  )
+    if( my @x = `ps -ef|grep [A]ntDen_${docker}${name}_s`  )
     {
         print @x;
         die "error: $docker$name already running!\n";
@@ -43,7 +43,7 @@ sub restart
     while(1)
     {
         sleep 1;
-        last unless my @x = `ps -ef|grep [A]ntDen_${docker}${name}_`;
+        last unless my @x = `ps -ef|grep [A]ntDen_${docker}${name}_s`;
     }
     $this->start();
 
