@@ -20,17 +20,17 @@ $option->assert(qw( host ));
 
 chdir $RealBin or die "chdir fail:$!";
 
-run( $o{password}, "ssh $o{user}\@$o{host} 'curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash'" );
-run( $o{password}, "scp /opt/mydan/etc/agent/auth/antden.pub $o{user}\@$o{host}:/opt/mydan/etc/agent/auth/antden.pub" );
-
+die "[Error]install mydan fail.\n" if run( $o{password}, "ssh $o{user}\@$o{host} 'curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash'" );
+die "[Error]copy antden.pub to remote machine fail.\n" if run( $o{password}, "scp /opt/mydan/etc/agent/auth/antden.pub $o{user}\@$o{host}:/opt/mydan/etc/agent/auth/antden.pub" );
 my $time = time;
-die "tar fail:$!" if system "cd /opt/AntDen && tar -zcf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job --exclude scheduler/conf/ctrl --exclude scheduler/temple/run --exclude controller/conf/slave --exclude scheduler/temple/run --exclude slave/conf/sync --exclude dashboard/auth --exclude controller/conf/slave.ip --exclude docker --exclude .git --exclude dashboard --exclude simulator --exclude scheduler";
+die "[Error]tar fail:$!\n" if system "cd /opt/AntDen && tar -zcf /opt/AntDen.$time.tar.gz * .config --exclude database --exclude logs --exclude scheduler/conf/task --exclude slave/conf/task --exclude scheduler/conf/job --exclude scheduler/conf/ctrl --exclude scheduler/temple/run --exclude controller/conf/slave --exclude scheduler/temple/run --exclude slave/conf/sync --exclude dashboard/auth --exclude controller/conf/slave.ip --exclude docker --exclude .git --exclude dashboard --exclude simulator --exclude scheduler";
 
-run( $o{password}, "scp /opt/AntDen.$time.tar.gz $o{user}\@$o{host}:/opt/AntDen.$time.tar.gz" );
+die "[Error]sync AntDen.$time.tar.gz fail.\n" if run( $o{password}, "rsync -av --progress /opt/AntDen.$time.tar.gz $o{user}\@$o{host}:/opt/AntDen.$time.tar.gz" );
 
-run( $o{password}, "ssh $o{user}\@$o{host} 'mkdir -p /opt/AntDen && tar -zxvf /opt/AntDen.$time.tar.gz  -C /opt/AntDen && /opt/AntDen/scripts/init slave'" );
+print "Copy the installation package. It may take a few minutes.\n";
+die "[Error]install AntDen slave fail.\n" if run( $o{password}, "ssh $o{user}\@$o{host} 'mkdir -p /opt/AntDen && tar -zxvf /opt/AntDen.$time.tar.gz  -C /opt/AntDen && /opt/AntDen/scripts/init slave'" );
 
-system "antden s am $o{host} --group $o{group} --role $o{role}";
+die "[Error]addMachine fail\n" if system "antden s am $o{host} --group $o{group} --role $o{role}";
 
 sub run
 {
@@ -38,7 +38,9 @@ sub run
     my $exp = Expect->new();
     $exp->spawn( join ' ', @cmd );
     $exp->expect( 900,
+        [ qr/\[yes\]/ => sub { $exp->send( "yes\n" ); exp_continue; } ],
         [ qr/yes\/no/ => sub { $exp->send( "yes\n" ); exp_continue; } ],
         [ qr/assword/ => sub { $exp->send( "$pass\n" ); exp_continue; } ],
     );
+    return $exp->exitstatus();
 }

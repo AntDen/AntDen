@@ -189,7 +189,7 @@ get '/organization/:groupname/submitJob/:name' => sub {
     {
         my ( $group, $role, $cmd ) = ( $param->{groupname}, 'slave', $param->{cmd} );
         ( $group, $role, $cmd ) = 
-            ( 'antden', 'master', '/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password :::password::: --group :::groupname:::  --role :::role:::' )
+            ( 'antden', 'master', '/opt/AntDen/scripts/install --user :::user::: --host :::host::: --password ":::password:::" --group :::groupname:::  --role :::role:::' )
                 if $param->{name} eq 'addMachine';
         ( $group, $role, $cmd ) = 
             ( 'antden', 'master', '/opt/AntDen/antdencli/tools/datasets/create --name :::namex::: --group :::groupname::: --user :::username:::' )
@@ -202,11 +202,11 @@ get '/organization/:groupname/submitJob/:name' => sub {
 
         $err = "ip error:$ip" unless $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
         $err = "group error:$group" unless $group && $group =~ /^[a-z0-9_\.\-]+$/;
-        $err = "cmd err:$cmd" unless $cmd && $cmd =~ /^[\/a-zA-Z0-9_:\.\- ]+$/;
+        #$err = "cmd err:$cmd" unless $cmd && $cmd =~ /^[\/a-zA-Z0-9_:\.\- ]+$/;
 
         my @arg = $cmd =~ /:::([a-zA-Z0-9]+):::/g;
         map{
-            $err = "$_ err" unless defined $param->{$_} && $param->{$_} =~ /^[\.\/a-zA-Z0-9_:%\.\@\-]+$/;
+            $err = "$_ err" unless defined $param->{$_} && $param->{$_} =~ /^[\.\/a-zA-Z0-9_:%\.\@\(\)\^\-]+$/;
             $cmd =~ s/:::${_}:::/$param->{$_}/g;
         }@arg;
 

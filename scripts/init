@@ -20,6 +20,7 @@ if( $name eq 'slave' )
     }
     else
     {
+        system "sed -i 's/www.cpan.org/mirrors.163.com\/cpan/' /root/.cpan/CPAN/MyConfig.pm";
         map{
             system "/opt/mydan/perl//bin/cpan install $_";
         }qw( Linux::Inotify2 );
