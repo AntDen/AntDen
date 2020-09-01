@@ -14,7 +14,7 @@ echo AntDen started.
 
 sleep 3
 
-/opt/AntDen/bin/antden s am 127.0.0.1 --group antden
+/opt/AntDen/bin/antden s am 127.0.0.1 --group antden --role master
 echo addMachine 127.0.0.1 done.
 
 sleep 100000000000000
